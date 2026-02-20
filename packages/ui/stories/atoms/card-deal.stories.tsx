@@ -20,7 +20,6 @@ type Story = StoryObj<DealCardProps>;
 
 export const Default: Story = {
     args: {
-        card: {},
         cardIndex: 0,
         spreadIndex: 0,
         reversed: false,
@@ -30,7 +29,6 @@ export const Default: Story = {
 };
 export const Dealt: Story = {
     args: {
-        card: {},
         cardIndex: 0,
         spreadIndex: 0,
         reversed: false,
@@ -41,7 +39,6 @@ export const Dealt: Story = {
 
 export const Reversed: Story = {
     args: {
-        card: {},
         cardIndex: 0,
         spreadIndex: 0,
         reversed: true,

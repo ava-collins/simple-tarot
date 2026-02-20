@@ -10,6 +10,11 @@
         "test": "vitest --config vitetest.config.mjs --coverage"
     },
     "dependencies": {},
+    "peerDependencies": {
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "react-native": ">=0.81 <0.82"
+    },
     "devDependencies": {
         "@testing-library/dom": "^10.4.0",
         "@testing-library/react": "^16.3.0",
