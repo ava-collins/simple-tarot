@@ -12,6 +12,7 @@ import { expressMiddleware } from '@as-integrations/express5';
 import { gql } from 'graphql-tag';
 import http from 'http';
 import https from 'https';
+import { normalizeGraphData } from './migrations/normalize-graph-data';
 import neo4j from 'neo4j-driver';
 import path from 'path';
 import { readFileSync } from 'fs';
@@ -71,6 +72,9 @@ if (serverConfig.ssl) {
 
 (async () => {
     try {
+        // Normalize legacy records before strict constraints are applied.
+        await normalizeGraphData(driver);
+
         // Ensure constraints are created
         await ensureConstraints(driver);
 

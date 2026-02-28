@@ -21,6 +21,7 @@ export const resolvers: Resolvers = {
                         image: card.image,
                         index: card.index.toNumber(),
                         keywords: card.keywords || [],
+                        meanings: [],
                         name: card.name,
                         numeral: card.numeral,
                         reversedKeywords: card.reversedKeywords || [],

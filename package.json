@@ -17,6 +17,7 @@
         "graph:build": "yarn workspace graph-api build",
         "graph:dev": "yarn workspace graph-api dev",
         "graph:start": "yarn workspace graph-api start",
+        "generate:card-position-meanings": "node ./scripts/generate-card-position-meanings.js",
         "ios": "yarn workspace tarot ios",
         "lint:fix": "eslint --ext .ts,.tsx apps packages --fix",
         "lint": "eslint --ext .ts,.tsx apps packages",
