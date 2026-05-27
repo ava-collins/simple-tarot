@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simple Tarot Workspace Dependencies"
+  short_description: "Keep Yarn 4 workspace dependency ownership explicit in Simple Tarot."
+  default_prompt: "Use this skill to inspect and update Simple Tarot workspace dependencies while preserving explicit package ownership."

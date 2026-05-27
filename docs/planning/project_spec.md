@@ -2,7 +2,9 @@
 
 ## Overview
 
-Simple Tarot is a tarot card reading app that is a rebuild of an [existing application](https://github.com/avacollins/tarot-ix) in order to expand content generation using an LLM.
+Simple Tarot is a tarot card reading app that is a rebuild of an
+[existing application](https://github.com/avacollins/tarot-ix) in order to
+expand content generation using an LLM.
 
 ##  Software System
 
@@ -10,9 +12,11 @@ Simple Tarot is a tarot card reading app that is a rebuild of an [existing appli
 
 #### System Users
 
-- **User** — Users query the tarot cards and generate a reading, save readings and take notes
+- **User** — Users query the tarot cards and generate a reading, save readings
+  and take notes
 
-- **Admin System** — Admins manage and gain insights into usage and performance of the Simple Tarot application
+- **Admin System** — Admins manage and gain insights into usage and performance
+  of the Simple Tarot application
 
 #### External Systems
 
@@ -28,9 +32,11 @@ Simple Tarot is a tarot card reading app that is a rebuild of an [existing appli
 
 - **Admin Only Web App** - React Native Web, Next, Storybook UI, Docker
 
-- **Core API** — Neo4J Graph DB, Node Graph API server, LLM Foundation Model (undecided), Bedrock, Lambda
+- **Core API** — Neo4J Graph DB, Node Graph API server, LLM Foundation Model
+  (undecided), Bedrock, Lambda
 
-- **Shared Components** - Storybook UI to create universally rendered components and document their uses
+- **Shared Components** - Storybook UI to create universally rendered components
+  and document their uses
 
 
 #### Container Diagram
@@ -100,20 +106,23 @@ Simple Tarot is a tarot card reading app that is a rebuild of an [existing appli
 
 ## Architectural Documents
 
-👉🏽 Check out 
+👉🏽 Check out
  
- - [requirements](./docs/requirements.md)
+ - [requirements](./docs/planning/requirements.md)
  
- - [architectural decisions](./docs/adr.md)
+ - [architectural decisions](./docs/planning/adr.md)
 
- - [domain model with class diagram](./docs/domain_model.md)
+ - [domain model with class diagram](./docs/planning/domain_model.md)
 
- - [sequence diagrams](./docs/sequence_diagrams.md)
+ - [sequence diagrams](./docs/planning/sequence_diagrams.md)
 
- - [mobile design document phase one](./docs/mobile_design_pahse_one.md)
+ - [mobile design document phase one](./docs/planning/mobile_design_pahse_one.md)
 
  # Copyright
 
-The [Rider Waite](https://sacred-texts.com/tarot/faq.htm#uscopyright) cards used in this application are in the public domain; svg pictorial keys were obtained under [Creative Commons](https://creativecommons.org/publicdomain/zero/1.0/) open source licensing.
+The [Rider Waite](https://sacred-texts.com/tarot/faq.htm#uscopyright) cards used
+in this application are in the public domain; svg pictorial keys were obtained
+under [Creative Commons](https://creativecommons.org/publicdomain/zero/1.0/)
+open source licensing.
 
 The code in this repository is open for personal use but not for distributing.

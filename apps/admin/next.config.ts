@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
         'react-native-elements',
         'react-native-web'
     ],
-    webpack: (config) => {
+    webpack: config => {
         config.resolve.alias = {
             ...(config.resolve.alias || {}),
             'react-native$': 'react-native-web'
