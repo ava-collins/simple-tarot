@@ -7,7 +7,7 @@ Simple Tarot is a rebuild of an
 expand content generation using an LLM.
 
 Live Component Reference
-[Storybook UI Component Library](https://avacollins.github.io/simple-tarot)
+[Storybook UI Component Library](https://ava-collins.github.io/simple-tarot/)
 
 ## Contents
 
