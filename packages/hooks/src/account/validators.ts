@@ -1,4 +1,4 @@
-import { FormError } from '@simpletarot/ui';
+import type { FormError } from './form-error';
 
 export const validateEmail = (email: string) => {
     // This regex checks for:

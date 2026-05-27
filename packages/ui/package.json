@@ -30,13 +30,21 @@
         "vite": "^6.3.5"
     },
     "peerDependencies": {
-        "react": "^19.1.0",
+        "@apollo/client": "^3.13.8",
+        "@rneui/themed": "^4.0.0-rc.8",
+        "expo-asset": "^12.0.0",
+        "expo-linear-gradient": "^15.0.0",
         "react-dom": "^19.1.0",
+        "react-native-elements": "^3.4.3",
+        "react-native-expo-viewport-units": "^0.0.8",
+        "react-native-reanimated": "~4.1.1",
+        "react-native-svg": "15.12.1",
+        "react-native-web": "^0.21.0",
         "react-native": ">=0.81 <0.82",
-        "react-native-web": "^0.21.0"
+        "react": "^19.1.0"
     },
     "dependencies": {
-        "@simpletarot/hooks": "*",
+        "@simpletarot/hooks": "workspace: *",
         "msw": "^2.10.2",
         "react-native-reanimated-monorepo": "react-native-reanimated/plugin"
     },

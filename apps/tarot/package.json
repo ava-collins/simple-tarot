@@ -18,7 +18,7 @@
         "@react-navigation/native": "^7.1.6",
         "@rneui/base": "^4.0.0-rc.8",
         "@rneui/themed": "^4.0.0-rc.8",
-        "@simpletarot/ui": "*",
+        "@simpletarot/ui": "workspace: *",
         "expo": "^54.0.0",
         "expo-asset": "^12.0.0",
         "expo-blur": "^15.0.0",

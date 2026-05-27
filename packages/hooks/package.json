@@ -10,9 +10,11 @@
         "test": "vitest --config vitetest.config.mjs --coverage"
     },
     "peerDependencies": {
+        "@apollo/client": "^3.13.8",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
-        "react-native": ">=0.81 <0.82"
+        "react-native": ">=0.81 <0.82",
+        "react-native-svg": "15.12.1"
     },
     "devDependencies": {
         "@testing-library/dom": "^10.4.0",
