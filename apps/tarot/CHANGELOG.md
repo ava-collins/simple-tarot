@@ -1,3 +1,17 @@
+# [tarot-v1.6.0](https://github.com/ava-collins/simple-tarot/compare/tarot-v1.5.0...tarot-v1.6.0) (2026-05-27)
+
+
+### Bug Fixes
+
+* package name ([323e28f](https://github.com/ava-collins/simple-tarot/commit/323e28f1f5751cea022c39fbd37b66f857894f60))
+* semantic release workflow ([972e48c](https://github.com/ava-collins/simple-tarot/commit/972e48c48aaa9c14df414a50a29983bfa6f350d6))
+* workflows ([09205a3](https://github.com/ava-collins/simple-tarot/commit/09205a3d354115836f2a7c8c8765a92ba19c24b3))
+
+
+### Features
+
+* Card component, useSVGCard and docs added ([#17](https://github.com/ava-collins/simple-tarot/issues/17)) ([5a783a4](https://github.com/ava-collins/simple-tarot/commit/5a783a43432c06dc43db5e36c049c5f45db466dd))
+
 # [tarot-v1.6.0](https://github.com/avacollins/simple-tarot/compare/tarot-v1.5.0...tarot-v1.6.0) (2025-07-03)
 
 
