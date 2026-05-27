@@ -2,6 +2,7 @@ import { dirname, join } from 'path';
 
 import type { StorybookConfig } from '@storybook/react-native-web-vite';
 import { createRequire } from 'module';
+import { fileURLToPath } from 'url';
 
 const require = createRequire(import.meta.url);
 
@@ -47,7 +48,12 @@ const config: StorybookConfig = {
             },
             resolve: {
                 alias: {
-                    'react-native$': 'react-native-web'
+                    'react-native$': 'react-native-web',
+                    'react-native-reanimated':
+                        join(
+                            dirname(fileURLToPath(import.meta.url)),
+                            'reanimated.tsx'
+                        )
                 }
             }
         });
