@@ -3,10 +3,12 @@
     "version": "1.9.0",
     "private": true,
     "type": "module",
+    "main": "./index.tsx",
+    "types": "./index.d.ts",
     "exports": {
         ".": {
             "import": "./index.tsx",
-            "types": "./tsconfig.tsbuildinfo"
+            "types": "./index.d.ts"
         }
     },
     "scripts": {
@@ -20,6 +22,8 @@
         "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
         "@babel/preset-react": "^7.22.15",
         "@mdx-js/react": "^3.1.0",
+        "@rneui/base": "5.0.0",
+        "@rneui/themed": "5.0.0",
         "@storybook/addon-docs": "^10.1.0",
         "@storybook/addon-react-native-web": "^0.0.29",
         "@storybook/react": "^10.1.0",
@@ -40,7 +44,8 @@
     },
     "peerDependencies": {
         "@apollo/client": "^3.13.8",
-        "@rneui/themed": "^4.0.0-rc.8",
+        "@rneui/base": "5.0.0",
+        "@rneui/themed": "5.0.0",
         "expo-asset": "^12.0.0",
         "expo-linear-gradient": "^15.0.0",
         "react": "^19.1.0",
