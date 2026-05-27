@@ -15,7 +15,8 @@
         "dev": "storybook dev -p 6006",
         "build-types": "tsc -b",
         "storybook": "storybook dev -p 6006",
-        "build-storybook": "storybook build"
+        "build-storybook": "storybook build",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "devDependencies": {
         "@babel/core": "^7.25.2",

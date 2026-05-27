@@ -7,7 +7,8 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build-types": "rm -rf dist && tsc -b",
-        "test": "vitest --config vitetest.config.mjs --coverage"
+        "test": "vitest --config vitetest.config.mjs --coverage",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "peerDependencies": {
         "@apollo/client": "^3.13.8",

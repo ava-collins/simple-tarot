@@ -53,6 +53,8 @@ messages.
 👉🏽 Check out
  - [yarn workspace](./docs/yarn_workspace_dependency_goals.md)
 
+ - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
+
  - [@simpletarot/hooks](./packages/hooks/README.md)
 
  - [Web Admin Design Document Phase One WIP](./docs/planning/web_admin_design.md)

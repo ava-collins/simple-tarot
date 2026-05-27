@@ -14,7 +14,8 @@
         "stop-db": "docker stop graph && docker rm graph",
         "generate": "graphql-codegen",
         "migrate:normalize": "node -r ts-node/register src/migrations/normalize-graph-data.ts",
-        "migrate:constraints": "node -r ts-node/register src/migrations/create-constraints.ts"
+        "migrate:constraints": "node -r ts-node/register src/migrations/create-constraints.ts",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "dependencies": {
         "@apollo/datasource-rest": "^6.4.1",

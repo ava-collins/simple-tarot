@@ -22,6 +22,8 @@
         "ios": "yarn workspace tarot ios",
         "lint:fix": "eslint --ext .ts,.tsx apps packages --fix",
         "lint": "eslint --ext .ts,.tsx apps packages",
+        "release:dry-run": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo --dry-run",
+        "release": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo",
         "run-db": "yarn workspace graph-api run-db",
         "stop-db": "yarn workspace graph-api stop-db",
         "storybook-static": "npx http-server -S true -C ./ssl/development/cert.pem -K ./ssl/development/key.pem ./packages/ui/storybook-static",

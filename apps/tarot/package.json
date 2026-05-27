@@ -8,7 +8,8 @@
         "ios": "expo start --ios",
         "web": "expo start --web",
         "lint": "expo lint",
-        "build-types": "tsc -b"
+        "build-types": "tsc -b",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "dependencies": {
         "@apollo/client": "^3.13.8",

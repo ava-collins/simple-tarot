@@ -25,7 +25,7 @@ jobs:
               working-directory: .
             - run: yarn build
               working-directory: .
-            - run: yarn workspaces run semantic-release -e semantic-release-monorepo
+            - run: yarn release
               working-directory: .
 
         env:

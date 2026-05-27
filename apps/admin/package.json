@@ -7,7 +7,8 @@
         "build-types": "tsc",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "dependencies": {
         "next": "15.3.3",
