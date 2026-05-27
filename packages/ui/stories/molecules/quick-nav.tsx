@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import { SpeedDial } from 'react-native-elements';
+import SpeedDial from '@rneui/themed/dist/SpeedDial';
 import { View } from 'react-native';
 
 const QuickNav = () => {

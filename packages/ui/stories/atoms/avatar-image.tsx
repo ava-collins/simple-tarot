@@ -1,7 +1,7 @@
 import { AvatarConfig, useAvatarImage } from '@simpletarot/hooks';
 import React, { useEffect } from 'react';
 
-import { Avatar } from '@rneui/themed';
+import Avatar from '@rneui/themed/dist/Avatar';
 
 type AvatarImageProps = {
     size: number | 'small' | 'medium' | 'large' | 'xlarge' | undefined;
