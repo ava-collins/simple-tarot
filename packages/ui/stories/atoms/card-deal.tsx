@@ -1,4 +1,3 @@
-
 import Animated, {
     Easing,
     useAnimatedStyle,

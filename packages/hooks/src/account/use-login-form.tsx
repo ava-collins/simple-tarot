@@ -1,6 +1,6 @@
 import { errorMessages, validateEmail, validatePassword } from './validators';
 
-import { FormError } from '@simpletarot/ui';
+import type { FormError } from './form-error';
 import React from 'react';
 
 export interface useSignUpFormProps {

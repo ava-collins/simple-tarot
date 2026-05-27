@@ -1,6 +1,6 @@
 import { KeyboardType, StyleSheet, TextInputProps } from 'react-native';
 
-import { Input } from '@rneui/themed';
+import Input from '@rneui/themed/dist/Input';
 import React from 'react';
 import colors from '../utils/colors';
 

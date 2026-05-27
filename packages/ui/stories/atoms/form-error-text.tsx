@@ -1,15 +1,11 @@
-import { StyleSheet, Text, TextInputProps } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 
+import type { FormError } from '@simpletarot/hooks';
 import React from 'react';
 
 export interface ErrorProp {
     error: FormError | false;
 }
-
-export type FormError = {
-    message: string;
-    type: TextInputProps['textContentType'];
-};
 
 const styles = StyleSheet.create({
     errorText: {

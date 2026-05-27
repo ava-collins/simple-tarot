@@ -3,40 +3,63 @@
     "version": "1.9.0",
     "private": true,
     "type": "module",
+    "main": "./index.tsx",
+    "types": "./index.d.ts",
     "exports": {
         ".": {
             "import": "./index.tsx",
-            "types": "./tsconfig.tsbuildinfo"
+            "types": "./index.d.ts"
         }
     },
     "scripts": {
         "dev": "storybook dev -p 6006",
         "build-types": "tsc -b",
         "storybook": "storybook dev -p 6006",
-        "build-storybook": "storybook build"
+        "build-storybook": "storybook build",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "devDependencies": {
+        "@babel/core": "^7.25.2",
         "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
+        "@babel/preset-react": "^7.22.15",
         "@mdx-js/react": "^3.1.0",
+        "@rneui/base": "5.0.0",
+        "@rneui/themed": "5.0.0",
         "@storybook/addon-docs": "^10.1.0",
         "@storybook/addon-react-native-web": "^0.0.29",
         "@storybook/react": "^10.1.0",
         "@storybook/react-native-web-vite": "^10.1.0",
         "@storybook/react-vite": "^10.1.0",
+        "@types/react": "~19.1.10",
+        "babel-plugin-react-native-web": "~0.21.0",
+        "eslint": "^9.28.0",
         "eslint-plugin-storybook": "^10.1.0",
         "msw-storybook-addon": "^2.0.5",
+        "react": "19.1.0",
+        "react-dom": "19.1.0",
+        "react-native": "0.81.5",
         "react-native-web": "^0.21.0",
         "storybook": "^10.1.0",
+        "typescript": "~5.9.2",
         "vite": "^6.3.5"
     },
     "peerDependencies": {
+        "@apollo/client": "^3.13.8",
+        "@rneui/base": "5.0.0",
+        "@rneui/themed": "5.0.0",
+        "expo-asset": "^12.0.0",
+        "expo-linear-gradient": "^15.0.0",
         "react": "^19.1.0",
         "react-dom": "^19.1.0",
         "react-native": ">=0.81 <0.82",
+        "react-native-elements": "^3.4.3",
+        "react-native-expo-viewport-units": "^0.0.8",
+        "react-native-reanimated": "~4.1.1",
+        "react-native-svg": "15.12.1",
         "react-native-web": "^0.21.0"
     },
     "dependencies": {
-        "@simpletarot/hooks": "*",
+        "@simpletarot/hooks": "workspace: *",
         "msw": "^2.10.2",
         "react-native-reanimated-monorepo": "react-native-reanimated/plugin"
     },

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simple Tarot Semantic Release"
+  short_description: "Debug and maintain Simple Tarot package releases."
+  default_prompt: "Use $simple-tarot-semantic-release to debug or update the Simple Tarot semantic-release monorepo setup."

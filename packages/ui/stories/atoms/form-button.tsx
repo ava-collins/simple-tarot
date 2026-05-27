@@ -1,6 +1,6 @@
 import { StyleSheet, View } from 'react-native';
 
-import { Button } from '@rneui/themed';
+import Button from '@rneui/themed/dist/Button';
 import React from 'react';
 import theme from '../utils/theme';
 

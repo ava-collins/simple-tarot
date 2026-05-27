@@ -18,5 +18,5 @@
         ],
         "@semantic-release/git"
     ],
-    "tagFormat": "${npm_package_name}@${version}"
+    "tagFormat": "simpletarot-v${version}"
 }

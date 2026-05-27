@@ -1,6 +1,7 @@
 {
     "name": "simpletarot",
-    "version": "1.0.0",
+    "packageManager": "yarn@4.15.0",
+    "version": "4.0.0",
     "description": "Simple yet effective tarot reading application",
     "repository": "git@github.com:avacollins/simple-tarot.git",
     "author": "Ava Collins <info@avacollins.dev>",
@@ -13,7 +14,7 @@
     "scripts": {
         "admin:dev": "yarn workspace admin dev",
         "build-storybook": "yarn workspace @simpletarot/ui build-storybook",
-        "build": "yarn lint:fix && yarn workspaces run build-types",
+        "build": "yarn lint && yarn workspaces foreach -A run build-types",
         "graph:build": "yarn workspace graph-api build",
         "graph:dev": "yarn workspace graph-api dev",
         "graph:start": "yarn workspace graph-api start",
@@ -21,6 +22,8 @@
         "ios": "yarn workspace tarot ios",
         "lint:fix": "eslint --ext .ts,.tsx apps packages --fix",
         "lint": "eslint --ext .ts,.tsx apps packages",
+        "release:dry-run": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo --dry-run",
+        "release": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo",
         "run-db": "yarn workspace graph-api run-db",
         "stop-db": "yarn workspace graph-api stop-db",
         "storybook-static": "npx http-server -S true -C ./ssl/development/cert.pem -K ./ssl/development/key.pem ./packages/ui/storybook-static",

@@ -14,13 +14,15 @@
         "stop-db": "docker stop graph && docker rm graph",
         "generate": "graphql-codegen",
         "migrate:normalize": "node -r ts-node/register src/migrations/normalize-graph-data.ts",
-        "migrate:constraints": "node -r ts-node/register src/migrations/create-constraints.ts"
+        "migrate:constraints": "node -r ts-node/register src/migrations/create-constraints.ts",
+        "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "dependencies": {
         "@apollo/datasource-rest": "^6.4.1",
         "@apollo/server": "^4.12.2",
         "@as-integrations/express5": "^1.1.0",
         "@neo4j/graphql": "^7.2.0",
+        "body-parser": "^1.20.3",
         "cors": "^2.8.5",
         "dotenv": "^16.5.0",
         "express": "^5.1.0",
