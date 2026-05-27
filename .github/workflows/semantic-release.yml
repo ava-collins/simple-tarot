@@ -21,11 +21,12 @@ jobs:
             - uses: actions/setup-node@v5
               with:
                   node-version: 24
+                  package-manager-cache: false
             - name: Prepare Yarn
               run: |
                 corepack enable
                 corepack prepare yarn@4.15.0 --activate
-            - run: yarn install --frozen-lockfile --non-interactive
+            - run: yarn install --immutable
               working-directory: .
             - run: yarn build
               working-directory: .
