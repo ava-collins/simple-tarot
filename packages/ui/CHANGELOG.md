@@ -1,3 +1,19 @@
+# [@simpletarot/ui-v1.10.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.9.0...@simpletarot/ui-v1.10.0) (2026-05-27)
+
+
+### Bug Fixes
+
+* package name ([323e28f](https://github.com/ava-collins/simple-tarot/commit/323e28f1f5751cea022c39fbd37b66f857894f60))
+* semantic release workflow ([972e48c](https://github.com/ava-collins/simple-tarot/commit/972e48c48aaa9c14df414a50a29983bfa6f350d6))
+* workflows ([09205a3](https://github.com/ava-collins/simple-tarot/commit/09205a3d354115836f2a7c8c8765a92ba19c24b3))
+
+
+### Features
+
+* shuffle card with react native reanimated ([30088c6](https://github.com/ava-collins/simple-tarot/commit/30088c678c7e6c51e9e7302446fbb98996424655))
+* shuffle component, test updates ([19b7f3b](https://github.com/ava-collins/simple-tarot/commit/19b7f3b53b23f2ee30b2663a1665d32032683981))
+* **ui:** adds deal card component ([36f0b71](https://github.com/ava-collins/simple-tarot/commit/36f0b71686dc1cda29b40494958d73b2152a155f))
+
 # [@simpletarot/ui-v1.9.0](https://github.com/avacollins/simple-tarot/compare/@simpletarot/ui-v1.8.0...@simpletarot/ui-v1.9.0) (2025-07-03)
 
 
