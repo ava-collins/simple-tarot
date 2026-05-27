@@ -23,7 +23,10 @@ jobs:
             - uses: actions/setup-node@v5
               with:
                   node-version: 24
-            - run: corepack enable
+            - name: Prepare Yarn
+              run: |
+                corepack enable
+                corepack prepare yarn@4.15.0 --activate
             - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
               with:
                   install_command: yarn install

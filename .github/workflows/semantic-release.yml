@@ -21,7 +21,10 @@ jobs:
             - uses: actions/setup-node@v5
               with:
                   node-version: 24
-            - run: corepack enable
+            - name: Prepare Yarn
+              run: |
+                corepack enable
+                corepack prepare yarn@4.15.0 --activate
             - run: yarn install --frozen-lockfile --non-interactive
               working-directory: .
             - run: yarn build
