@@ -1,5 +1,6 @@
 {
     "name": "simpletarot",
+    "packageManager": "yarn@4.15.0",
     "version": "4.0.0",
     "description": "Simple yet effective tarot reading application",
     "repository": "git@github.com:avacollins/simple-tarot.git",

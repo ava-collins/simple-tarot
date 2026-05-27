@@ -1,97 +1,157 @@
-/* eslint-disable no-shadow */
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
-function createDeck(arr) {
-    let tmp;
-    let cur;
-    let len = arr.length;
-    if (len) {
-        while (--len) {
-            cur = Math.floor(Math.random() * (len + 1));
-            tmp = arr[cur];
-            arr[cur] = arr[len];
-            arr[len] = tmp;
-        }
+type Deck = number[];
+type ReversalMap = boolean[];
+
+type SpreadPosition = {
+    name: string;
+    displayName: string;
+    description: string;
+};
+
+type Spread = {
+    positions?: SpreadPosition[];
+};
+
+type ReadingCard = {
+    celtic_cross: {
+        reversed: Record<string, string>;
+        upright: Record<string, string>;
+    };
+    description?: string;
+    element?: string;
+    exaltation?: string;
+    hex: string;
+    image: string;
+    index: number;
+    keywords?: string;
+    name: string;
+    number: string;
+    path?: string;
+    reversedKeywords?: string;
+    title?: string;
+};
+
+type DealInput = {
+    cards?: ReadingCard[];
+    spread?: Spread;
+};
+
+const DECK_SIZE = 78;
+
+const range = (size: number): number[] => Array.from({ length: size }, (_, i) => i);
+
+const shuffle = <T>(input: readonly T[]): T[] => {
+    const arr = [...input];
+    for (let i = arr.length - 1; i > 0; i -= 1) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const current = arr[i];
+        arr[i] = arr[j] as T;
+        arr[j] = current as T;
     }
 
     return arr;
-}
+};
+
+const randomReversalFlags = (size: number): boolean[] =>
+    Array.from({ length: size }, () => Math.random() < 0.5);
 
 const useReading = () => {
-    const [deck, setDeck] = useState(createDeck(Array.from(Array(78).keys())));
-    const [reversals, setReversals] = useState(
-        deck.map(c => Math.floor(Math.random() * 360) < 180)
+    const [deck, setDeck] = useState<Deck>(() => shuffle(range(DECK_SIZE)));
+    const [reversals, setReversals] = useState<ReversalMap>(() =>
+        randomReversalFlags(DECK_SIZE)
     );
-    const shuffleDeck = () => {
-        const shuffledDeck = [...deck];
 
-        let counter = shuffledDeck.length;
-        let index;
-        let temp;
-        while (counter > 0) {
-            index = Math.floor(Math.random() * counter);
-            counter--;
-            temp = shuffledDeck[counter];
-            shuffledDeck[counter] = shuffledDeck[index];
-            shuffledDeck[index] = temp;
-        }
-        setDeck(shuffledDeck);
-        setReversals(
-            shuffledDeck.map(c => {
-                const flipped = Math.floor(Math.random() * 360) < 180;
+    const shuffleDeck = useCallback(() => {
+        setDeck(prev => shuffle(prev));
+        setReversals(prev => randomReversalFlags(prev.length));
+    }, []);
 
-                return reversals[c] !== flipped;
-            })
-        );
-    };
+    const cutDeck = useCallback((index: number) => {
+        setDeck(prev => {
+            if (index <= 0 || index >= prev.length) {
+                return prev;
+            }
 
-    const cutDeck = (index: number) => {
-        const shuffleDeck = [...deck];
-        const move = shuffleDeck.splice(index, shuffleDeck.length);
-        setDeck(move.concat(shuffleDeck));
-    };
-
-    const deal = ({ cards, spread }) => {
-        const reading = spread.positions.map((pos, index) => {
-            const isReversed = !!reversals[index];
-            const desc = isReversed
-                ? cards[index].celtic_cross.reversed[pos.name]
-                : cards[index].celtic_cross.upright[pos.name];
-
-            return {
-                positionName: pos.name,
-                displayName: pos.displayName,
-                positionDescription: pos.description,
-                cardName: cards[index].name,
-                cardTitle: cards[index]?.title || '',
-                cardNumber: cards[index].number,
-                cardDescription: cards[index]?.description || '',
-                cardReading: desc,
-                element: cards[index]?.element || '',
-                exaltation: cards[index]?.exaltation || '',
-                hex: cards[index].hex,
-                image: cards[index].image,
-                index: cards[index].index,
-                path: cards[index]?.path || '',
-                keywords: isReversed
-                    ? cards[index]?.reversedKeywords || ''
-                    : cards[index]?.keywords || '',
-                reversed: isReversed
-            };
+            return prev.slice(index).concat(prev.slice(0, index));
         });
+    }, []);
 
-        return reading;
-    };
+    const deal = useCallback(
+        ({ cards = [], spread }: DealInput) => {
+            const positions = spread?.positions ?? [];
+            if (!positions.length) {
+                return [];
+            }
 
-    shuffleDeck();
+            return positions.reduce<
+                Array<{
+                    positionName: string;
+                    displayName: string;
+                    positionDescription: string;
+                    cardName: string;
+                    cardTitle: string;
+                    cardNumber: string;
+                    cardDescription: string;
+                    cardReading: string;
+                    element: string;
+                    exaltation: string;
+                    hex: string;
+                    image: string;
+                    index: number;
+                    path: string;
+                    keywords: string;
+                    reversed: boolean;
+                }>
+            >((reading, pos, index) => {
+                const card = cards[index];
+                if (!card) {
+                    return reading;
+                }
 
-    return {
-        cutDeck,
-        deal,
-        deck,
-        reversals,
-        shuffleDeck
-    };
+                const cardId = typeof card.index === 'number' ? card.index : index;
+                const isReversed = Boolean(reversals[cardId]);
+                const desc = isReversed
+                    ? card.celtic_cross.reversed[pos.name] ?? ''
+                    : card.celtic_cross.upright[pos.name] ?? '';
+
+                reading.push({
+                    positionName: pos.name,
+                    displayName: pos.displayName,
+                    positionDescription: pos.description,
+                    cardName: card.name,
+                    cardTitle: card.title || '',
+                    cardNumber: card.number,
+                    cardDescription: card.description || '',
+                    cardReading: desc,
+                    element: card.element || '',
+                    exaltation: card.exaltation || '',
+                    hex: card.hex,
+                    image: card.image,
+                    index: card.index,
+                    path: card.path || '',
+                    keywords: isReversed
+                        ? card.reversedKeywords || ''
+                        : card.keywords || '',
+                    reversed: isReversed
+                });
+
+                return reading;
+            }, []);
+        },
+        [reversals]
+    );
+
+    return useMemo(
+        () => ({
+            cutDeck,
+            deal,
+            deck,
+            reversals,
+            shuffleDeck
+        }),
+        [cutDeck, deal, deck, reversals, shuffleDeck]
+    );
 };
 
 export default useReading;

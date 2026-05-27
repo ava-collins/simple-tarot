@@ -1,7 +1,7 @@
 import { dirname, join } from 'path';
-import { createRequire } from 'module';
 
 import type { StorybookConfig } from '@storybook/react-native-web-vite';
+import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 
@@ -18,16 +18,41 @@ const config: StorybookConfig = {
     framework: {
         name: getAbsolutePath('@storybook/react-native-web-vite'),
         options: {
+            modulesToTranspile: [
+                'react-native-reanimated',
+                'react-native-worklets',
+                '@simpletarot/hooks'
+            ],
             pluginReactOptions: {
                 babel: {
                     plugins: [
                         '@babel/plugin-proposal-export-namespace-from',
-                        'react-native-reanimated/plugin'
+                        [
+                            'react-native-reanimated/plugin',
+                            {
+                                disableSourceMaps: true
+                            }
+                        ]
                     ]
                 }
             }
         }
     },
+    viteFinal: async config => {
+        const { mergeConfig } = await import('vite');
+
+        return mergeConfig(config, {
+            optimizeDeps: {
+                exclude: ['react-native-reanimated', 'react-native-worklets']
+            },
+            resolve: {
+                alias: {
+                    'react-native$': 'react-native-web'
+                }
+            }
+        });
+    },
     staticDirs: ['../public']
 };
+
 export default config;
