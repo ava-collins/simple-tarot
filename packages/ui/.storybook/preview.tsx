@@ -7,7 +7,7 @@ import React from 'react';
 import { typePolicies } from '@simpletarot/hooks';
 
 let options = {};
-if (location.hostname === 'avacollins.github.io') {
+if (location.hostname === 'ava-collins.github.io') {
     options = {
         serviceWorker: {
             url: '/simple-tarot/mockServiceWorker.js'
