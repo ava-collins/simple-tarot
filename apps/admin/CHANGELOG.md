@@ -1,3 +1,16 @@
+# [admin-v1.3.0](https://github.com/ava-collins/simple-tarot/compare/admin-v1.2.1...admin-v1.3.0) (2026-05-27)
+
+
+### Bug Fixes
+
+* package name ([323e28f](https://github.com/ava-collins/simple-tarot/commit/323e28f1f5751cea022c39fbd37b66f857894f60))
+* semantic release workflow ([972e48c](https://github.com/ava-collins/simple-tarot/commit/972e48c48aaa9c14df414a50a29983bfa6f350d6))
+
+
+### Features
+
+* shuffle component, test updates ([19b7f3b](https://github.com/ava-collins/simple-tarot/commit/19b7f3b53b23f2ee30b2663a1665d32032683981))
+
 # [admin-v1.2.1](https://github.com/avacollins/simple-tarot/compare/admin-v1.2.0...admin-v1.2.1) (2025-06-30)
 
 
