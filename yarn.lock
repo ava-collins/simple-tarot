@@ -6573,7 +6573,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simpletarot/hooks@npm:*, @simpletarot/hooks@workspace:packages/hooks":
+"@simpletarot/hooks@workspace: *, @simpletarot/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@simpletarot/hooks@workspace:packages/hooks"
   dependencies:
@@ -6586,35 +6586,54 @@ __metadata:
     typescript: "npm:^5.8.3"
     vitest: "npm:^3.2.4"
   peerDependencies:
+    "@apollo/client": ^3.13.8
     react: ^19.1.0
     react-dom: ^19.1.0
     react-native: ">=0.81 <0.82"
+    react-native-svg: 15.12.1
   languageName: unknown
   linkType: soft
 
-"@simpletarot/ui@npm:*, @simpletarot/ui@workspace:packages/ui":
+"@simpletarot/ui@workspace: *, @simpletarot/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@simpletarot/ui@workspace:packages/ui"
   dependencies:
+    "@babel/core": "npm:^7.25.2"
     "@babel/plugin-proposal-export-namespace-from": "npm:^7.18.9"
+    "@babel/preset-react": "npm:^7.22.15"
     "@mdx-js/react": "npm:^3.1.0"
-    "@simpletarot/hooks": "npm:*"
+    "@simpletarot/hooks": "workspace: *"
     "@storybook/addon-docs": "npm:^10.1.0"
     "@storybook/addon-react-native-web": "npm:^0.0.29"
     "@storybook/react": "npm:^10.1.0"
     "@storybook/react-native-web-vite": "npm:^10.1.0"
     "@storybook/react-vite": "npm:^10.1.0"
+    "@types/react": "npm:~19.1.10"
+    babel-plugin-react-native-web: "npm:~0.21.0"
+    eslint: "npm:^9.28.0"
     eslint-plugin-storybook: "npm:^10.1.0"
     msw: "npm:^2.10.2"
     msw-storybook-addon: "npm:^2.0.5"
+    react: "npm:19.1.0"
+    react-dom: "npm:19.1.0"
+    react-native: "npm:0.81.5"
     react-native-reanimated-monorepo: react-native-reanimated/plugin
     react-native-web: "npm:^0.21.0"
     storybook: "npm:^10.1.0"
+    typescript: "npm:~5.9.2"
     vite: "npm:^6.3.5"
   peerDependencies:
+    "@apollo/client": ^3.13.8
+    "@rneui/themed": ^4.0.0-rc.8
+    expo-asset: ^12.0.0
+    expo-linear-gradient: ^15.0.0
     react: ^19.1.0
     react-dom: ^19.1.0
     react-native: ">=0.81 <0.82"
+    react-native-elements: ^3.4.3
+    react-native-expo-viewport-units: ^0.0.8
+    react-native-reanimated: ~4.1.1
+    react-native-svg: 15.12.1
     react-native-web: ^0.21.0
   languageName: unknown
   linkType: soft
@@ -21328,7 +21347,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
     "@react-navigation/native": "npm:^7.1.6"
     "@rneui/base": "npm:^4.0.0-rc.8"
     "@rneui/themed": "npm:^4.0.0-rc.8"
-    "@simpletarot/ui": "npm:*"
+    "@simpletarot/ui": "workspace: *"
     "@types/react": "npm:~19.1.10"
     "@types/react-native-elements": "npm:^0.18.0"
     eslint: "npm:^9.25.0"
