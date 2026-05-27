@@ -30,7 +30,7 @@ jobs:
               working-directory: .
             - run: yarn build
               working-directory: .
-            - run: yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo
+            - run: yarn release
               working-directory: .
 
         env:
