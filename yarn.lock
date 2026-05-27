@@ -6561,7 +6561,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simpletarot/hooks@workspace: *, @simpletarot/hooks@workspace:packages/hooks":
+"@simpletarot/hooks@npm:*, @simpletarot/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@simpletarot/hooks@workspace:packages/hooks"
   dependencies:
@@ -6584,7 +6584,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@simpletarot/ui@workspace: *, @simpletarot/ui@workspace:packages/ui":
+"@simpletarot/ui@npm:*, @simpletarot/ui@workspace:packages/ui":
   version: 0.0.0-use.local
   resolution: "@simpletarot/ui@workspace:packages/ui"
   dependencies:
@@ -6594,7 +6594,7 @@ __metadata:
     "@mdx-js/react": "npm:^3.1.0"
     "@rneui/base": "npm:5.0.0"
     "@rneui/themed": "npm:5.0.0"
-    "@simpletarot/hooks": "workspace: *"
+    "@simpletarot/hooks": "npm:*"
     "@storybook/addon-docs": "npm:^10.1.0"
     "@storybook/addon-react-native-web": "npm:^0.0.29"
     "@storybook/react": "npm:^10.1.0"
@@ -21329,7 +21329,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
     "@react-navigation/native": "npm:^7.1.6"
     "@rneui/base": "npm:5.0.0"
     "@rneui/themed": "npm:5.0.0"
-    "@simpletarot/ui": "workspace: *"
+    "@simpletarot/ui": "npm:*"
     "@types/react": "npm:~19.1.10"
     "@types/react-native-elements": "npm:^0.18.0"
     eslint: "npm:^9.25.0"

@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: Build and Deploy Storybook Pages
 
 on:
     workflow_dispatch:
@@ -28,6 +28,10 @@ jobs:
               run: |
                 corepack enable
                 corepack prepare yarn@4.15.0 --activate
+            - name: Build Types
+              run: |  
+                yarn install --immutable
+                yarn build
             - uses: bitovi/github-actions-storybook-to-github-pages@v1.0.3
               with:
                   install_command: yarn install --immutable
