@@ -4,7 +4,7 @@
 
 This document outlines the high-level architecture design for Simple Tarot's user-facing mobile application.
 
-Simple Tarot aims to rebuild its current prototype application in order to incorporate generative AI into the backend to create more engaging content for the end user over time. 
+Simple Tarot aims to rebuild its current prototype application in order to incorporate generative AI into the backend to create more engaging content for the end user over time.
 
 This design document addresses the architectural requirements, provides a high-level design, considers alternatives, and outlines a timeline for implementation of the first phase of the rebuild which is focused on laying the foundation of the system as a whole.
 
@@ -14,9 +14,9 @@ Simple Tarot's prototype application has defined the overall application functio
 
 The end goal is to rebuild the system backend to support phase two LLM integrations.
 
-Technical goals for phase one are to design a new architecture that is scalable, modular, and maintainable, allowing new features to built up from the existing core over time. 
+Technical goals for phase one are to design a new architecture that is scalable, modular, and maintainable, allowing new features to be built up from the existing core over time.
 
-![System Context Phase One](../assets/mobile_system_context_p1.png)
+![System Context Phase One](../../assets/mobile_system_context_p1.png)
 
 
 ## 3. Goals and Non-Goals
@@ -25,36 +25,36 @@ Technical goals for phase one are to design a new architecture that is scalable,
 
 - **Scalability**: Design an architecture that can support a growing set of use cases for AGI
 - **Modularity**: Ensure the codebase is modular to allow rapid iterations of different core areas autonomously
-- **Maintainability**: Automated code quality tools for enforcing code styles i.e. TS build, ESLint, Conventional Commits, etc.
+- **Maintainability**: Automated code quality tools for enforcing code styles, i.e. TS build, ESLint, Conventional Commits, etc.
 
 ### Non-Goals
 
 - **UI Design**: This project focuses on the application code organization and backend architecture at this time
-- **Admin Web App Development**: The scope is limited to the mobile application, the admin app will have it's own design document
-- **AGI**: Phase two will have it's own design document
+- **Admin Web App Development**: The scope is limited to the mobile application; the admin app will have its own design document
+- **AGI**: Phase two will have its own design document
 
 ## 4. High Level Design
 
-The mobile application rebuild will continue to be a yarn workspace monorepository with all components documented using Storybook UI. Existing code base will be refactored to support a universal application render on both mobile and web. 
+The mobile application rebuild will continue to be a yarn workspace monorepository with all components documented using Storybook UI. The existing codebase will be refactored to support a universal application render on both mobile and web.
 
 
-Phase One will include 
-- Restructure of mobile routing using Expo file based router
+Phase One will include:
+- Restructure of mobile routing using Expo file-based router
 - Migration of NoSQL database to Graph DB
-- UI packages to adhere to atomic design principles where ui is built up from atoms, molecules, organisms, templates and screens
+- UI packages to adhere to atomic design principles where UI is built up from atoms, molecules, organisms, templates, and screens
 
 ### Container Diagrams
 
 
-![Core API](../assets/core_api_system.png)
+![Core API](../../assets/core_api_system.png)
 
-![UI Library](../assets/component_library.png)
+![UI Library](../../assets/component_library.png)
 
-![File Based Routing](../assets/file_based_routing.png)
+![File Based Routing](../../assets/file_based_routing.png)
 
 ### Graph Schema
 
-![Graph Schema](../assets/graph-schema.png)
+![Graph Schema](../../assets/graph-schema.png)
 
 ### Architectural Style
 
@@ -65,11 +65,11 @@ Phase One will include
 
 ### Key Components
 
-1. **Expo Routing Module**: Initial Expo setup with file based routing implemented
+1. **Expo Routing Module**: Initial Expo setup with file-based routing implemented
 
 2. **UI Module**: The core user interface library for both mobile and web applications
 
-3. **Hooks Module**: Universal data providers for the UI using apollo/client for application state management
+3. **Hooks Module**: Universal data providers for the UI using Apollo Client for application state management
 
 4. **Neo4J Module**: Graph DB and API server
 
@@ -77,15 +77,15 @@ Phase One will include
 
 ### Technology Stack
 
-- **Frontend**: React Native, TypeScript, Apollo Client Storybook UI, Next
+- **Frontend**: React Native, TypeScript, Apollo Client, Storybook UI, Next
 - **Backend**: Node/Express, Neo4J, Apollo Server
 - **Deployment**: Docker, AWS, Expo
 
 ## 5. Alternatives Considered
 
 1. **MemGraph DB**: Prefer Neo4J documentation
-2. **Auroa DB**: Paid product not necessary
-3. **Redux**: Use of redux is redundant with apollo/client and considered an anti-pattern if used together as they are both tracking state there is a risks of syncing issues, use of apollo/client is the source of truth and provides local state management via caching and local variables
+2. **Aurora DB**: Paid product not necessary
+3. **Redux**: Use of Redux is redundant with Apollo Client and considered an anti-pattern if used together. Because both track state, there is a risk of syncing issues. Use of Apollo Client is the source of truth and provides local state management via caching and local variables.
 
 ## 6. Timeline
 
@@ -96,9 +96,9 @@ Phase One will include
 
 ### Phase 2: Initial Development (June 2025 - July 2025)
 
-- [x] Set up yarn workspace and application file based routing
+- [x] Set up yarn workspace and application file-based routing
 - [ ] Implement UI packages in Storybook
-- [ ] Migrate data and client libraries to use Apollo client for state management
+- [ ] Migrate data and client libraries to use Apollo Client for state management
 - [ ] Implement UI screens into application code
 
 ### Phase 4: Testing and Deployment (August 2025)
@@ -111,7 +111,7 @@ Phase One will include
 
 ### Risks
 
-- **Time**: Finding a fulltime job would affect the output of this project 
+- **Time**: Finding a full-time job would affect the output of this project
 
 - **Money**: Hosting on AWS may be too expensive to maintain
 

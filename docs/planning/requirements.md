@@ -1,6 +1,6 @@
 # Architectural Requirements
 
-This is a living document with the architectural requirements of Simple Tarot
+This is a living document with the architectural requirements of Simple Tarot.
 
 
 ## Business Goals
@@ -12,7 +12,7 @@ This is a living document with the architectural requirements of Simple Tarot
 | User experience             | Improve designs                                                      | The timeline and notes features need to be redesigned |
 | Developer experience        | The app should be fully documented                                   | The documentation should be created as if it were a team of developers |
 
-## Contraints
+## Constraints
 
 | Constraint                                                              | Context                                                                                                                              |
 | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
@@ -35,18 +35,18 @@ This is a living document with the architectural requirements of Simple Tarot
 - Mobile first design, universal render for web
 
     - Components will be created using React Native and React Native for web
-    - Storybook UI for React Native will be used to design components and screensfor both web and mobile
+    - Storybook UI for React Native will be used to design components and screens for both web and mobile
 
 #### Developer Experience
 
 - Code quality, versioning and deployment will all be automated
 
     - Yarn workspace will be used to maintain all application code
-    - Expo file based routing will be used to maintain a Next like directory structure to be used for routing on both web and mobile
+    - Expo file-based routing will be used to maintain a Next-like directory structure to be used for routing on both web and mobile
     - ESLint, Prettier and TypeScript will be used to maintain code standards on each commit
     - Semver with Conventional Commits will be used to automatically generate versioning and changelogs on each release
     - EAS will be used for mobile app deployment in Alpha and Beta stages of the app
-    - Docker will be used as main deployment for admin application to be run and developed locally
+    - Docker will be used as the main deployment for the admin application to be run and developed locally
 
 #### Authentication
 
@@ -56,7 +56,7 @@ This is a living document with the architectural requirements of Simple Tarot
 - Users can authenticate using their created account credentials
 - Authenticated users can update their profile information
 - Authenticated users can reset their passwords if forgotten
-- Admins can trigger password reset email 
+- Admins can trigger a password reset email
 
 #### Readings
 
@@ -91,6 +91,6 @@ This is a living document with the architectural requirements of Simple Tarot
 ## Other Influencers
 
 - Currently there is only one person working on the project
-- The developer will leverage UI frameworks and design templates to complete missing UI 
+- The developer will leverage UI frameworks and design templates to complete missing UI
 - The developer has experience working with React, React Native, Expo, Next.js, TypeScript, Firebase, Apollo Graph DB, AWS Lambda, Apple Store and Google Play
-- The LLM creation is new to the developer, implemenation choices are expected evolve as knowledge is gained
+- The LLM creation is new to the developer, and implementation choices are expected to evolve as knowledge is gained

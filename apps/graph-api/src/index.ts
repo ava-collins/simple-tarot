@@ -12,8 +12,8 @@ import { expressMiddleware } from '@as-integrations/express5';
 import { gql } from 'graphql-tag';
 import http from 'http';
 import https from 'https';
-import { normalizeGraphData } from './migrations/normalize-graph-data';
 import neo4j from 'neo4j-driver';
+import { normalizeGraphData } from './migrations/normalize-graph-data';
 import path from 'path';
 import { readFileSync } from 'fs';
 import { resolvers } from './resolvers';
@@ -24,7 +24,7 @@ const configurations = {
     production: {
         ssl: true,
         port: process.env.PROD_PORT || 443,
-        hostname: process.env.PROD_HOSTNAME || '192.168.4.156'
+        hostname: process.env.PROD_HOST || '192.168.4.156'
     },
     development: {
         ssl: false,

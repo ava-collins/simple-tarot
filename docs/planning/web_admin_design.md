@@ -12,9 +12,9 @@ The web admin application is a new application introduced as a way to Dockerize 
 
 The end goal is to have a web application that depends on the same UI components and routing structure as the mobile app, include a route for Storybook UI, and a route for API Mapping Tool (i.e. GraphQL Playground).
 
-Technical goals for phase one are to design a new architecture that is maintainable, reliable and agile allowing new features to be built up from the existing core over time. 
+Technical goals for phase one are to design a new architecture that is maintainable, reliable, and agile, allowing new features to be built up from the existing core over time.
 
-![System Context Phase One](../assets/web_admin_system_context_p1.png)
+![System Context Phase One](../../assets/web_admin_system_context_p1.png)
 
 
 ## 3. Goals and Non-Goals
@@ -22,8 +22,8 @@ Technical goals for phase one are to design a new architecture that is maintaina
 ### Goals
 
 - **Maintainability**: Graph API playground and Storybook UI documentation
-- **Reliability**: Automated testing on GitHub actions
-- **Agility**: Dockerize all application to be orchestrated via configurations and docker commands
+- **Reliability**: Automated testing on GitHub Actions
+- **Agility**: Dockerize all applications to be orchestrated via configurations and Docker commands
 
 ### Non-Goals
 
@@ -32,30 +32,30 @@ Technical goals for phase one are to design a new architecture that is maintaina
 
 ## 4. High Level Design
 
-All tarot screens will be the same screens used on mobile app wrapped in a web template for fixed layout. The web admin will be using file based routing to best mirror deep link parity between mobile and web. [Apollo GraphQL Playground](https://www.apollographql.com/docs/graphos/connectors/tooling/mapping-playground) exposed as a route for query development. Storybook UI build exposed as a route for component reference.
+All tarot screens will be the same screens used on the mobile app, wrapped in a web template for fixed layout. The web admin will use file-based routing to best mirror deep link parity between mobile and web. [Apollo GraphQL Playground](https://www.apollographql.com/docs/graphos/connectors/tooling/mapping-playground) will be exposed as a route for query development. Storybook UI build will be exposed as a route for component reference.
 
 
-Phase One will include 
-- Structure of the file based routing, to mirror mobile app for tarot deep links
-- Automate publishing storybook builds to web admin for UI documentation route (GH Actions)
+Phase One will include:
+- Structure of the file-based routing, to mirror mobile app for tarot deep links
+- Automate publishing Storybook builds to web admin for UI documentation route (GitHub Actions)
 - Implement Apollo Server Mapping Playground into route for API management
 - Dockerize all apps and orchestrate
 
 ### Container Diagrams
 
-![File Based Routing](../assets/web_file_based_routing.png)
+![File Based Routing](../../assets/web_file_based_routing.png)
 
 ### Architectural Style
 
 - **Micro Frontend Architecture**: Add builds from Storybook and Apollo GraphQL Mapping Tool as routes
 - **Docker**: Containerize all apps to be run together with single command
-- **State Hooks**: Use shared hooks to create application using Apollo client
+- **State Hooks**: Use shared hooks to create application using Apollo Client
 
 ### Key Components
 
-1. **Next Routing Module**: Initial Next setup with file based routing implemented to match mobile
+1. **Next Routing Module**: Initial Next setup with file-based routing implemented to match mobile
 
-2. **UI Module**: The core user interface library for both mobile and web applications build and deployed via GH actions
+2. **UI Module**: The core user interface library for both mobile and web applications built and deployed via GitHub Actions
 
 3. **Hooks Module**: Universal data providers for the UI
 
@@ -78,9 +78,9 @@ Phase One will include
 
 ### Phase 2: Initial Development (June 2025 - July 2025)
 
-- Implement application file based routing
+- Implement application file-based routing
 - Implement UI screens into web templates
-- Create Build action for Storybook UI to auto deploy latest to admin static files
+- Create build action for Storybook UI to auto-deploy latest to admin static files
 - Orchestrate Docker files to run together
 
 ### Phase 4: Testing and Deployment (July 2025)
@@ -92,10 +92,10 @@ Phase One will include
 
 ### Risks
 
-- **Time**: Finding a fulltime job would affect the output of this project 
+- **Time**: Finding a full-time job would affect the output of this project
 
 ### Open Questions
 
 - **Test**: Frameworks TBD
 
-- **Versioning**: Conventional Commits with Semantic release
+- **Versioning**: Conventional Commits with Semantic Release

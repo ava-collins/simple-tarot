@@ -51,25 +51,13 @@ messages.
 ## Docs
 
 👉🏽 Check out
- - [yarn workspace](./docs/yarn_workspace_dependency_goals.md)
+- [@simpletarot/hooks](./packages/hooks/README.md)
 
- - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
+- [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
 
- - [@simpletarot/hooks](./packages/hooks/README.md)
+- [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
 
- - [Web Admin Design Document Phase One WIP](./docs/planning/web_admin_design.md)
-
- - [Mobile Design Document Phase One](./docs/planning/mobile_design_pahse_one.md)
- 
- - [Sequence Diagrams](./docs/planning/sequence_diagrams.md)
-
- - [Domain Model](./docs/planning/domain_model.md)
-
- - [Architectural Decisions](./docs/planning/adr.md)
-
- - [Requirements](./docs/planning/requirements.md)
-
- - [Project Spec](./docs/planning/project_spec.md)
+- [Planning Docs]()(./docs/planning/index.md)
 
 
  # Copyright

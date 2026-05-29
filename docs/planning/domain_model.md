@@ -89,7 +89,7 @@
 
 
 
-<!-- 
+<!--
 ## Class Diagram
 
-![Class Diagram](../assets/class_diagram.jpg) -->
+![Class Diagram](../../assets/class_diagram.jpg) -->
