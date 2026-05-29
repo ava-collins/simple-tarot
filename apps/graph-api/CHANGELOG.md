@@ -1,3 +1,10 @@
+# [graph-api-v1.4.0](https://github.com/ava-collins/simple-tarot/compare/graph-api-v1.3.0...graph-api-v1.4.0) (2026-05-29)
+
+
+### Features
+
+* **graph-api:** adds backup and restore scripts for db ([d71388a](https://github.com/ava-collins/simple-tarot/commit/d71388a463f207f69bf78ed15ae6e912849627e8))
+
 # [graph-api-v1.3.0](https://github.com/ava-collins/simple-tarot/compare/graph-api-v1.2.1...graph-api-v1.3.0) (2026-05-27)
 
 
