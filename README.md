@@ -2,10 +2,22 @@
 
 ## Overview
 
-Simple Tarot is a rebuild of an
-[existing application](https://github.com/avacollins/tarot-ix) in order to
-expand content generation using an LLM.
+Simple Tarot is a rebuild of my older React Native
+[mobile app](https://github.com/avacollins/tarot-ix) that aims to enrich
+readings by using highly customized AI generated content.
 
+### Backend
+The rebuild is two phased,
+
+1. The first phase is to replicate legacy database values to a vector database
+   store. This will setup the customized content nodes which will facilitate the
+   second phase model training.
+                                                           
+2. The second phase will integrate the vector relationships with a pretrained
+   LLM using AWS Bedrock. Custom prompts will be created to generate text
+   content for readings in the app.
+
+### UI
 Live Component Reference
 [Storybook UI Component Library](https://ava-collins.github.io/simple-tarot/)
 
@@ -57,7 +69,7 @@ messages.
 
 - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
 
-- [Planning Docs]()(./docs/planning/index.md)
+- [Planning Docs](./docs/planning/index.md)
 
 
  # Copyright
@@ -67,4 +79,5 @@ in this application are in the public domain; svg pictorial keys were obtained
 under [Creative Commons](https://creativecommons.org/publicdomain/zero/1.0/)
 open source licensing.
 
-The code in this repository is open for personal use but not for distributing.
+The code in this repository is not open for personal use and not for
+distributing.
