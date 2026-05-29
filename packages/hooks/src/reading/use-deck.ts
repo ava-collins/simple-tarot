@@ -112,8 +112,8 @@ const useReading = () => {
                 const cardId = typeof card.index === 'number' ? card.index : index;
                 const isReversed = Boolean(reversals[cardId]);
                 const desc = isReversed
-                    ? card.celtic_cross.reversed[pos.name] ?? ''
-                    : card.celtic_cross.upright[pos.name] ?? '';
+                    ? (card.celtic_cross.reversed[pos.name] ?? '')
+                    : (card.celtic_cross.upright[pos.name] ?? '');
 
                 reading.push({
                     positionName: pos.name,

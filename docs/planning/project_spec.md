@@ -6,7 +6,7 @@ Simple Tarot is a tarot card reading app that is a rebuild of an
 [existing application](https://github.com/avacollins/tarot-ix) in order to
 expand content generation using an LLM.
 
-##  Software System
+## Software System
 
 ### System Context
 
@@ -20,22 +20,22 @@ expand content generation using an LLM.
 
 #### External Systems
 
-- **Cloud Services** - Firebase, Graph DB, Bedrock, Lambda, Expo
+- **Cloud Services** — Firebase, Graph DB, Bedrock, Lambda, Expo
 
 #### System Context Diagram
 
-![System Context Diagram](./assets/system_context.jpg)
+![System Context Diagram](../../assets/system_context.jpg)
 
 ### System Containers
 
 - **User Facing Mobile App** — React Native for iOS and Android
 
-- **Admin Only Web App** - React Native Web, Next, Storybook UI, Docker
+- **Admin Only Web App** — React Native Web, Next, Storybook UI, Docker
 
 - **Core API** — Neo4J Graph DB, Node Graph API server, LLM Foundation Model
   (undecided), Bedrock, Lambda
 
-- **Shared Components** - Storybook UI to create universally rendered components
+- **Shared Components** — Storybook UI to create universally rendered components
   and document their uses
 
 
@@ -43,21 +43,21 @@ expand content generation using an LLM.
 
 ##### Mobile App
 
-![Mobile App Diagram](./assets/mobile_container.jpg)
+![Mobile App Diagram](../../assets/mobile_container.jpg)
 
 ##### Admin App
 
-![Admin App Diagram](./assets/admin_container.jpg)
+![Admin App Diagram](../../assets/admin_container.jpg)
 
 ##### Core API
 
-![Core API Diagram](./assets/api_container.jpg)
+![Core API Diagram](../../assets/api_container.jpg)
 
 ## Simple Tarot Mobile and Web Application
 
 ### UI Designs
 
-[Existing mobile UI](./assets/existing_ui.png)
+[Existing mobile UI](../../assets/existing_ui.png)
 
 - Will be leveraging existing application layouts for readings and profile
 
@@ -93,7 +93,7 @@ expand content generation using an LLM.
 
 #### Admin Experience
 
-- Application can be launch from Docker container
+- Application can be launched from a Docker container
 
 - Access to Graph DB
 
@@ -107,21 +107,21 @@ expand content generation using an LLM.
 ## Architectural Documents
 
 👉🏽 Check out
- 
- - [requirements](./docs/planning/requirements.md)
- 
- - [architectural decisions](./docs/planning/adr.md)
 
- - [domain model with class diagram](./docs/planning/domain_model.md)
+- [requirements](./requirements.md)
 
- - [sequence diagrams](./docs/planning/sequence_diagrams.md)
+- [architectural decisions](./adr.md)
 
- - [mobile design document phase one](./docs/planning/mobile_design_pahse_one.md)
+- [domain model with class diagram](./domain_model.md)
+
+- [sequence diagrams](./sequence_diagrams.md)
+
+- [mobile design document phase one](./mobile_design_phase_one.md)
 
  # Copyright
 
-The [Rider Waite](https://sacred-texts.com/tarot/faq.htm#uscopyright) cards used
-in this application are in the public domain; svg pictorial keys were obtained
+The [Rider Waite](https://commons.wikimedia.org/wiki/File:Rider-Waite_Major_Arcana_full.png) cards used
+in this application are in the public domain; SVG pictorial keys were obtained
 under [Creative Commons](https://creativecommons.org/publicdomain/zero/1.0/)
 open source licensing.
 

@@ -2,10 +2,26 @@
 
 ## Overview
 
-Simple Tarot is a rebuild of an
-[existing application](https://github.com/avacollins/tarot-ix) in order to
-expand content generation using an LLM.
+Simple Tarot is a rebuild of my older React Native
+[mobile app](https://github.com/avacollins/tarot-ix) that aims to enrich
+readings by using highly customized AI generated content.
 
+### Backend
+The rebuild is planned in two phases.
+
+1. Phase one migrates legacy tarot content into Neo4j as a graph database so the
+   app can retrieve structured reading context.
+
+2. Phase two will add AI-generated reading content using AWS Bedrock. The likely
+   first approach will use RAG: retrieve relevant graph data and, if needed,
+   vector-similar content, then pass that context into custom prompts for a
+   Bedrock foundation model.
+
+   If retrieval and prompting are not sufficient, a later model customization
+   phase may prepare training data for Bedrock fine-tuning or another supported
+   customization method.
+
+### UI
 Live Component Reference
 [Storybook UI Component Library](https://ava-collins.github.io/simple-tarot/)
 
@@ -51,25 +67,13 @@ messages.
 ## Docs
 
 👉🏽 Check out
- - [yarn workspace](./docs/yarn_workspace_dependency_goals.md)
+- [@simpletarot/hooks](./packages/hooks/README.md)
 
- - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
+- [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
 
- - [@simpletarot/hooks](./packages/hooks/README.md)
+- [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
 
- - [Web Admin Design Document Phase One WIP](./docs/planning/web_admin_design.md)
-
- - [Mobile Design Document Phase One](./docs/planning/mobile_design_pahse_one.md)
- 
- - [Sequence Diagrams](./docs/planning/sequence_diagrams.md)
-
- - [Domain Model](./docs/planning/domain_model.md)
-
- - [Architectural Decisions](./docs/planning/adr.md)
-
- - [Requirements](./docs/planning/requirements.md)
-
- - [Project Spec](./docs/planning/project_spec.md)
+- [Planning Docs](./docs/planning/index.md)
 
 
  # Copyright
@@ -79,4 +83,5 @@ in this application are in the public domain; svg pictorial keys were obtained
 under [Creative Commons](https://creativecommons.org/publicdomain/zero/1.0/)
 open source licensing.
 
-The code in this repository is open for personal use but not for distributing.
+The code in this repository is not open for personal use and not for
+distributing.
