@@ -7,15 +7,19 @@ Simple Tarot is a rebuild of my older React Native
 readings by using highly customized AI generated content.
 
 ### Backend
-The rebuild is two phased,
+The rebuild is planned in two phases.
 
-1. The first phase is to replicate legacy database values to a vector database
-   store. This will setup the customized content nodes which will facilitate the
-   second phase model training.
-                                                           
-2. The second phase will integrate the vector relationships with a pretrained
-   LLM using AWS Bedrock. Custom prompts will be created to generate text
-   content for readings in the app.
+1. Phase one migrates legacy tarot content into Neo4j as a graph database so the
+   app can retrieve structured reading context.
+
+2. Phase two will add AI-generated reading content using AWS Bedrock. The likely
+   first approach will use RAG: retrieve relevant graph data and, if needed,
+   vector-similar content, then pass that context into custom prompts for a
+   Bedrock foundation model.
+
+   If retrieval and prompting are not sufficient, a later model customization
+   phase may prepare training data for Bedrock fine-tuning or another supported
+   customization method.
 
 ### UI
 Live Component Reference
