@@ -73,6 +73,8 @@ messages.
 
 - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
 
+- [Neo4j Database Backup](./docs/neo4j_database_backup.md)
+
 - [Planning Docs](./docs/planning/index.md)
 
 
