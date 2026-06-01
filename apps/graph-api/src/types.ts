@@ -244,7 +244,7 @@ export type ResolverTypeWrapper<T> = Promise<T> | T;
 export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = {}, TContext = {}, TArgs = {}> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+export type Resolver<TResult, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
 export type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
@@ -281,27 +281,29 @@ export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, 
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<TResult, TKey extends string, TParent = {}, TContext = {}, TArgs = {}> =
+export type SubscriptionResolver<TResult, TKey extends string, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> =
   | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
-export type TypeResolveFn<TTypes, TParent = {}, TContext = {}> = (
+export type TypeResolveFn<TTypes, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (
   parent: TParent,
   context: TContext,
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = {}, TContext = {}> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
+export type IsTypeOfResolverFn<T = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
 export type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<TResult = {}, TParent = {}, TContext = {}, TArgs = {}> = (
+export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
+
+
 
 
 
@@ -315,8 +317,8 @@ export type ResolversTypes = {
   CardPositionMeaningInput: CardPositionMeaningInput;
   ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
-  Mutation: ResolverTypeWrapper<{}>;
-  Query: ResolverTypeWrapper<{}>;
+  Mutation: ResolverTypeWrapper<Record<PropertyKey, never>>;
+  Query: ResolverTypeWrapper<Record<PropertyKey, never>>;
   ReadingItemInput: ReadingItemInput;
   Reversed: ResolverTypeWrapper<Reversed>;
   ReversedInput: ReversedInput;
@@ -343,8 +345,8 @@ export type ResolversParentTypes = {
   CardPositionMeaningInput: CardPositionMeaningInput;
   ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
-  Mutation: {};
-  Query: {};
+  Mutation: Record<PropertyKey, never>;
+  Query: Record<PropertyKey, never>;
   ReadingItemInput: ReadingItemInput;
   Reversed: Reversed;
   ReversedInput: ReversedInput;
@@ -363,7 +365,6 @@ export type ResolversParentTypes = {
 
 export type AvatarImageResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['AvatarImage'] = ResolversParentTypes['AvatarImage']> = {
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CardResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Card'] = ResolversParentTypes['Card']> = {
@@ -377,7 +378,6 @@ export type CardResolvers<ContextType = DataSourceContext, ParentType extends Re
   reversedKeywords?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   title?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type CardPositionMeaningResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['CardPositionMeaning'] = ResolversParentTypes['CardPositionMeaning']> = {
@@ -386,7 +386,6 @@ export type CardPositionMeaningResolvers<ContextType = DataSourceContext, Parent
   position?: Resolver<Array<ResolversTypes['SpreadPosition']>, ParentType, ContextType>;
   reversed?: Resolver<Array<ResolversTypes['Reversed']>, ParentType, ContextType>;
   upright?: Resolver<Array<ResolversTypes['Upright']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type MutationResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
@@ -410,7 +409,6 @@ export type QueryResolvers<ContextType = DataSourceContext, ParentType extends R
 
 export type ReversedResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Reversed'] = ResolversParentTypes['Reversed']> = {
   meaning?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SpreadResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Spread'] = ResolversParentTypes['Spread']> = {
@@ -418,7 +416,6 @@ export type SpreadResolvers<ContextType = DataSourceContext, ParentType extends 
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   positions?: Resolver<Array<ResolversTypes['SpreadPosition']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SpreadCardResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['SpreadCard'] = ResolversParentTypes['SpreadCard']> = {
@@ -427,7 +424,6 @@ export type SpreadCardResolvers<ContextType = DataSourceContext, ParentType exte
   keywords?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
   position?: Resolver<ResolversTypes['SpreadPosition'], ParentType, ContextType>;
   reversed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SpreadPositionResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['SpreadPosition'] = ResolversParentTypes['SpreadPosition']> = {
@@ -436,7 +432,6 @@ export type SpreadPositionResolvers<ContextType = DataSourceContext, ParentType 
   index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   meanings?: Resolver<Array<ResolversTypes['CardPositionMeaning']>, ParentType, ContextType>;
   spreadName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type SuiteResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Suite'] = ResolversParentTypes['Suite']> = {
@@ -444,12 +439,10 @@ export type SuiteResolvers<ContextType = DataSourceContext, ParentType extends R
   element?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   zodiac?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type UprightResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Upright'] = ResolversParentTypes['Upright']> = {
   meaning?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
 export type Resolvers<ContextType = DataSourceContext> = {
