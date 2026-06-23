@@ -27,16 +27,12 @@ Live Component Reference
 
 ## Contents
 
-A yarn workspace monorepository to manage shared React Native component
-libraries used in both mobile tarot application and web admin application.
-
-`apps/admin` is a Next web application using React Native Web shared components
-from hooks and ui packages to debug tarot mobile app and admin the graph
-database.
+A yarn workspace monorepository to manage the mobile tarot application, graph
+API, and shared React Native component libraries.
 
 `apps/graph-api` is an Apollo graph server built on top of Node/Express server
-connected to a Neo4j database, providing the core API for both client
-applications.
+connected to a Neo4j database, providing the core API for the client
+application.
 
 `apps/tarot` is a React Native mobile app uses shared components from hooks and
 ui packages and Expo framework for application configuration, building, testing

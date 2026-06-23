@@ -12,7 +12,6 @@
         "packages/*"
     ],
     "scripts": {
-        "admin:dev": "yarn workspace admin dev",
         "build-storybook": "yarn workspace @simpletarot/ui build-storybook",
         "build": "yarn lint && yarn workspaces foreach -A run build-types",
         "graph:build": "yarn workspace graph-api build",
