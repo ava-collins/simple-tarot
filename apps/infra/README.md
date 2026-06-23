@@ -11,8 +11,6 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 - `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
   contract.
 
-<<<<<<< Updated upstream
-=======
 ## Cognito Stack
 
 The current CDK app synthesizes one Cognito stack for the configured Simple
@@ -41,7 +39,6 @@ should be reviewed before first deployment.
 Deployment-specific values are intentionally kept out of committed source and
 are loaded from `apps/infra/.env`.
 
->>>>>>> Stashed changes
 Create the local env file from the example:
 
 ```sh
