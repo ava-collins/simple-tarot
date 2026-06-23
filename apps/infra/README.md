@@ -1,14 +1,30 @@
-# Welcome to your CDK TypeScript project
+# Simple Tarot Infrastructure
 
-This is a blank project for CDK development with TypeScript.
+This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+## Cognito MVP
 
-## Useful commands
+The current CDK app synthesizes a Cognito stack for the configured Simple Tarot
+environment. Deployment-specific values are intentionally kept out of committed
+source and are loaded from `apps/infra/.env`.
 
-* `npm run build`   compile typescript to js
-* `npm run watch`   watch for changes and compile
-* `npm run test`    perform the jest unit tests
-* `npx cdk deploy`  deploy this stack to your default AWS account/region
-* `npx cdk diff`    compare deployed stack with current state
-* `npx cdk synth`   emits the synthesized CloudFormation template
+Create the local env file from the example:
+
+```sh
+cp apps/infra/.env.example apps/infra/.env
+```
+
+Then fill in every value in `apps/infra/.env` before running CDK commands. The
+real `.env` file is ignored by git.
+
+`dev` uses destroy removal policy for iteration. `prod` is already modeled as a
+supported environment and uses retain removal policy plus Cognito deletion
+protection, but production deployment settings should be reviewed before first
+deployment.
+
+## Commands
+
+```sh
+yarn workspace infra test
+yarn workspace infra cdk synth
+```
