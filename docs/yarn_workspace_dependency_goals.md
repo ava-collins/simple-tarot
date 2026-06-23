@@ -2,10 +2,10 @@
 
 ## Overview
 
-Simple Tarot uses Yarn 4 workspaces to keep the mobile app, graph API, shared
-hooks, and shared UI package in one repository without hiding package ownership.
-Each workspace should declare the packages it imports, even when another
-workspace already brings those packages into the root install.
+Simple Tarot uses Yarn 4 workspaces to keep the mobile app, graph API, AWS
+infrastructure, shared hooks, and shared UI package in one repository without
+hiding package ownership. Each workspace should declare the packages it imports,
+even when another workspace already brings those packages into the root install.
 
 The goal is to make every workspace understandable, testable, and portable on
 its own terms.
@@ -14,6 +14,8 @@ its own terms.
 
 - `apps/tarot` is the Expo React Native mobile application.
 - `apps/graph-api` is the Apollo/Express/Neo4j API server.
+- `apps/infra` is the AWS CDK v2 TypeScript app. It currently owns the Cognito
+  auth stack and its Expo-facing public output contract.
 - `packages/hooks` contains shared React hooks, state, data access helpers, and
   shared application types.
 - `packages/ui` contains shared React Native UI components and Storybook.
@@ -43,6 +45,12 @@ Apps should provide concrete runtime versions.
 
 Applications such as `tarot` should list the concrete packages they run with in
 `dependencies`. Apps are the runtime providers for library peers.
+
+Infrastructure workspaces should declare CDK and deployment helpers directly.
+
+`apps/infra` owns its AWS CDK dependencies and environment-loading dependency.
+It should not rely on another workspace for packages it imports in stack,
+configuration, or test code.
 
 Do not create package cycles.
 
@@ -86,6 +94,8 @@ yarn explain peer-requirements
 yarn workspace @simpletarot/ui build-types
 yarn workspace @simpletarot/hooks build-types
 yarn workspace tarot build-types
+yarn workspace infra test
+yarn workspace infra cdk synth
 ```
 
 Use targeted commands when changing only one workspace. Use the full set before
@@ -115,6 +125,8 @@ The dependency architecture should move toward explicit ownership:
 - `packages/ui` owns visual components and Storybook.
 - `apps/tarot` provides Expo and mobile runtime dependencies.
 - `apps/graph-api` provides server runtime dependencies.
+- `apps/infra` provides AWS CDK infrastructure, including the Cognito user pool,
+  public OAuth app client, hosted domain, and Expo public config outputs.
 
 This keeps the monorepo flexible without turning the root install into a hidden
 dependency bucket.

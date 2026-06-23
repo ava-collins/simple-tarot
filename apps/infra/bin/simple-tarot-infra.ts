@@ -6,14 +6,14 @@ import { getInfraConfig, loadInfraEnv } from '../lib/config';
 const app = new cdk.App();
 const config = getInfraConfig({
   app,
-  env: loadInfraEnv(),
+  env: loadInfraEnv()
 });
 
 new CognitoStack(app, config.stackName, {
   config,
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: config.awsRegion,
+    region: config.awsRegion
   },
-  stackName: config.stackName,
+  stackName: config.stackName
 });

@@ -33,6 +33,7 @@ export default defineConfig([
             'apps/admin/.next/**',
             'apps/graph-api/codegen.ts',
             'apps/graph-api/src/types.ts',
+            'apps/infra/jest.config.js',
             'apps/tarot/.expo/**',
             'apps/tarot/expo-env.d.ts',
             'apps/tarot/metro.config.js',
@@ -172,7 +173,7 @@ export default defineConfig([
 
             'no-native-reassign': 2,
             'no-nested-ternary': 1,
-            'no-new': 2,
+            'no-new': 1,
             'no-new-func': 2,
             'no-new-object': 2,
             'no-new-wrappers': 2,

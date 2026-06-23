@@ -28,7 +28,7 @@ Live Component Reference
 ## Contents
 
 A yarn workspace monorepository to manage the mobile tarot application, graph
-API, and shared React Native component libraries.
+API, AWS infrastructure, and shared React Native component libraries.
 
 `apps/graph-api` is an Apollo graph server built on top of Node/Express server
 connected to a Neo4j database, providing the core API for the client
@@ -37,6 +37,11 @@ application.
 `apps/tarot` is a React Native mobile app uses shared components from hooks and
 ui packages and Expo framework for application configuration, building, testing
 and deployment.
+
+`apps/infra` is an AWS CDK v2 TypeScript app. It currently owns the Cognito
+auth infrastructure for Simple Tarot, including the user pool, public OAuth app
+client, hosted Cognito domain, and CloudFormation outputs that define the Expo
+public auth config contract.
 
 `docs` are a collection of documents that facilitate the planning and execution
 of the project as a whole, used to provide context over time.
@@ -70,6 +75,10 @@ messages.
 - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
 
 - [Neo4j Database Backup](./docs/neo4j_database_backup.md)
+
+- [Cognito Expo Config Contract](./docs/cognito_expo_config_contract.md)
+
+- [Infrastructure App](./apps/infra/README.md)
 
 - [Planning Docs](./docs/planning/index.md)
 
