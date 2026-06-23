@@ -1,2 +1,3 @@
 package.json
 dist
+apps/tarot/expo-env.d.ts

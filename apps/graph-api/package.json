@@ -19,28 +19,30 @@
     },
     "dependencies": {
         "@apollo/datasource-rest": "^6.4.1",
-        "@apollo/server": "^4.12.2",
-        "@as-integrations/express5": "^1.1.0",
-        "@neo4j/graphql": "^7.2.0",
-        "body-parser": "^1.20.3",
-        "cors": "^2.8.5",
-        "dotenv": "^16.5.0",
-        "express": "^5.1.0",
-        "graphql": "^16.11.0",
+        "@apollo/server": "^5.5.1",
+        "@as-integrations/express5": "^1.1.2",
+        "@neo4j/graphql": "^7.5.3",
+        "body-parser": "^2.2.2",
+        "cors": "^2.8.6",
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1",
+        "graphql": "^16.14.0",
         "graphql-tag": "^2.12.6",
-        "neo4j-driver": "^5.28.1",
+        "neo4j-driver": "^6.0.1",
         "serpapi": "^2.1.0"
     },
     "devDependencies": {
-        "@graphql-codegen/cli": "^5.0.7",
+        "@graphql-codegen/cli": "^7.1.2",
         "@graphql-codegen/typescript": "^4.1.6",
-        "@graphql-codegen/typescript-resolvers": "^4.5.1",
+        "@graphql-codegen/typescript-resolvers": "^6.0.2",
+        "@types/body-parser": "^1.19.6",
         "@types/cors": "^2.8.19",
+        "@types/express": "^5.0.6",
         "@types/node": "^24.0.1",
         "copyfiles": "^2.4.1",
-        "nodemon": "^3.1.10",
+        "nodemon": "^3.1.14",
         "ts-node": "^10.9.2",
         "ts-node-dev": "^2.0.0",
-        "typescript": "^5.8.3"
+        "typescript": "^6.0.3"
     }
 }

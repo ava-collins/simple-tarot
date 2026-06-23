@@ -12,18 +12,16 @@
         "target": "ES2017",
         "allowJs": true,
         "outDir": "dist",
-        "rootDir": "."
+        "rootDir": ".",
+        "ignoreDeprecations": "6.0"
     },
-    "include": [
-        "src/**/*",
-        "index.tsx"
-    ],
+    "include": ["src/**/*", "index.tsx"],
     "exclude": [
         "**/*.js",
         "node_modules",
         "dist/**",
         "coverage/**",
         "**/*.test.ts",
-        "**/*.test.tsx",
+        "**/*.test.tsx"
     ]
 }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import * as React from 'react';
 import Svg, { G, Path, Ellipse } from 'react-native-svg';
 function SvgArcana0Fool(props) {

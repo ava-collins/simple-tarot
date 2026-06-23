@@ -5,22 +5,14 @@
         "baseUrl": ".",
         "target": "es2017",
         "module": "nodenext",
-        "lib": [
-            "es2017"
-        ],
+        "ignoreDeprecations": "6.0",
+        "lib": ["es2017"],
         "strict": true,
         "esModuleInterop": true,
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true
     },
-    "files": [
-        "src/graphql.d.ts"
-    ],
-    "include": [
-        "src/**/*"
-    ],
-    "exclude": [
-        "dist",
-        "src/types.ts"
-    ]
+    "files": ["src/graphql.d.ts"],
+    "include": ["src/**/*"],
+    "exclude": ["dist", "src/types.ts"]
 }

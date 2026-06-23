@@ -62,7 +62,6 @@ Prefer scopes that match the part of the monorepo you changed:
 
 | Scope | Use for |
 | --- | --- |
-| `admin` | `apps/admin` |
 | `graph-api` | `apps/graph-api` |
 | `tarot` | `apps/tarot` |
 | `hooks` | `packages/hooks` |
@@ -85,4 +84,3 @@ not create a package release by itself.
 
 If a single commit changes multiple packages, semantic-release-monorepo can
 consider that commit for each package whose files were touched.
-

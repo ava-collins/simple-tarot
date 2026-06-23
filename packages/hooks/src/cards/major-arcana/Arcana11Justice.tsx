@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import * as React from 'react';
 import Svg, { Path, G, Ellipse, Rect } from 'react-native-svg';
 function SvgArcana11Justice(props) {

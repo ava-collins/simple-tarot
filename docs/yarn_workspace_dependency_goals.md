@@ -2,10 +2,10 @@
 
 ## Overview
 
-Simple Tarot uses Yarn 4 workspaces to keep the mobile app, admin web app, graph
-API, shared hooks, and shared UI package in one repository without hiding
-package ownership. Each workspace should declare the packages it imports, even
-when another workspace already brings those packages into the root install.
+Simple Tarot uses Yarn 4 workspaces to keep the mobile app, graph API, shared
+hooks, and shared UI package in one repository without hiding package ownership.
+Each workspace should declare the packages it imports, even when another
+workspace already brings those packages into the root install.
 
 The goal is to make every workspace understandable, testable, and portable on
 its own terms.
@@ -13,7 +13,6 @@ its own terms.
 ## Workspace Map
 
 - `apps/tarot` is the Expo React Native mobile application.
-- `apps/admin` is the Next.js admin application using React Native Web.
 - `apps/graph-api` is the Apollo/Express/Neo4j API server.
 - `packages/hooks` contains shared React hooks, state, data access helpers, and
   shared application types.
@@ -42,8 +41,8 @@ tests, or Storybook.
 
 Apps should provide concrete runtime versions.
 
-Applications such as `tarot` and `admin` should list the concrete packages they
-run with in `dependencies`. Apps are the runtime providers for library peers.
+Applications such as `tarot` should list the concrete packages they run with in
+`dependencies`. Apps are the runtime providers for library peers.
 
 Do not create package cycles.
 
@@ -87,8 +86,6 @@ yarn explain peer-requirements
 yarn workspace @simpletarot/ui build-types
 yarn workspace @simpletarot/hooks build-types
 yarn workspace tarot build-types
-yarn workspace admin build-types
-yarn workspace admin build
 ```
 
 Use targeted commands when changing only one workspace. Use the full set before
@@ -117,7 +114,6 @@ The dependency architecture should move toward explicit ownership:
 - `packages/hooks` owns shared non-visual types and hook logic.
 - `packages/ui` owns visual components and Storybook.
 - `apps/tarot` provides Expo and mobile runtime dependencies.
-- `apps/admin` provides Next.js and React Native Web runtime dependencies.
 - `apps/graph-api` provides server runtime dependencies.
 
 This keeps the monorepo flexible without turning the root install into a hidden
