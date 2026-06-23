@@ -34,6 +34,7 @@ export default defineConfig([
             'apps/graph-api/codegen.ts',
             'apps/graph-api/src/types.ts',
             'apps/tarot/.expo/**',
+            'apps/tarot/expo-env.d.ts',
             'apps/tarot/metro.config.js',
             'packages/ui/.storybook_server/**',
             'packages/ui/.storybook/**',
