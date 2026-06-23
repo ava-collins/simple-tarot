@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+// @ts-nocheck
 import * as React from 'react';
 import Svg, { Path, G } from 'react-native-svg';
 function SvgCupKing(props) {
