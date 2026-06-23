@@ -33,7 +33,11 @@
     "resolutions": {
         "graphql": "^16.11.0",
         "ts-node": "^10.9.2",
-        "@types/node": "^24.0.1"
+        "@types/node": "22.14.0",
+        "react": "19.2.3",
+        "react-dom": "19.2.3",
+        "react-native": "0.85.3",
+        "@types/react": "19.2.3"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",

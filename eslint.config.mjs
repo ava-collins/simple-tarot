@@ -6,7 +6,7 @@ import globals from 'globals';
 import js from '@eslint/js';
 import path from 'node:path';
 // For more info, see https://github.com/storybookjs/eslint-plugin-storybook#configuration-flat-config-format
-import storybook from "eslint-plugin-storybook";
+import storybook from 'eslint-plugin-storybook';
 import tsParser from '@typescript-eslint/parser';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
 
@@ -20,25 +20,25 @@ const compat = new FlatCompat({
 
 export default defineConfig([
     {
-      ignores: [
-        '**/*.mjs',
-        '**/*.test.ts',
-        '**/*.test.tsx',
-        '**/assets/**',
-        '**/coverage/**',
-        '**/dist/**',
-        '**/node_modules/**',
-        '**/public/**',
-        'apps/admin/.next/**',
-        'apps/graph-api/codegen.ts',
-        'apps/graph-api/src/types.ts',
-        'apps/tarot/.expo/**',
-        'apps/tarot/metro.config.js',
-        'packages/ui/.storybook_server/**',
-        'packages/ui/.storybook/**',
-        'packages/ui/storybook-static/**',
-
-      ]
+        ignores: [
+            '**/*.mjs',
+            '**/*.test.ts',
+            '**/*.test.tsx',
+            '**/assets/**',
+            '**/coverage/**',
+            '**/dist/**',
+            '**/node_modules/**',
+            '**/public/**',
+            '**/scripts/**',
+            'apps/admin/.next/**',
+            'apps/graph-api/codegen.ts',
+            'apps/graph-api/src/types.ts',
+            'apps/tarot/.expo/**',
+            'apps/tarot/metro.config.js',
+            'packages/ui/.storybook_server/**',
+            'packages/ui/.storybook/**',
+            'packages/ui/storybook-static/**'
+        ]
     },
     {
         extends: compat.extends(
@@ -71,45 +71,64 @@ export default defineConfig([
             'arrow-spacing': 2,
             'block-scoped-var': 2,
 
-            'brace-style': [2, '1tbs', {
-                allowSingleLine: true
-            }],
+            'brace-style': [
+                2,
+                '1tbs',
+                {
+                    allowSingleLine: true
+                }
+            ],
 
-            camelcase: [0, {
-                properties: 'never'
-            }],
+            'camelcase': [
+                0,
+                {
+                    properties: 'never'
+                }
+            ],
 
             'comma-dangle': [2, 'never'],
 
-            'comma-spacing': [2, {
-                before: false,
-                after: true
-            }],
+            'comma-spacing': [
+                2,
+                {
+                    before: false,
+                    after: true
+                }
+            ],
 
             'comma-style': [2, 'last'],
             'consistent-return': 0,
-            curly: [2, 'multi-line'],
+            'curly': [2, 'multi-line'],
             'default-case': 2,
 
-            'dot-notation': [2, {
-                allowKeywords: true
-            }],
+            'dot-notation': [
+                2,
+                {
+                    allowKeywords: true
+                }
+            ],
 
             'eol-last': 2,
-            eqeqeq: 2,
+            'eqeqeq': 2,
             'func-names': 0,
             'guard-for-in': 2,
 
-            'key-spacing': [2, {
-                beforeColon: false,
-                afterColon: true
-            }],
+            'key-spacing': [
+                2,
+                {
+                    beforeColon: false,
+                    afterColon: true
+                }
+            ],
 
             'keyword-spacing': 2,
 
-            'new-cap': [0, {
-                newIsCap: true
-            }],
+            'new-cap': [
+                0,
+                {
+                    newIsCap: true
+                }
+            ],
 
             'no-alert': 1,
             'no-caller': 2,
@@ -143,9 +162,12 @@ export default defineConfig([
             'no-mixed-spaces-and-tabs': 2,
             'no-multi-str': 2,
 
-            'no-multiple-empty-lines': [2, {
-                max: 2
-            }],
+            'no-multiple-empty-lines': [
+                2,
+                {
+                    max: 2
+                }
+            ],
 
             'no-native-reassign': 2,
             'no-nested-ternary': 1,
@@ -173,7 +195,7 @@ export default defineConfig([
             'no-underscore-dangle': 0,
             'no-unreachable': 2,
 
-            'no-unused-vars': "off",
+            'no-unused-vars': 'off',
             '@typescript-eslint/no-unused-vars': 'warn',
             '@typescript-eslint/no-require-imports': 'off',
 
@@ -184,49 +206,59 @@ export default defineConfig([
             'one-var': [2, 'never'],
             'padded-blocks': [2, 'never'],
             'prefer-spread': 2,
-            quotes: [2, 'single', 'avoid-escape'],
-            radix: 2,
-            semi: [2, 'always'],
+            'quotes': [2, 'single', 'avoid-escape'],
+            'radix': 2,
+            'semi': [2, 'always'],
 
-            'semi-spacing': [2, {
-                before: false,
-                after: true
-            }],
+            'semi-spacing': [
+                2,
+                {
+                    before: false,
+                    after: true
+                }
+            ],
 
             'sort-vars': 2,
             'space-before-blocks': 2,
 
-            'space-before-function-paren': [2, {
-                anonymous: 'always',
-                named: 'never'
-            }],
+            'space-before-function-paren': [
+                2,
+                {
+                    anonymous: 'always',
+                    named: 'never'
+                }
+            ],
 
             'space-infix-ops': 2,
             'spaced-comment': 2,
-            strict: [2, 'never'],
+            'strict': [2, 'never'],
             'use-isnan': 2,
             'vars-on-top': 0,
             'wrap-iife': [2, 'any'],
-            yoda: 2,
+            'yoda': 2,
             'no-var': 2,
             'prefer-const': 2,
             'newline-before-return': 2,
             'prefer-template': 2,
             'no-const-assign': 2,
 
-            'prefer-destructuring': [1, {
-                VariableDeclarator: {
-                    array: false,
-                    object: true
-                },
+            'prefer-destructuring': [
+                1,
+                {
+                    VariableDeclarator: {
+                        array: false,
+                        object: true
+                    },
 
-                AssignmentExpression: {
-                    array: true,
-                    object: true
-                }
-            }, {
+                    AssignmentExpression: {
+                        array: true,
+                        object: true
+                    }
+                },
+                {
                     enforceForRenamedProperties: false
-                }],
+                }
+            ],
 
             'prefer-rest-params': 2,
             'no-useless-concat': 2,
@@ -256,39 +288,42 @@ export default defineConfig([
             'react/no-multi-comp': 1,
             'react/no-unknown-property': 2,
             'react/prop-types': 0,
-            'react/react-in-jsx-scope': 2,
+            'react/react-in-jsx-scope': 1,
             'react/self-closing-comp': 2,
             'react/sort-prop-types': 2,
             'react/no-unused-prop-types': 2,
             'react/no-string-refs': 1,
             'react/no-unescaped-entities': 0,
 
-            'react/sort-comp': [2, {
-                order: [
-                    'displayName',
-                    'propTypes',
-                    'contextTypes',
-                    'childContextTypes',
-                    'mixins',
-                    'statics',
-                    'defaultProps',
-                    'constructor',
-                    'getDefaultProps',
-                    'getInitialState',
-                    'getChildContext',
-                    'componentWillMount',
-                    'componentDidMount',
-                    'componentWillReceiveProps',
-                    'shouldComponentUpdate',
-                    'componentWillUpdate',
-                    'componentDidUpdate',
-                    'componentWillUnmount',
-                    '/^on.+$/',
-                    '/^get.+$/',
-                    '/^render.+$/',
-                    'render'
-                ]
-            }],
+            'react/sort-comp': [
+                2,
+                {
+                    order: [
+                        'displayName',
+                        'propTypes',
+                        'contextTypes',
+                        'childContextTypes',
+                        'mixins',
+                        'statics',
+                        'defaultProps',
+                        'constructor',
+                        'getDefaultProps',
+                        'getInitialState',
+                        'getChildContext',
+                        'componentWillMount',
+                        'componentDidMount',
+                        'componentWillReceiveProps',
+                        'shouldComponentUpdate',
+                        'componentWillUpdate',
+                        'componentDidUpdate',
+                        'componentWillUnmount',
+                        '/^on.+$/',
+                        '/^get.+$/',
+                        '/^render.+$/',
+                        'render'
+                    ]
+                }
+            ],
 
             'react/prefer-stateless-function': 1
         }

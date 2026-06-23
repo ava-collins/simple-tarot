@@ -46,7 +46,11 @@ function main() {
     for (const index of keys) {
         const card = cards[index];
 
-        if (!isObject(card) || typeof card.index !== 'number' || Number.isNaN(card.index)) {
+        if (
+            !isObject(card) ||
+            typeof card.index !== 'number' ||
+            Number.isNaN(card.index)
+        ) {
             skipped += 1;
             continue;
         }
@@ -55,7 +59,7 @@ function main() {
             cardIndex: card.index,
             reversedMeaning: card.celtic_cross?.reversed?.outcome ?? '',
             spreadPositionIndex: 9,
-            uprightMeaning: card.celtic_cross?.upright?.outcome ?? '',
+            uprightMeaning: card.celtic_cross?.upright?.outcome ?? ''
         });
     }
 
