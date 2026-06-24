@@ -9,7 +9,7 @@ import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 
 export default function SignInScreen() {
-  const { authRequestReady, error, isSignedIn, signIn } = useAuth();
+  const { authRequestReady, error, getSignInDebugInfo, isSignedIn, signIn } = useAuth();
   const router = useRouter();
   const [isStarting, setIsStarting] = useState(false);
   const [startError, setStartError] = useState<string | null>(null);
@@ -28,6 +28,7 @@ export default function SignInScreen() {
     setStartError(null);
 
     try {
+      console.log('[auth] sign-in request debug', await getSignInDebugInfo());
       await signIn();
       console.log('[auth] signIn prompt completed');
     } catch (signInError) {

@@ -28,6 +28,10 @@ export type IdTokenClaims = Record<string, unknown>;
 
 export type AuthContextValue = {
   authRequestReady: boolean;
+  getSignInDebugInfo: () => Promise<{
+    authorizationUrl: string | null;
+    redirectUri: string;
+  }>;
   error: string | null;
   idTokenClaims: IdTokenClaims | null;
   isLoading: boolean;
@@ -208,6 +212,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [promptAsync, request]);
 
+  const getSignInDebugInfo = useCallback(async () => {
+    const redirectUri = getCognitoRedirectUri();
+    const authorizationUrl = request ? await request.makeAuthUrlAsync(cognitoDiscovery) : null;
+
+    return {
+      authorizationUrl,
+      redirectUri
+    };
+  }, [request]);
+
   const signOut = useCallback(async () => {
     setIsLoading(true);
     setError(null);
@@ -271,6 +285,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(
     () => ({
       authRequestReady: Boolean(request),
+      getSignInDebugInfo,
       error,
       idTokenClaims: getIdTokenClaims(tokens?.idToken),
       isLoading,
@@ -281,7 +296,17 @@ export function AuthProvider({ children }: PropsWithChildren) {
       signOut,
       tokens
     }),
-    [error, isLoading, refreshSession, request, restoreSession, signIn, signOut, tokens]
+    [
+      error,
+      getSignInDebugInfo,
+      isLoading,
+      refreshSession,
+      request,
+      restoreSession,
+      signIn,
+      signOut,
+      tokens
+    ]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
