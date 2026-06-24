@@ -35,6 +35,7 @@ export default function SignInRoute() {
         <LoginScreen
             isLoading={isStarting}
             error={startError ?? error}
+            onSignUpPress={() => router.push('/auth/sign-up' as Href)}
             onSubmit={(emailAddress, password) => void handleSubmit(emailAddress, password)}
         />
     );

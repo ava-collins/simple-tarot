@@ -13,7 +13,10 @@ import {
   getCognitoLogoutUrl
 } from './auth-session';
 import {
+  confirmCognitoSignUp,
+  type CognitoSignUpResult,
   refreshCognitoPasswordSession,
+  signUpWithCognitoPassword,
   signInWithCognitoPassword
 } from './cognito-password-auth';
 import { getCognitoConfig } from './cognito-config';
@@ -38,7 +41,9 @@ export type AuthContextValue = {
   isSignedIn: boolean;
   refreshSession: () => Promise<AuthTokens | null>;
   restoreSession: () => Promise<void>;
+  confirmSignUp: (emailAddress: string, verificationCode: string) => Promise<void>;
   signIn: (emailAddress: string, password: string) => Promise<void>;
+  signUp: (emailAddress: string, password: string) => Promise<CognitoSignUpResult>;
   signOut: () => Promise<void>;
   tokens: AuthTokens | null;
 };
@@ -180,6 +185,38 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [persistTokens]);
 
+  const signUp = useCallback(async (emailAddress: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      return await signUpWithCognitoPassword(cognitoConfig, emailAddress, password);
+    } catch (authError) {
+      const message = authError instanceof Error ? authError.message : 'Unable to create account.';
+
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  const confirmSignUp = useCallback(async (emailAddress: string, verificationCode: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await confirmCognitoSignUp(cognitoConfig, emailAddress, verificationCode);
+    } catch (authError) {
+      const message = authError instanceof Error ? authError.message : 'Unable to verify account.';
+
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   const getSignInDebugInfo = useCallback(async () => {
     return {
       authorizationUrl: null,
@@ -217,6 +254,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
   const value = useMemo<AuthContextValue>(
     () => ({
       authRequestReady: true,
+      confirmSignUp,
       getSignInDebugInfo,
       error,
       idTokenClaims: getIdTokenClaims(tokens?.idToken),
@@ -225,16 +263,19 @@ export function AuthProvider({ children }: PropsWithChildren) {
       refreshSession,
       restoreSession,
       signIn,
+      signUp,
       signOut,
       tokens
     }),
     [
       error,
+      confirmSignUp,
       getSignInDebugInfo,
       isLoading,
       refreshSession,
       restoreSession,
       signIn,
+      signUp,
       signOut,
       tokens
     ]

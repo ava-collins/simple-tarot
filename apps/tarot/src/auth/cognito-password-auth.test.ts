@@ -1,7 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  confirmCognitoSignUp,
   refreshCognitoPasswordSession,
+  signUpWithCognitoPassword,
   signInWithCognitoPassword
 } from './cognito-password-auth';
 
@@ -130,5 +132,85 @@ describe('signInWithCognitoPassword', () => {
       expiresIn: 3600,
       tokenType: 'Bearer'
     });
+  });
+});
+
+describe('signUpWithCognitoPassword', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('registers a user with Cognito SignUp and email attributes', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        UserConfirmed: false,
+        UserSub: 'user-sub'
+      })
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      signUpWithCognitoPassword(config, 'reader@example.com', 'secret-pass')
+    ).resolves.toEqual({
+      userConfirmed: false,
+      userSub: 'user-sub'
+    });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://cognito-idp.us-east-1.amazonaws.com/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-amz-json-1.1',
+          'X-Amz-Target': 'AWSCognitoIdentityProviderService.SignUp'
+        },
+        body: JSON.stringify({
+          ClientId: 'public-client-id',
+          Username: 'reader@example.com',
+          Password: 'secret-pass',
+          UserAttributes: [
+            {
+              Name: 'email',
+              Value: 'reader@example.com'
+            }
+          ]
+        })
+      }
+    );
+  });
+});
+
+describe('confirmCognitoSignUp', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('confirms a user registration with the emailed verification code', async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({})
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      confirmCognitoSignUp(config, 'reader@example.com', '123456')
+    ).resolves.toBeUndefined();
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://cognito-idp.us-east-1.amazonaws.com/',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-amz-json-1.1',
+          'X-Amz-Target': 'AWSCognitoIdentityProviderService.ConfirmSignUp'
+        },
+        body: JSON.stringify({
+          ClientId: 'public-client-id',
+          Username: 'reader@example.com',
+          ConfirmationCode: '123456'
+        })
+      }
+    );
   });
 });

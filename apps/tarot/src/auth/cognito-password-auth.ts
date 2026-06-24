@@ -14,12 +14,35 @@ type CognitoInitiateAuthResponse = {
   message?: string;
 };
 
-const cognitoTarget = 'AWSCognitoIdentityProviderService.InitiateAuth';
+type CognitoSignUpResponse = {
+  UserConfirmed?: boolean;
+  UserSub?: string;
+  message?: string;
+};
+
+export type CognitoSignUpResult = {
+  userConfirmed: boolean;
+  userSub?: string;
+};
+
+const cognitoInitiateAuthTarget = 'AWSCognitoIdentityProviderService.InitiateAuth';
+const cognitoSignUpTarget = 'AWSCognitoIdentityProviderService.SignUp';
+const cognitoConfirmSignUpTarget = 'AWSCognitoIdentityProviderService.ConfirmSignUp';
+
+function getCognitoEndpoint(config: CognitoConfig) {
+  return `https://cognito-idp.${config.awsRegion}.amazonaws.com/`;
+}
 
 async function readCognitoResponse(response: Response): Promise<CognitoInitiateAuthResponse> {
   const payload: unknown = await response.json();
 
   return payload && typeof payload === 'object' ? payload as CognitoInitiateAuthResponse : {};
+}
+
+async function readCognitoSignUpResponse(response: Response): Promise<CognitoSignUpResponse> {
+  const payload: unknown = await response.json();
+
+  return payload && typeof payload === 'object' ? payload as CognitoSignUpResponse : {};
 }
 
 function getCognitoErrorMessage(
@@ -46,7 +69,7 @@ async function initiateAuth(
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-amz-json-1.1',
-      'X-Amz-Target': cognitoTarget
+      'X-Amz-Target': cognitoInitiateAuthTarget
     },
     body: JSON.stringify(body)
   });
@@ -114,4 +137,63 @@ export async function refreshCognitoPasswordSession(
   );
 
   return toAuthTokens(result, refreshToken);
+}
+
+export async function signUpWithCognitoPassword(
+  config: CognitoConfig,
+  emailAddress: string,
+  password: string
+): Promise<CognitoSignUpResult> {
+  const response = await fetch(getCognitoEndpoint(config), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': cognitoSignUpTarget
+    },
+    body: JSON.stringify({
+      ClientId: config.clientId,
+      Username: emailAddress,
+      Password: password,
+      UserAttributes: [
+        {
+          Name: 'email',
+          Value: emailAddress
+        }
+      ]
+    })
+  });
+  const payload = await readCognitoSignUpResponse(response);
+
+  if (!response.ok) {
+    throw new Error(payload.message ?? 'Unable to create account.');
+  }
+
+  return {
+    userConfirmed: payload.UserConfirmed ?? false,
+    userSub: payload.UserSub
+  };
+}
+
+export async function confirmCognitoSignUp(
+  config: CognitoConfig,
+  emailAddress: string,
+  verificationCode: string
+): Promise<void> {
+  const response = await fetch(getCognitoEndpoint(config), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': cognitoConfirmSignUpTarget
+    },
+    body: JSON.stringify({
+      ClientId: config.clientId,
+      Username: emailAddress,
+      ConfirmationCode: verificationCode
+    })
+  });
+  const payload = await readCognitoSignUpResponse(response);
+
+  if (!response.ok) {
+    throw new Error(payload.message ?? 'Unable to verify account.');
+  }
 }

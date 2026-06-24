@@ -14,6 +14,7 @@ export default function TabLayout() {
         <Stack initialRouteName="account" screenOptions={{ headerShown: false }}>
           <Stack.Screen name="account" />
           <Stack.Screen name="auth/sign-in" />
+          <Stack.Screen name="auth/sign-up" />
           <Stack.Screen name="auth/callback" />
           <Stack.Screen name="auth/logout" />
           <Stack.Screen name="auth/sign-out" />

@@ -1,4 +1,4 @@
-import { errorMessages, validateEmail, validatePassword } from './validators';
+import { errorMessages, validateEmail, validateNewPassword } from './validators';
 
 import type { FormError } from './form-error';
 import React from 'react';
@@ -26,8 +26,8 @@ const useSignUpForm = (
             newErrors.push(errorMessages.INVALID_EMAIL as FormError);
         }
 
-        if (!validatePassword(password)) {
-            newErrors.push(errorMessages.PASSWORD_TOO_SHORT as FormError);
+        if (!validateNewPassword(password)) {
+            newErrors.push(errorMessages.NEW_PASSWORD_TOO_SHORT as FormError);
         }
 
         if (password !== confirmPassword) {
