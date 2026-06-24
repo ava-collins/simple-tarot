@@ -1,3 +1,11 @@
+# [@simpletarot/ui-v1.11.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.10.0...@simpletarot/ui-v1.11.0) (2026-06-24)
+
+
+### Features
+
+* **auth:** ui signup and signin ([b41cf13](https://github.com/ava-collins/simple-tarot/commit/b41cf1301e502e3d083ccde94054f66954aec91b))
+* **ui:** cognito screens ([fe1d4cd](https://github.com/ava-collins/simple-tarot/commit/fe1d4cd4ffdd6521fe2e8efa6352567292ef6394))
+
 # [@simpletarot/ui-v1.10.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.9.0...@simpletarot/ui-v1.10.0) (2026-05-27)
 
 
