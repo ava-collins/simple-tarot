@@ -15,6 +15,7 @@ export default function TabLayout() {
           <Stack.Screen name="account" />
           <Stack.Screen name="auth/sign-in" />
           <Stack.Screen name="auth/callback" />
+          <Stack.Screen name="auth/logout" />
           <Stack.Screen name="auth/sign-out" />
           <Stack.Screen name="index" />
           <Stack.Screen name="explore" />

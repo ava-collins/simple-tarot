@@ -7,10 +7,10 @@ WebBrowser.maybeCompleteAuthSession();
 
 export const cognitoScopes = ['openid', 'email', 'profile'];
 
-export function getCognitoRedirectUri() {
+export function getCognitoRedirectUri(path = 'auth/callback') {
   return AuthSession.makeRedirectUri({
     scheme: 'tarot',
-    path: 'auth/callback'
+    path
   });
 }
 
@@ -27,14 +27,18 @@ export function buildCognitoDiscovery(config: CognitoConfig) {
 export function buildCognitoAuthRequestConfig(config: CognitoConfig) {
   return {
     clientId: config.clientId,
-    redirectUri: getCognitoRedirectUri(),
+    redirectUri: getCognitoRedirectUri(config.redirectPath),
     responseType: AuthSession.ResponseType.Code,
     scopes: cognitoScopes,
     usePKCE: true
   };
 }
 
-export function getCognitoLogoutUrl(config: CognitoConfig, redirectUri = getCognitoRedirectUri()) {
+export function getCognitoLogoutRedirectUri(config: CognitoConfig) {
+  return getCognitoRedirectUri(config.logoutPath);
+}
+
+export function getCognitoLogoutUrl(config: CognitoConfig, redirectUri = getCognitoLogoutRedirectUri(config)) {
   const url = new URL(`https://${config.domain}/logout`);
 
   url.searchParams.set('client_id', config.clientId);

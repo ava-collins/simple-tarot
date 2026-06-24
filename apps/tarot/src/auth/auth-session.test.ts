@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 
 vi.mock('expo-auth-session', () => ({
-  makeRedirectUri: vi.fn(() => 'tarot://auth/callback'),
+  makeRedirectUri: vi.fn(({ path }: { path: string }) => `tarot://${path}`),
   ResponseType: {
     Code: 'code'
   }
@@ -15,6 +15,8 @@ import * as AuthSession from 'expo-auth-session';
 import {
   buildCognitoDiscovery,
   buildCognitoAuthRequestConfig,
+  getCognitoLogoutRedirectUri,
+  getCognitoLogoutUrl,
   getCognitoRedirectUri
 } from './auth-session';
 
@@ -50,5 +52,16 @@ describe('auth-session helpers', () => {
       scopes: ['openid', 'email', 'profile'],
       usePKCE: true
     });
+  });
+
+  it('uses Cognito logout_uri for logout with the configured logout path', () => {
+    const logoutUrl = new URL(getCognitoLogoutUrl(config));
+
+    expect(getCognitoLogoutRedirectUri(config)).toBe('tarot://auth/sign-out');
+    expect(logoutUrl.origin).toBe('https://example.auth.us-east-1.amazoncognito.com');
+    expect(logoutUrl.pathname).toBe('/logout');
+    expect(logoutUrl.searchParams.get('client_id')).toBe('public-client-id');
+    expect(logoutUrl.searchParams.get('logout_uri')).toBe('tarot://auth/sign-out');
+    expect(logoutUrl.searchParams.has('redirect_uri')).toBe(false);
   });
 });
