@@ -1,3 +1,11 @@
+# [@simpletarot/ui-v1.11.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.11.0...@simpletarot/ui-v1.11.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* knip unused exports ([009b454](https://github.com/ava-collins/simple-tarot/commit/009b454c2554a80f9ab573ef83dd765c05f34b78))
+* re-add exports for knip'd files ([e81624d](https://github.com/ava-collins/simple-tarot/commit/e81624d067ab4f835284658f0b7d96dad91aa4a8))
+
 # [@simpletarot/ui-v1.11.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.10.0...@simpletarot/ui-v1.11.0) (2026-06-24)
 
 
