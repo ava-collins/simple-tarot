@@ -1,3 +1,10 @@
+# [@simpletarot/hooks-v1.9.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.9.0...@simpletarot/hooks-v1.9.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* knip unused exports ([009b454](https://github.com/ava-collins/simple-tarot/commit/009b454c2554a80f9ab573ef83dd765c05f34b78))
+
 # [@simpletarot/hooks-v1.9.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.8.0...@simpletarot/hooks-v1.9.0) (2026-06-24)
 
 
