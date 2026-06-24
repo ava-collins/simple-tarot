@@ -14,7 +14,7 @@ import Card from '../atoms/card';
 const viewWidth = Dimensions.get('window').width;
 const viewHeight = Dimensions.get('window').height;
 
-export type ShuffleCardProps = {
+type ShuffleCardProps = {
     cardIndex: number;
     isShuffling: boolean;
     cutCards: (index: number) => void;

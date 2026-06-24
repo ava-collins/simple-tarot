@@ -19,7 +19,7 @@ const MobileProviders: React.FC<{ env: Record<string, string | undefined>; child
 
 export default MobileProviders;
 
-export interface MobileProvidersProps {
+interface MobileProvidersProps {
     env: Record<string, string | undefined>;
     children: React.ReactNode;
 }

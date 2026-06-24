@@ -80,7 +80,7 @@ const glowKeyframe = new Keyframe({
   }
 });
 
-export function AnimatedIcon() {
+function AnimatedIcon() {
   return (
     <View style={styles.iconContainer}>
       <Animated.View entering={glowKeyframe.duration(60 * 1000 * 4)} style={styles.glow}>

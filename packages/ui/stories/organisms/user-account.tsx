@@ -9,7 +9,7 @@ import theme from '../utils/theme';
 const t = theme();
 const { width, height } = Dimensions.get('window');
 
-export interface UserAccountProps {
+interface UserAccountProps {
     useremail: string;
     logout: () => void;
     resetPassword: () => void;

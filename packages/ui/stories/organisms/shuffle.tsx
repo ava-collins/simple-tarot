@@ -7,7 +7,7 @@ import ShuffleCard from '../molecules/shuffle-card';
 import TheSpread from '../atoms/the-spread';
 import { useInstructions } from '@simpletarot/hooks';
 
-export type ShuffleProps = {
+type ShuffleProps = {
     done: () => void;
     shuffleDeck: () => void;
     cutDeck: () => void;

@@ -1,10 +1,10 @@
 import { Dimensions, Platform, StatusBar } from 'react-native';
 
-export interface PercentageFn {
+interface PercentageFn {
     (percent: number): number;
 }
 
-export interface ValueFn {
+interface ValueFn {
     (fontSize: number, standardScreenHeight?: number): number;
 }
 
