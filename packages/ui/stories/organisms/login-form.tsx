@@ -8,7 +8,7 @@ import theme from '../utils/theme';
 
 const t = theme();
 
-export interface LoginFormProps {
+interface LoginFormProps {
     email: string;
     password: string;
     error?: string | null;

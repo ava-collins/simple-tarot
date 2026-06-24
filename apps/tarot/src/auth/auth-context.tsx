@@ -24,7 +24,7 @@ import {
     type AuthTokens
 } from './token-storage';
 
-export type IdTokenClaims = Record<string, unknown>;
+type IdTokenClaims = Record<string, unknown>;
 
 export type AuthContextValue = {
     authRequestReady: boolean;

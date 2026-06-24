@@ -8,7 +8,7 @@ import theme from '../utils/theme';
 
 const t = theme();
 
-export interface ForgotPasswordFormProps {
+interface ForgotPasswordFormProps {
     email: string;
     errors: FormError[];
     onEmailChange: (text: string) => void;

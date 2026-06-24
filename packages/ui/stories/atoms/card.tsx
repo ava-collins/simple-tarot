@@ -15,7 +15,7 @@ export type CardProps = {
 const width = vmin(9);
 const height = vmin(18);
 
-export const cardStyles = StyleSheet.create({
+const cardStyles = StyleSheet.create({
     card: {
         position: 'absolute',
         backgroundColor: 'white',

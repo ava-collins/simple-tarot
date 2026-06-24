@@ -5,7 +5,7 @@ import { type CognitoConfig } from './cognito-config';
 
 WebBrowser.maybeCompleteAuthSession();
 
-export const cognitoScopes = ['openid', 'email', 'profile'];
+const cognitoScopes = ['openid', 'email', 'profile'];
 
 export function getCognitoRedirectUri(path = 'auth/callback') {
   return AuthSession.makeRedirectUri({

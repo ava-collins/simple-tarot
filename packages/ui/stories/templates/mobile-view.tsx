@@ -4,7 +4,7 @@ import MobileProviders from './mobile-providers';
 import React from 'react';
 import theme from '../utils/theme';
 
-export interface MobileSignupProps {
+interface MobileSignupProps {
     children: React.ReactNode;
 }
 

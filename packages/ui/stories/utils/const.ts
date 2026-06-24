@@ -13,7 +13,7 @@ export const SPREAD = [
     { displayName: 'Outcome', coords: { x: 90, y: 5 } }
 ];
 
-export const CARD_NAME_INDEXES = [
+const CARD_NAME_INDEXES = [
     'Fool',
     'Magician',
     'High Priestess',

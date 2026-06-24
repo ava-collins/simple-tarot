@@ -1,15 +1,15 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { DataSourceContext } from './context';
-export type Maybe<T> = T | null;
-export type InputMaybe<T> = Maybe<T>;
-export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
-export type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
-export type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
-export type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
+type Maybe<T> = T | null;
+type InputMaybe<T> = Maybe<T>;
+type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+type MakeEmpty<T extends { [key: string]: unknown }, K extends keyof T> = { [_ in K]?: never };
+type Incremental<T> = T | { [P in keyof T]?: P extends ' $fragmentName' | '__typename' ? T[P] : never };
+type RequireFields<T, K extends keyof T> = Omit<T, K> & { [P in K]-?: NonNullable<T[P]> };
 /** All built-in and custom scalars, mapped to their actual values */
-export type Scalars = {
+type Scalars = {
   ID: { input: string; output: string; }
   String: { input: string; output: string; }
   Boolean: { input: boolean; output: boolean; }
@@ -22,7 +22,7 @@ export type AvatarImage = {
   thumbnail: Scalars['String']['output'];
 };
 
-export type Card = {
+type Card = {
   __typename?: 'Card';
   description: Scalars['String']['output'];
   image: Scalars['String']['output'];
@@ -36,7 +36,7 @@ export type Card = {
   type: Scalars['String']['output'];
 };
 
-export type CardInput = {
+type CardInput = {
   description: Scalars['String']['input'];
   image: Scalars['String']['input'];
   index: Scalars['Int']['input'];
@@ -48,7 +48,7 @@ export type CardInput = {
   type: Scalars['String']['input'];
 };
 
-export type CardPositionMeaning = {
+type CardPositionMeaning = {
   __typename?: 'CardPositionMeaning';
   card: Array<Card>;
   meaning: Scalars['String']['output'];
@@ -58,18 +58,18 @@ export type CardPositionMeaning = {
 };
 
 
-export type CardPositionMeaningMeaningArgs = {
+type CardPositionMeaningMeaningArgs = {
   isReversed: Scalars['Boolean']['input'];
 };
 
-export type CardPositionMeaningInput = {
+type CardPositionMeaningInput = {
   cardIndex: Scalars['Int']['input'];
   reversedMeaning: Scalars['String']['input'];
   spreadPositionIndex: Scalars['Int']['input'];
   uprightMeaning: Scalars['String']['input'];
 };
 
-export type Mutation = {
+type Mutation = {
   __typename?: 'Mutation';
   addSpread: Spread;
   createCard: Card;
@@ -84,56 +84,56 @@ export type Mutation = {
 };
 
 
-export type MutationAddSpreadArgs = {
+type MutationAddSpreadArgs = {
   spread: SpreadInput;
 };
 
 
-export type MutationCreateCardArgs = {
+type MutationCreateCardArgs = {
   input: CardInput;
 };
 
 
-export type MutationCreateCardPositionMeaningArgs = {
+type MutationCreateCardPositionMeaningArgs = {
   input: CardPositionMeaningInput;
 };
 
 
-export type MutationCreateCardPositionMeaningsArgs = {
+type MutationCreateCardPositionMeaningsArgs = {
   inputs: Array<CardPositionMeaningInput>;
 };
 
 
-export type MutationCreateCardsArgs = {
+type MutationCreateCardsArgs = {
   cards: Array<CardInput>;
 };
 
 
-export type MutationCreateReversedArgs = {
+type MutationCreateReversedArgs = {
   input: ReversedInput;
 };
 
 
-export type MutationCreateSpreadArgs = {
+type MutationCreateSpreadArgs = {
   input: SpreadMutationInput;
 };
 
 
-export type MutationCreateSpreadPositionArgs = {
+type MutationCreateSpreadPositionArgs = {
   input: SpreadPositionInput;
 };
 
 
-export type MutationCreateSuiteArgs = {
+type MutationCreateSuiteArgs = {
   input: SuiteInput;
 };
 
 
-export type MutationCreateUprightArgs = {
+type MutationCreateUprightArgs = {
   input: UprightInput;
 };
 
-export type Query = {
+type Query = {
   __typename?: 'Query';
   avatarImages: Array<AvatarImage>;
   cardsByIndex: Array<Card>;
@@ -141,31 +141,31 @@ export type Query = {
 };
 
 
-export type QueryCardsByIndexArgs = {
+type QueryCardsByIndexArgs = {
   indexes: Array<Scalars['Int']['input']>;
 };
 
 
-export type QueryReadingArgs = {
+type QueryReadingArgs = {
   items: Array<ReadingItemInput>;
 };
 
-export type ReadingItemInput = {
+type ReadingItemInput = {
   cardIndex: Scalars['Int']['input'];
   reversed: Scalars['Boolean']['input'];
   spreadPositionIndex: Scalars['Int']['input'];
 };
 
-export type Reversed = {
+type Reversed = {
   __typename?: 'Reversed';
   meaning: Scalars['String']['output'];
 };
 
-export type ReversedInput = {
+type ReversedInput = {
   meaning: Scalars['String']['input'];
 };
 
-export type Spread = {
+type Spread = {
   __typename?: 'Spread';
   description: Scalars['String']['output'];
   displayName: Scalars['String']['output'];
@@ -173,7 +173,7 @@ export type Spread = {
   positions: Array<SpreadPosition>;
 };
 
-export type SpreadCard = {
+type SpreadCard = {
   __typename?: 'SpreadCard';
   card: Card;
   cardReading: Scalars['String']['output'];
@@ -182,21 +182,21 @@ export type SpreadCard = {
   reversed: Scalars['Boolean']['output'];
 };
 
-export type SpreadInput = {
+type SpreadInput = {
   description: Scalars['String']['input'];
   displayName: Scalars['String']['input'];
   name: Scalars['String']['input'];
   positions: Array<Scalars['ID']['input']>;
 };
 
-export type SpreadMutationInput = {
+type SpreadMutationInput = {
   description: Scalars['String']['input'];
   displayName: Scalars['String']['input'];
   name: Scalars['String']['input'];
   spreadPositionIndexes: Array<Scalars['Int']['input']>;
 };
 
-export type SpreadPosition = {
+type SpreadPosition = {
   __typename?: 'SpreadPosition';
   description: Scalars['String']['output'];
   displayName: Scalars['String']['output'];
@@ -205,14 +205,14 @@ export type SpreadPosition = {
   spreadName: Scalars['String']['output'];
 };
 
-export type SpreadPositionInput = {
+type SpreadPositionInput = {
   description: Scalars['String']['input'];
   displayName: Scalars['String']['input'];
   index: Scalars['Int']['input'];
   spreadName: Scalars['String']['input'];
 };
 
-export type Suite = {
+type Suite = {
   __typename?: 'Suite';
   dominion?: Maybe<Scalars['String']['output']>;
   element: Scalars['String']['output'];
@@ -220,82 +220,82 @@ export type Suite = {
   zodiac: Array<Scalars['String']['output']>;
 };
 
-export type SuiteInput = {
+type SuiteInput = {
   dominion?: InputMaybe<Scalars['String']['input']>;
   element: Scalars['String']['input'];
   name: Scalars['String']['input'];
   zodiac: Array<Scalars['String']['input']>;
 };
 
-export type Upright = {
+type Upright = {
   __typename?: 'Upright';
   meaning: Scalars['String']['output'];
 };
 
-export type UprightInput = {
+type UprightInput = {
   meaning: Scalars['String']['input'];
 };
 
 
 
-export type ResolverTypeWrapper<T> = Promise<T> | T;
+type ResolverTypeWrapper<T> = Promise<T> | T;
 
 
-export type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
+type ResolverWithResolve<TResult, TParent, TContext, TArgs> = {
   resolve: ResolverFn<TResult, TParent, TContext, TArgs>;
 };
-export type Resolver<TResult, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
+type Resolver<TResult, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = ResolverFn<TResult, TParent, TContext, TArgs> | ResolverWithResolve<TResult, TParent, TContext, TArgs>;
 
-export type ResolverFn<TResult, TParent, TContext, TArgs> = (
+type ResolverFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
 ) => Promise<TResult> | TResult;
 
-export type SubscriptionSubscribeFn<TResult, TParent, TContext, TArgs> = (
+type SubscriptionSubscribeFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
 ) => AsyncIterable<TResult> | Promise<AsyncIterable<TResult>>;
 
-export type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
+type SubscriptionResolveFn<TResult, TParent, TContext, TArgs> = (
   parent: TParent,
   args: TArgs,
   context: TContext,
   info: GraphQLResolveInfo
 ) => TResult | Promise<TResult>;
 
-export interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
+interface SubscriptionSubscriberObject<TResult, TKey extends string, TParent, TContext, TArgs> {
   subscribe: SubscriptionSubscribeFn<{ [key in TKey]: TResult }, TParent, TContext, TArgs>;
   resolve?: SubscriptionResolveFn<TResult, { [key in TKey]: TResult }, TContext, TArgs>;
 }
 
-export interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
+interface SubscriptionResolverObject<TResult, TParent, TContext, TArgs> {
   subscribe: SubscriptionSubscribeFn<any, TParent, TContext, TArgs>;
   resolve: SubscriptionResolveFn<TResult, any, TContext, TArgs>;
 }
 
-export type SubscriptionObject<TResult, TKey extends string, TParent, TContext, TArgs> =
+type SubscriptionObject<TResult, TKey extends string, TParent, TContext, TArgs> =
   | SubscriptionSubscriberObject<TResult, TKey, TParent, TContext, TArgs>
   | SubscriptionResolverObject<TResult, TParent, TContext, TArgs>;
 
-export type SubscriptionResolver<TResult, TKey extends string, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> =
+type SubscriptionResolver<TResult, TKey extends string, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> =
   | ((...args: any[]) => SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>)
   | SubscriptionObject<TResult, TKey, TParent, TContext, TArgs>;
 
-export type TypeResolveFn<TTypes, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (
+type TypeResolveFn<TTypes, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (
   parent: TParent,
   context: TContext,
   info: GraphQLResolveInfo
 ) => Maybe<TTypes> | Promise<Maybe<TTypes>>;
 
-export type IsTypeOfResolverFn<T = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
+type IsTypeOfResolverFn<T = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>> = (obj: T, context: TContext, info: GraphQLResolveInfo) => boolean | Promise<boolean>;
 
-export type NextResolverFn<T> = () => Promise<T>;
+type NextResolverFn<T> = () => Promise<T>;
 
-export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = (
+type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = Record<PropertyKey, never>, TContext = Record<PropertyKey, never>, TArgs = Record<PropertyKey, never>> = (
   next: NextResolverFn<TResult>,
   parent: TParent,
   args: TArgs,
@@ -308,7 +308,7 @@ export type DirectiveResolverFn<TResult = Record<PropertyKey, never>, TParent = 
 
 
 /** Mapping between all available schema types and the resolvers types */
-export type ResolversTypes = {
+type ResolversTypes = {
   AvatarImage: ResolverTypeWrapper<AvatarImage>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
   Card: ResolverTypeWrapper<Card>;
@@ -336,7 +336,7 @@ export type ResolversTypes = {
 };
 
 /** Mapping between all available schema types and the resolvers parents */
-export type ResolversParentTypes = {
+type ResolversParentTypes = {
   AvatarImage: AvatarImage;
   Boolean: Scalars['Boolean']['output'];
   Card: Card;
@@ -363,11 +363,11 @@ export type ResolversParentTypes = {
   UprightInput: UprightInput;
 };
 
-export type AvatarImageResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['AvatarImage'] = ResolversParentTypes['AvatarImage']> = {
+type AvatarImageResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['AvatarImage'] = ResolversParentTypes['AvatarImage']> = {
   thumbnail?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type CardResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Card'] = ResolversParentTypes['Card']> = {
+type CardResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Card'] = ResolversParentTypes['Card']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   image?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -380,7 +380,7 @@ export type CardResolvers<ContextType = DataSourceContext, ParentType extends Re
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type CardPositionMeaningResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['CardPositionMeaning'] = ResolversParentTypes['CardPositionMeaning']> = {
+type CardPositionMeaningResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['CardPositionMeaning'] = ResolversParentTypes['CardPositionMeaning']> = {
   card?: Resolver<Array<ResolversTypes['Card']>, ParentType, ContextType>;
   meaning?: Resolver<ResolversTypes['String'], ParentType, ContextType, RequireFields<CardPositionMeaningMeaningArgs, 'isReversed'>>;
   position?: Resolver<Array<ResolversTypes['SpreadPosition']>, ParentType, ContextType>;
@@ -388,7 +388,7 @@ export type CardPositionMeaningResolvers<ContextType = DataSourceContext, Parent
   upright?: Resolver<Array<ResolversTypes['Upright']>, ParentType, ContextType>;
 };
 
-export type MutationResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
+type MutationResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Mutation'] = ResolversParentTypes['Mutation']> = {
   addSpread?: Resolver<ResolversTypes['Spread'], ParentType, ContextType, RequireFields<MutationAddSpreadArgs, 'spread'>>;
   createCard?: Resolver<ResolversTypes['Card'], ParentType, ContextType, RequireFields<MutationCreateCardArgs, 'input'>>;
   createCardPositionMeaning?: Resolver<ResolversTypes['CardPositionMeaning'], ParentType, ContextType, RequireFields<MutationCreateCardPositionMeaningArgs, 'input'>>;
@@ -401,24 +401,24 @@ export type MutationResolvers<ContextType = DataSourceContext, ParentType extend
   createUpright?: Resolver<ResolversTypes['Upright'], ParentType, ContextType, RequireFields<MutationCreateUprightArgs, 'input'>>;
 };
 
-export type QueryResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
+type QueryResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   avatarImages?: Resolver<Array<ResolversTypes['AvatarImage']>, ParentType, ContextType>;
   cardsByIndex?: Resolver<Array<ResolversTypes['Card']>, ParentType, ContextType, RequireFields<QueryCardsByIndexArgs, 'indexes'>>;
   reading?: Resolver<Array<ResolversTypes['SpreadCard']>, ParentType, ContextType, RequireFields<QueryReadingArgs, 'items'>>;
 };
 
-export type ReversedResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Reversed'] = ResolversParentTypes['Reversed']> = {
+type ReversedResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Reversed'] = ResolversParentTypes['Reversed']> = {
   meaning?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type SpreadResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Spread'] = ResolversParentTypes['Spread']> = {
+type SpreadResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Spread'] = ResolversParentTypes['Spread']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   positions?: Resolver<Array<ResolversTypes['SpreadPosition']>, ParentType, ContextType>;
 };
 
-export type SpreadCardResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['SpreadCard'] = ResolversParentTypes['SpreadCard']> = {
+type SpreadCardResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['SpreadCard'] = ResolversParentTypes['SpreadCard']> = {
   card?: Resolver<ResolversTypes['Card'], ParentType, ContextType>;
   cardReading?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   keywords?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
@@ -426,7 +426,7 @@ export type SpreadCardResolvers<ContextType = DataSourceContext, ParentType exte
   reversed?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
 };
 
-export type SpreadPositionResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['SpreadPosition'] = ResolversParentTypes['SpreadPosition']> = {
+type SpreadPositionResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['SpreadPosition'] = ResolversParentTypes['SpreadPosition']> = {
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   index?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -434,14 +434,14 @@ export type SpreadPositionResolvers<ContextType = DataSourceContext, ParentType 
   spreadName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 
-export type SuiteResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Suite'] = ResolversParentTypes['Suite']> = {
+type SuiteResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Suite'] = ResolversParentTypes['Suite']> = {
   dominion?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   element?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   zodiac?: Resolver<Array<ResolversTypes['String']>, ParentType, ContextType>;
 };
 
-export type UprightResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Upright'] = ResolversParentTypes['Upright']> = {
+type UprightResolvers<ContextType = DataSourceContext, ParentType extends ResolversParentTypes['Upright'] = ResolversParentTypes['Upright']> = {
   meaning?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
 };
 

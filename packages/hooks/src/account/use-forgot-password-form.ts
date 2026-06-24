@@ -3,7 +3,7 @@ import { errorMessages, validateEmail } from './validators';
 import type { FormError } from './form-error';
 import React from 'react';
 
-export interface useForgotPasswordFormProps {
+interface useForgotPasswordFormProps {
     errors: FormError[];
     handleChange: () => void;
     handleSubmit: (email: string) => void;

@@ -27,7 +27,8 @@
         "run-db": "yarn workspace graph-api run-db",
         "stop-db": "yarn workspace graph-api stop-db",
         "storybook-static": "npx http-server -S true -C ./ssl/development/cert.pem -K ./ssl/development/key.pem ./packages/ui/storybook-static",
-        "storybook": "yarn workspace @simpletarot/ui storybook"
+        "storybook": "yarn workspace @simpletarot/ui storybook",
+        "knip": "knip"
     },
     "resolutions": {
         "graphql": "^16.11.0",
@@ -45,6 +46,7 @@
         "@eslint/js": "^9.39.4",
         "@semantic-release/changelog": "^6.0.3",
         "@semantic-release/git": "^10.0.1",
+        "@types/node": "^26.0.0",
         "@types/webpack-env": "^1.18.8",
         "conventional-changelog-conventionalcommits": "^9.0.0",
         "eslint": "^9.28.0",
@@ -52,6 +54,7 @@
         "eslint-plugin-react": "^7.37.5",
         "eslint-plugin-react-native": "^5.0.0",
         "husky": "^9.1.7",
+        "knip": "^6.20.0",
         "npm": "^11.4.1",
         "semantic-release": "^24.2.5",
         "semantic-release-monorepo": "^8.0.2",

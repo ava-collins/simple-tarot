@@ -8,7 +8,7 @@ import { useForgotPasswordForm } from '@simpletarot/hooks';
 
 const t = theme();
 
-export interface ForgotPasswordScreenProps {
+interface ForgotPasswordScreenProps {
     onSubmit: (emailAddress: string) => void;
 }
 const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onSubmit }) => {

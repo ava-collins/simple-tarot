@@ -1,4 +1,4 @@
-export interface Color {
+interface Color {
     base: string;
     muted?: string;
     dark?: string;
@@ -90,7 +90,7 @@ const smoky_black: Color = {
     accent4: '#377541'
 };
 
-export type Colors = {
+type Colors = {
     [key: string]: Color;
 };
 const colors: Colors = {
@@ -105,7 +105,7 @@ const colors: Colors = {
     tuscany
 };
 
-export function getColor(name: string): Color | undefined {
+function getColor(name: string): Color | undefined {
     return colors[name];
 }
 

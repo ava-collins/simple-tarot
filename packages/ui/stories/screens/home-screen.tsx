@@ -3,7 +3,7 @@ import NewReading from '../organisms/new-reading';
 import QuickNav from '../molecules/quick-nav';
 import React from 'react';
 
-export interface HomeScreenProps {
+interface HomeScreenProps {
     onStart: () => void;
 }
 const HomeScreen = ({ onStart }: HomeScreenProps) => (

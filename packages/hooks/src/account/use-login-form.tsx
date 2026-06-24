@@ -3,7 +3,7 @@ import { errorMessages, validateEmail, validatePassword } from './validators';
 import type { FormError } from './form-error';
 import React from 'react';
 
-export interface useSignUpFormProps {
+interface useSignUpFormProps {
     errors: FormError[];
     handleChange: () => void;
     handleSubmit: (email: string, password: string) => void;

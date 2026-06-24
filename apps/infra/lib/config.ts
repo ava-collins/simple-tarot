@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-export type SimpleTarotEnvironment = 'dev' | 'prod';
+type SimpleTarotEnvironment = 'dev' | 'prod';
 type InfraEnvironment = Record<string, string | undefined>;
 
 export interface InfraConfigInput {
