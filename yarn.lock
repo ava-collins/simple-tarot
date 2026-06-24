@@ -11637,6 +11637,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-application@npm:~56.0.3":
+  version: 56.0.3
+  resolution: "expo-application@npm:56.0.3"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/868d40fcbaa7618beb088c72480286ce0a10f8cc80292f8fe56897249e411d63c19141041a88724473bbdf415fae694ac3327d7b669cf82997c2762f668403a1
+  languageName: node
+  linkType: hard
+
 "expo-asset@npm:^12.0.0":
   version: 12.0.13
   resolution: "expo-asset@npm:12.0.13"
@@ -11665,6 +11674,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"expo-auth-session@npm:~56.0.14":
+  version: 56.0.14
+  resolution: "expo-auth-session@npm:56.0.14"
+  dependencies:
+    expo-application: "npm:~56.0.3"
+    expo-constants: "npm:~56.0.18"
+    expo-crypto: "npm:~56.0.4"
+    expo-linking: "npm:~56.0.14"
+    expo-web-browser: "npm:~56.0.5"
+    invariant: "npm:^2.2.4"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: 10c0/5abcc8f38d4b92d38ac68f21df12d6fba9be12c3c50cc5e05610df21c968bde9789c80cc9d125e1d95963a8c6014f4c2fe2ebebbbf18e65da023ff8e37c4f9fd
+  languageName: node
+  linkType: hard
+
 "expo-constants@npm:~18.0.13":
   version: 18.0.13
   resolution: "expo-constants@npm:18.0.13"
@@ -11687,6 +11713,15 @@ __metadata:
     expo: "*"
     react-native: "*"
   checksum: 10c0/4a8c35f4eeeb078c0feb3d5b55da403ef1d151a35b9b3a4e17505cedfb7ddd78cc02d670ebc5b7c9fb11d42052fd1b0c143cd0a652d22fa6a3730685b19ca0b2
+  languageName: node
+  linkType: hard
+
+"expo-crypto@npm:~56.0.4":
+  version: 56.0.4
+  resolution: "expo-crypto@npm:56.0.4"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/61f526039c7c39fea0ac8e69d1c8513565a90c0528749c4c24bf0a6d6691194c7e114afbb5648545e33530965036cdc25bb9888bab54b5c11e8354bd7e154e2b
   languageName: node
   linkType: hard
 
@@ -11890,6 +11925,15 @@ __metadata:
     react-server-dom-webpack:
       optional: true
   checksum: 10c0/43f753b42592c6dffdc93b41b076773c2fccaea2fd6841e2c1d23babd81c99cea914c89eee775527af1d3247c17b6e0db16e3d9c2f35b2a324a8bc8672c0667c
+  languageName: node
+  linkType: hard
+
+"expo-secure-store@npm:~56.0.4":
+  version: 56.0.4
+  resolution: "expo-secure-store@npm:56.0.4"
+  peerDependencies:
+    expo: "*"
+  checksum: 10c0/8f3c81e64dfd6a0300bdf8b172e2f95d9342e4fd818148803df88cc2be0dc9189c5fdc318c33b6f7c7b9015172d6268fd686d8f250a349c0fb2c993a7ef2f280
   languageName: node
   linkType: hard
 
@@ -21209,9 +21253,12 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
     "@testing-library/jest-native": "npm:^5.4.3"
     "@testing-library/react-native": "npm:^13.2.0"
     "@types/react": "npm:19.2.3"
+    eslint: "npm:^9.28.0"
     expo: "npm:~56.0.12"
     expo-asset: "npm:^12.0.0"
+    expo-auth-session: "npm:~56.0.14"
     expo-constants: "npm:~56.0.18"
+    expo-crypto: "npm:~56.0.4"
     expo-device: "npm:~56.0.4"
     expo-font: "npm:~56.0.7"
     expo-glass-effect: "npm:~56.0.4"
@@ -21219,6 +21266,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
     expo-linear-gradient: "npm:^15.0.0"
     expo-linking: "npm:~56.0.14"
     expo-router: "npm:~56.2.11"
+    expo-secure-store: "npm:~56.0.4"
     expo-splash-screen: "npm:~56.0.10"
     expo-status-bar: "npm:~56.0.4"
     expo-symbols: "npm:~56.0.6"
@@ -21240,6 +21288,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
     react-native-worklets: "npm:0.8.3"
     react-test-renderer: "npm:19.2.3"
     typescript: "npm:~6.0.3"
+    vitest: "npm:^3.2.4"
   languageName: unknown
   linkType: soft
 

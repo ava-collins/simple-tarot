@@ -9,7 +9,9 @@
         "@simpletarot/ui": "*",
         "expo": "~56.0.12",
         "expo-asset": "^12.0.0",
+        "expo-auth-session": "~56.0.14",
         "expo-constants": "~56.0.18",
+        "expo-crypto": "~56.0.4",
         "expo-device": "~56.0.4",
         "expo-font": "~56.0.7",
         "expo-glass-effect": "~56.0.4",
@@ -17,6 +19,7 @@
         "expo-linear-gradient": "^15.0.0",
         "expo-linking": "~56.0.14",
         "expo-router": "~56.2.11",
+        "expo-secure-store": "~56.0.4",
         "expo-splash-screen": "~56.0.10",
         "expo-status-bar": "~56.0.4",
         "expo-symbols": "~56.0.6",
@@ -43,8 +46,10 @@
         "@testing-library/jest-native": "^5.4.3",
         "@testing-library/react-native": "^13.2.0",
         "@types/react": "19.2.3",
+        "eslint": "^9.28.0",
         "react-test-renderer": "19.2.3",
-        "typescript": "~6.0.3"
+        "typescript": "~6.0.3",
+        "vitest": "^3.2.4"
     },
     "scripts": {
         "start": "expo start",
@@ -52,7 +57,8 @@
         "android": "expo start --android",
         "ios": "expo start --ios",
         "web": "expo start --web",
-        "lint": "expo lint"
+        "lint": "expo lint",
+        "test": "vitest --config vitest.config.mjs"
     },
     "private": true
 }
