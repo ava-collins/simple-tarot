@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react';
 
 import FormButton from '../atoms/form-button';
 import FormInputRow from '../molecules/form-input-row';
-import { KeyboardType } from 'react-native';
+import { KeyboardType, StyleSheet, Text } from 'react-native';
 import type { FormError } from '@simpletarot/hooks';
+import theme from '../utils/theme';
+
+const t = theme();
 
 export interface LoginFormProps {
     email: string;
     password: string;
+    error?: string | null;
+    isLoading?: boolean;
     onEmailChange: (text: string) => void;
     onPasswordChange: (text: string) => void;
     onSubmit: () => void;
@@ -17,6 +22,8 @@ export interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({
     email,
     password,
+    error,
+    isLoading = false,
     errors,
     onEmailChange,
     onPasswordChange,
@@ -68,13 +75,23 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 inputProps={passwordProps}
                 textProps={{ error: passwordError }}
             />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <FormButton
-                buttonLabel="Login"
+                buttonLabel={isLoading ? 'Logging in...' : 'Login'}
                 onPress={onSubmit}
-                btnEnabled={errors && errors.length === 0}
+                btnEnabled={!isLoading && errors && errors.length === 0}
             />
         </>
     );
 };
 
 export default LoginForm;
+
+const styles = StyleSheet.create({
+    errorText: {
+        color: t.colors.error,
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 12
+    }
+});

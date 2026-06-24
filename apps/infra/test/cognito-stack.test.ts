@@ -117,6 +117,11 @@ describe('CognitoStack', () => {
     template.hasResourceProperties('AWS::Cognito::UserPoolClient', {
       GenerateSecret: false,
       PreventUserExistenceErrors: 'ENABLED',
+      ExplicitAuthFlows: [
+        'ALLOW_USER_PASSWORD_AUTH',
+        'ALLOW_USER_SRP_AUTH',
+        'ALLOW_REFRESH_TOKEN_AUTH',
+      ],
       AllowedOAuthFlowsUserPoolClient: true,
       AllowedOAuthFlows: ['code'],
       AllowedOAuthScopes: ['openid', 'email', 'profile'],

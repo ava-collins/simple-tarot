@@ -6,6 +6,8 @@ export { default as AccountScreen } from './stories/screens/account-screen';
 export type { AccountScreenProps } from './stories/screens/account-screen';
 export { default as CognitoSignInScreen } from './stories/screens/cognito-sign-in-screen';
 export type { CognitoSignInScreenProps } from './stories/screens/cognito-sign-in-screen';
+export { default as LoginScreen } from './stories/screens/login-screen';
+export type { LoginScreenProps } from './stories/screens/login-screen';
 export { default as AuthCallbackScreen } from './stories/screens/auth-callback-screen';
 export type { AuthCallbackScreenProps } from './stories/screens/auth-callback-screen';
 export { default as SignOutScreen } from './stories/screens/sign-out-screen';

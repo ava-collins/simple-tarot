@@ -1,11 +1,11 @@
-import { CognitoSignInScreen } from '@simpletarot/ui';
+import { LoginScreen } from '@simpletarot/ui';
 import { useRouter, type Href } from 'expo-router';
 import { useEffect, useState } from 'react';
 
 import { useAuth } from '@/auth/use-auth';
 
 export default function SignInRoute() {
-    const { authRequestReady, error, isSignedIn, signIn } = useAuth();
+    const { error, isSignedIn, signIn } = useAuth();
     const router = useRouter();
     const [isStarting, setIsStarting] = useState(false);
     const [startError, setStartError] = useState<string | null>(null);
@@ -16,15 +16,15 @@ export default function SignInRoute() {
         }
     }, [isSignedIn, router]);
 
-    const handleContinuePress = async () => {
+    const handleSubmit = async (emailAddress: string, password: string) => {
         setIsStarting(true);
         setStartError(null);
 
         try {
-            await signIn();
+            await signIn(emailAddress, password);
         } catch (err) {
             setStartError(
-                err instanceof Error ? err.message : 'Unable to start sign in.'
+                err instanceof Error ? err.message : 'Unable to sign in.'
             );
         } finally {
             setIsStarting(false);
@@ -32,11 +32,10 @@ export default function SignInRoute() {
     };
 
     return (
-        <CognitoSignInScreen
-            authRequestReady={authRequestReady}
+        <LoginScreen
             isLoading={isStarting}
             error={startError ?? error}
-            onContinuePress={() => void handleContinuePress()}
+            onSubmit={(emailAddress, password) => void handleSubmit(emailAddress, password)}
         />
     );
 }

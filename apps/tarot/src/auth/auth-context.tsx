@@ -1,4 +1,3 @@
-import * as AuthSession from 'expo-auth-session';
 import * as WebBrowser from 'expo-web-browser';
 import {
   createContext,
@@ -10,13 +9,13 @@ import {
 } from 'react';
 
 import {
-  buildCognitoAuthRequestConfig,
-  buildCognitoDiscovery,
-  cognitoScopes,
   getCognitoLogoutRedirectUri,
-  getCognitoLogoutUrl,
-  getCognitoRedirectUri
+  getCognitoLogoutUrl
 } from './auth-session';
+import {
+  refreshCognitoPasswordSession,
+  signInWithCognitoPassword
+} from './cognito-password-auth';
 import { getCognitoConfig } from './cognito-config';
 import {
   clearStoredTokens,
@@ -39,7 +38,7 @@ export type AuthContextValue = {
   isSignedIn: boolean;
   refreshSession: () => Promise<AuthTokens | null>;
   restoreSession: () => Promise<void>;
-  signIn: () => Promise<void>;
+  signIn: (emailAddress: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
   tokens: AuthTokens | null;
 };
@@ -47,19 +46,6 @@ export type AuthContextValue = {
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
 const cognitoConfig = getCognitoConfig();
-const cognitoDiscovery = buildCognitoDiscovery(cognitoConfig);
-const cognitoAuthRequestConfig = buildCognitoAuthRequestConfig(cognitoConfig);
-
-function toStoredTokens(response: AuthSession.TokenResponse, previousTokens?: AuthTokens | null): AuthTokens {
-  return {
-    accessToken: response.accessToken,
-    idToken: response.idToken,
-    refreshToken: response.refreshToken ?? previousTokens?.refreshToken,
-    issuedAt: response.issuedAt,
-    expiresIn: response.expiresIn,
-    tokenType: response.tokenType
-  };
-}
 
 function isTokenFresh(tokens: AuthTokens) {
   if (!tokens.expiresIn) {
@@ -126,10 +112,6 @@ function getIdTokenClaims(idToken?: string) {
 }
 
 export function AuthProvider({ children }: PropsWithChildren) {
-  const [request, response, promptAsync] = AuthSession.useAuthRequest(
-    cognitoAuthRequestConfig,
-    cognitoDiscovery
-  );
   const [tokens, setTokens] = useState<AuthTokens | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -144,15 +126,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       return null;
     }
 
-    const responseTokens = await AuthSession.refreshAsync(
-      {
-        clientId: cognitoConfig.clientId,
-        refreshToken: tokens.refreshToken,
-        scopes: cognitoScopes
-      },
-      cognitoDiscovery
-    );
-    const nextTokens = toStoredTokens(responseTokens, tokens);
+    const nextTokens = await refreshCognitoPasswordSession(cognitoConfig, tokens.refreshToken);
 
     await persistTokens(nextTokens);
 
@@ -175,16 +149,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setTokens(storedTokens);
 
       if (!isTokenFresh(storedTokens) && storedTokens.refreshToken) {
-        const refreshedTokens = await AuthSession.refreshAsync(
-          {
-            clientId: cognitoConfig.clientId,
-            refreshToken: storedTokens.refreshToken,
-            scopes: cognitoScopes
-          },
-          cognitoDiscovery
+        await persistTokens(
+          await refreshCognitoPasswordSession(cognitoConfig, storedTokens.refreshToken)
         );
-
-        await persistTokens(toStoredTokens(refreshedTokens, storedTokens));
       }
     } catch (authError) {
       await clearStoredTokens();
@@ -195,33 +162,30 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, [persistTokens]);
 
-  const signIn = useCallback(async () => {
+  const signIn = useCallback(async (emailAddress: string, password: string) => {
+    setIsLoading(true);
     setError(null);
 
-    if (!request) {
-      throw new Error('Sign in is not ready yet.');
-    }
+    try {
+      const nextTokens = await signInWithCognitoPassword(cognitoConfig, emailAddress, password);
 
-    const result = await promptAsync();
+      await persistTokens(nextTokens);
+    } catch (authError) {
+      const message = authError instanceof Error ? authError.message : 'Unable to sign in.';
 
-    if (result.type === 'dismiss' || result.type === 'cancel') {
-      return;
+      setError(message);
+      throw new Error(message);
+    } finally {
+      setIsLoading(false);
     }
-
-    if (result.type === 'error') {
-      throw new Error(result.error?.message ?? 'Sign in failed.');
-    }
-  }, [promptAsync, request]);
+  }, [persistTokens]);
 
   const getSignInDebugInfo = useCallback(async () => {
-    const redirectUri = getCognitoRedirectUri();
-    const authorizationUrl = request ? await request.makeAuthUrlAsync(cognitoDiscovery) : null;
-
     return {
-      authorizationUrl,
-      redirectUri
+      authorizationUrl: null,
+      redirectUri: `https://cognito-idp.${cognitoConfig.awsRegion}.amazonaws.com/`
     };
-  }, [request]);
+  }, []);
 
   const signOut = useCallback(async () => {
     setIsLoading(true);
@@ -250,52 +214,9 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void restoreSession();
   }, [restoreSession]);
 
-  useEffect(() => {
-    async function exchangeCode() {
-      if (response?.type !== 'success') {
-        if (response?.type === 'error') {
-          setError(response.error?.message ?? 'Sign in failed.');
-        }
-
-        return;
-      }
-
-      if (!request?.codeVerifier) {
-        setError('Missing PKCE verifier for Cognito token exchange.');
-
-        return;
-      }
-
-      setIsLoading(true);
-      setError(null);
-
-      try {
-        const tokenResponse = await AuthSession.exchangeCodeAsync(
-          {
-            clientId: cognitoConfig.clientId,
-            code: response.params.code,
-            redirectUri: getCognitoRedirectUri(),
-            extraParams: {
-              code_verifier: request.codeVerifier
-            }
-          },
-          cognitoDiscovery
-        );
-
-        await persistTokens(toStoredTokens(tokenResponse));
-      } catch (authError) {
-        setError(authError instanceof Error ? authError.message : 'Unable to complete sign in.');
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    void exchangeCode();
-  }, [persistTokens, request?.codeVerifier, response]);
-
   const value = useMemo<AuthContextValue>(
     () => ({
-      authRequestReady: Boolean(request),
+      authRequestReady: true,
       getSignInDebugInfo,
       error,
       idTokenClaims: getIdTokenClaims(tokens?.idToken),
@@ -312,7 +233,6 @@ export function AuthProvider({ children }: PropsWithChildren) {
       getSignInDebugInfo,
       isLoading,
       refreshSession,
-      request,
       restoreSession,
       signIn,
       signOut,
