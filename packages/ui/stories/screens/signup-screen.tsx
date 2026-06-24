@@ -1,5 +1,5 @@
-import { KeyboardAvoidingView, Text, TextInputProps, View } from 'react-native';
-import React, { useState } from 'react';
+import { KeyboardAvoidingView, View } from 'react-native';
+import React from 'react';
 
 import MobileView from '../templates/mobile-view';
 import SignupForm from '../organisms/signup-form';
@@ -7,15 +7,28 @@ import theme from '../utils/theme';
 import { useSignupForm } from '@simpletarot/hooks';
 
 export interface SignupScreenProps {
+    error?: string | null;
+    isAwaitingVerification?: boolean;
+    isLoading?: boolean;
+    message?: string | null;
+    onConfirmSubmit?: (emailAddress: string, verificationCode: string) => void;
     onSubmit: (emailAddress: string, password: string) => void;
 }
 
 const t = theme();
 
-const SignupScreen: React.FC<SignupScreenProps> = ({ onSubmit }) => {
+const SignupScreen: React.FC<SignupScreenProps> = ({
+    error,
+    isAwaitingVerification = false,
+    isLoading = false,
+    message,
+    onConfirmSubmit,
+    onSubmit
+}) => {
     const [email, setEmail] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [verificationCode, setVerificationCode] = React.useState('');
 
     const { errors, handleChange, handleSubmit } = useSignupForm(onSubmit);
 
@@ -31,6 +44,12 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ onSubmit }) => {
         handleChange();
         setConfirmPassword(text);
     };
+    const handleVerificationCodeChange = (text: string) => {
+        setVerificationCode(text);
+    };
+    const handleConfirmSubmit = () => {
+        onConfirmSubmit?.(email, verificationCode);
+    };
 
     return (
         <MobileView>
@@ -40,10 +59,17 @@ const SignupScreen: React.FC<SignupScreenProps> = ({ onSubmit }) => {
                         email={email}
                         password={password}
                         confirmPassword={confirmPassword}
+                        error={error}
+                        isAwaitingVerification={isAwaitingVerification}
+                        isLoading={isLoading}
+                        message={message}
+                        verificationCode={verificationCode}
                         errors={errors}
                         onEmailChange={handleEmailChange}
                         onPasswordChange={handlePasswordChange}
                         onConfirmPasswordChange={handleConfirmPasswordChange}
+                        onVerificationCodeChange={handleVerificationCodeChange}
+                        onConfirmSubmit={handleConfirmSubmit}
                         onSubmit={handleSubmit.bind(
                             null,
                             email,

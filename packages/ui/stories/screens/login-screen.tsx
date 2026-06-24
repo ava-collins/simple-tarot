@@ -9,10 +9,18 @@ import { useLoginForm } from '@simpletarot/hooks';
 const t = theme();
 
 export interface LoginScreenProps {
+    error?: string | null;
+    isLoading?: boolean;
+    onSignUpPress?: () => void;
     onSubmit: (emailAddress: string, password: string) => void;
 }
 
-const LoginScreen: React.FC<LoginScreenProps> = ({ onSubmit }) => {
+const LoginScreen: React.FC<LoginScreenProps> = ({
+    error,
+    isLoading = false,
+    onSignUpPress,
+    onSubmit
+}) => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
@@ -39,7 +47,10 @@ const LoginScreen: React.FC<LoginScreenProps> = ({ onSubmit }) => {
                     <LoginForm
                         email={email}
                         password={password}
+                        error={error}
+                        isLoading={isLoading}
                         errors={errors}
+                        onSignUpPress={onSignUpPress}
                         onEmailChange={handleEmailChange}
                         onPasswordChange={handlePasswordChange}
                         onSubmit={handleSubmitForm}

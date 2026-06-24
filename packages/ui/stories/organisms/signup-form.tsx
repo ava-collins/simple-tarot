@@ -2,13 +2,23 @@ import React, { useEffect, useState } from 'react';
 
 import FormButton from '../atoms/form-button';
 import FormInputRow from '../molecules/form-input-row';
-import { KeyboardType } from 'react-native';
+import { KeyboardType, StyleSheet, Text } from 'react-native';
 import type { FormError } from '@simpletarot/hooks';
+import theme from '../utils/theme';
+
+const t = theme();
 
 export interface SignupFormProps {
     email: string;
     password: string;
     confirmPassword: string;
+    error?: string | null;
+    isLoading?: boolean;
+    message?: string | null;
+    verificationCode?: string;
+    isAwaitingVerification?: boolean;
+    onVerificationCodeChange?: (text: string) => void;
+    onConfirmSubmit?: () => void;
     onEmailChange: (text: string) => void;
     onPasswordChange: (text: string) => void;
     onConfirmPasswordChange: (text: string) => void;
@@ -20,7 +30,14 @@ const SignupForm: React.FC<SignupFormProps> = ({
     email,
     password,
     confirmPassword,
+    error,
+    isLoading = false,
+    message,
+    verificationCode = '',
+    isAwaitingVerification = false,
     errors,
+    onVerificationCodeChange,
+    onConfirmSubmit,
     onEmailChange,
     onPasswordChange,
     onConfirmPasswordChange,
@@ -82,24 +99,69 @@ const SignupForm: React.FC<SignupFormProps> = ({
         onChangeText: onConfirmPasswordChange
     };
 
+    const verificationCodeProps = {
+        label: 'Verification Code*',
+        placeholder: 'Enter the code from your email',
+        value: verificationCode,
+        textContentType: 'oneTimeCode' as const,
+        hasError: false,
+        keyboardType: 'number-pad' as KeyboardType,
+        onChangeText: onVerificationCodeChange
+    };
+
     return (
         <>
-            <FormInputRow inputProps={emailProps} textProps={{ error: emailError }} />
-            <FormInputRow
-                inputProps={passwordProps}
-                textProps={{ error: passwordError }}
-            />
-            <FormInputRow
-                inputProps={confirmPasswordProps}
-                textProps={{ error: confirmPasswordError }}
-            />
+            {isAwaitingVerification ? (
+                <FormInputRow
+                    inputProps={verificationCodeProps}
+                    textProps={{ error: false }}
+                />
+            ) : (
+                <>
+                    <FormInputRow inputProps={emailProps} textProps={{ error: emailError }} />
+                    <FormInputRow
+                        inputProps={passwordProps}
+                        textProps={{ error: passwordError }}
+                    />
+                    <FormInputRow
+                        inputProps={confirmPasswordProps}
+                        textProps={{ error: confirmPasswordError }}
+                    />
+                </>
+            )}
+            {message ? <Text style={styles.messageText}>{message}</Text> : null}
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <FormButton
-                buttonLabel="Sign Up"
-                btnEnabled={!emailError && !passwordError && !confirmPasswordError}
-                onPress={onSubmit}
+                buttonLabel={
+                    isAwaitingVerification
+                        ? (isLoading ? 'Verifying...' : 'Verify Account')
+                        : (isLoading ? 'Creating account...' : 'Sign Up')
+                }
+                btnEnabled={
+                    !isLoading &&
+                    (isAwaitingVerification
+                        ? verificationCode.trim().length > 0
+                        : !emailError && !passwordError && !confirmPasswordError)
+                }
+                onPress={isAwaitingVerification ? (onConfirmSubmit ?? onSubmit) : onSubmit}
             />
         </>
     );
 };
 
 export default SignupForm;
+
+const styles = StyleSheet.create({
+    errorText: {
+        color: t.colors.error,
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 12
+    },
+    messageText: {
+        color: t.colors.primary,
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 12
+    }
+});

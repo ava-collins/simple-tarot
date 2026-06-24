@@ -26,6 +26,9 @@ export const Default: Story = {
         onPasswordChange: (text: string) => console.log('Password changed:', text),
         onConfirmPasswordChange: (text: string) =>
             console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
         onSubmit: () => console.log('Form submitted')
     }
 };
@@ -40,6 +43,9 @@ export const WithEmailError: Story = {
         onPasswordChange: (text: string) => console.log('Password changed:', text),
         onConfirmPasswordChange: (text: string) =>
             console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
         onSubmit: () => console.log('Form submitted')
     }
 };
@@ -51,7 +57,7 @@ export const WithPasswordError: Story = {
         confirmPassword: '',
         errors: [
             {
-                message: 'Password must be at least 6 characters',
+                message: 'Password must be at least 12 characters',
                 type: 'password'
             }
         ],
@@ -59,6 +65,9 @@ export const WithPasswordError: Story = {
         onPasswordChange: (text: string) => console.log('Password changed:', text),
         onConfirmPasswordChange: (text: string) =>
             console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
         onSubmit: () => console.log('Form submitted')
     }
 };
@@ -73,6 +82,68 @@ export const WithConfirmPasswordError: Story = {
         onPasswordChange: (text: string) => console.log('Password changed:', text),
         onConfirmPasswordChange: (text: string) =>
             console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
+        onSubmit: () => console.log('Form submitted')
+    }
+};
+
+export const CreatingAccount: Story = {
+    args: {
+        email: 'admin@dev.com',
+        password: 'password12345',
+        confirmPassword: 'password12345',
+        errors: [],
+        isLoading: true,
+        onEmailChange: (text: string) => console.log('Email changed:', text),
+        onPasswordChange: (text: string) => console.log('Password changed:', text),
+        onConfirmPasswordChange: (text: string) =>
+            console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
+        onSubmit: () => console.log('Form submitted')
+    }
+};
+
+export const AwaitingVerification: Story = {
+    args: {
+        email: 'admin@dev.com',
+        password: 'password12345',
+        confirmPassword: 'password12345',
+        verificationCode: '',
+        isAwaitingVerification: true,
+        message: 'Account created. Enter the verification code from your email.',
+        errors: [],
+        onEmailChange: (text: string) => console.log('Email changed:', text),
+        onPasswordChange: (text: string) => console.log('Password changed:', text),
+        onConfirmPasswordChange: (text: string) =>
+            console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
+        onSubmit: () => console.log('Form submitted')
+    }
+};
+
+export const VerifyingAccount: Story = {
+    args: {
+        email: 'admin@dev.com',
+        password: 'password12345',
+        confirmPassword: 'password12345',
+        verificationCode: '123456',
+        isAwaitingVerification: true,
+        isLoading: true,
+        message: 'Account created. Enter the verification code from your email.',
+        errors: [],
+        onEmailChange: (text: string) => console.log('Email changed:', text),
+        onPasswordChange: (text: string) => console.log('Password changed:', text),
+        onConfirmPasswordChange: (text: string) =>
+            console.log('Confirm Password changed:', text),
+        onVerificationCodeChange: (text: string) =>
+            console.log('Verification Code changed:', text),
+        onConfirmSubmit: () => console.log('Verification submitted'),
         onSubmit: () => console.log('Form submitted')
     }
 };

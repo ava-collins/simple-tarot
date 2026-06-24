@@ -1,16 +1,18 @@
-import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
+import { createMobileApolloClient, defaultGraphUri } from './mobile-apollo-client';
 import { typePolicies } from '@simpletarot/hooks';
 
-const MobileProviders: React.FC<{ env; children: React.ReactNode }> = ({
+const MobileProviders: React.FC<{ env: Record<string, string | undefined>; children: React.ReactNode }> = ({
     env,
     children
 }) => {
-    const client = new ApolloClient({
-        uri: env.GRAPH_URI || 'http://localhost:4000/graphql',
-        cache: new InMemoryCache(typePolicies)
-    });
+    const graphUri = env.GRAPH_URI || defaultGraphUri;
+    const client = useMemo(
+        () => createMobileApolloClient(graphUri, typePolicies),
+        [graphUri]
+    );
 
     return <ApolloProvider client={client}>{children}</ApolloProvider>;
 };
@@ -18,6 +20,6 @@ const MobileProviders: React.FC<{ env; children: React.ReactNode }> = ({
 export default MobileProviders;
 
 export interface MobileProvidersProps {
-    env: Record<string, string>;
+    env: Record<string, string | undefined>;
     children: React.ReactNode;
 }

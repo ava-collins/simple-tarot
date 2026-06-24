@@ -11,11 +11,16 @@ export const validateEmail = (email: string) => {
 };
 
 export const validatePassword = (password: string) => password.length >= 6;
+export const validateNewPassword = (password: string) => password.length >= 12;
 
 export const errorMessages = {
     INVALID_EMAIL: { message: 'Invalid email address', type: 'emailAddress' },
     PASSWORD_TOO_SHORT: {
         message: 'Password must be at least 6 characters',
+        type: 'password'
+    },
+    NEW_PASSWORD_TOO_SHORT: {
+        message: 'Password must be at least 12 characters',
         type: 'password'
     },
     PASSWORD_MISMATCH: { message: 'Passwords do not match', type: 'newPassword' }

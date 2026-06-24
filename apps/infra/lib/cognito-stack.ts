@@ -40,6 +40,10 @@ export class CognitoStack extends cdk.Stack {
     const userPoolClient = userPool.addClient('PublicOAuthClient', {
       generateSecret: false,
       preventUserExistenceErrors: true,
+      authFlows: {
+        userSrp: true,
+        userPassword: true
+      },
       supportedIdentityProviders: [
         cognito.UserPoolClientIdentityProvider.COGNITO
       ],

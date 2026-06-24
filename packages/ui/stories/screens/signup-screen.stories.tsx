@@ -24,6 +24,60 @@ export const Default: Story = {
     args: {
         onSubmit: (emailAddress: string, password: string) => {
             console.log('Submitted:', { emailAddress, password });
+        },
+        onConfirmSubmit: (emailAddress: string, verificationCode: string) => {
+            console.log('Verification submitted:', {
+                emailAddress,
+                verificationCode
+            });
+        }
+    }
+};
+
+export const CreatingAccount: Story = {
+    args: {
+        isLoading: true,
+        onSubmit: (emailAddress: string, password: string) => {
+            console.log('Submitted:', { emailAddress, password });
+        },
+        onConfirmSubmit: (emailAddress: string, verificationCode: string) => {
+            console.log('Verification submitted:', {
+                emailAddress,
+                verificationCode
+            });
+        }
+    }
+};
+
+export const AwaitingVerification: Story = {
+    args: {
+        isAwaitingVerification: true,
+        message: 'Account created. Enter the verification code from your email.',
+        onSubmit: (emailAddress: string, password: string) => {
+            console.log('Submitted:', { emailAddress, password });
+        },
+        onConfirmSubmit: (emailAddress: string, verificationCode: string) => {
+            console.log('Verification submitted:', {
+                emailAddress,
+                verificationCode
+            });
+        }
+    }
+};
+
+export const VerifyingAccount: Story = {
+    args: {
+        isAwaitingVerification: true,
+        isLoading: true,
+        message: 'Account created. Enter the verification code from your email.',
+        onSubmit: (emailAddress: string, password: string) => {
+            console.log('Submitted:', { emailAddress, password });
+        },
+        onConfirmSubmit: (emailAddress: string, verificationCode: string) => {
+            console.log('Verification submitted:', {
+                emailAddress,
+                verificationCode
+            });
         }
     }
 };

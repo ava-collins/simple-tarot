@@ -1,0 +1,27 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as LogoutCallbackScreenStories from './logout-callback-screen.stories';
+
+<Meta of={LogoutCallbackScreenStories.default} />
+
+# Logout Callback Screen
+
+## Overview
+- Landing screen after the Cognito Hosted UI logout redirect returns to the app.
+- Shown briefly before navigating back to the Account screen.
+- No user interaction is needed; navigation happens automatically after a short delay.
+
+## Props
+
+None.
+
+## State
+
+Single state: "Signed out" with a returning message.
+
+## Interaction Tests
+
+None. This screen navigates automatically on mount.
+
+## Future Enhancements
+
+- Confirmation animation before the redirect completes.

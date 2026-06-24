@@ -54,7 +54,7 @@ describe('useSignUpForm', () => {
         });
 
         expect(result.current.errors).toContainEqual({
-            message: 'Password must be at least 6 characters',
+            message: 'Password must be at least 12 characters',
             type: 'password'
         });
         expect(mockSubmit).not.toHaveBeenCalled();
@@ -84,11 +84,11 @@ describe('useSignUpForm', () => {
         const { result } = renderHook(() => useSignUpForm(mockSubmit));
 
         act(() => {
-            result.current.handleSubmit('test@example.com', 'password123', 'password123');
+            result.current.handleSubmit('test@example.com', 'password12345', 'password12345');
         });
 
         expect(result.current.errors).toEqual([]);
-        expect(mockSubmit).toHaveBeenCalledWith('test@example.com', 'password123');
+        expect(mockSubmit).toHaveBeenCalledWith('test@example.com', 'password12345');
     });
 
     it('should accumulate multiple errors for multiple validation failures', () => {
@@ -105,7 +105,7 @@ describe('useSignUpForm', () => {
             type: 'emailAddress'
         });
         expect(result.current.errors).toContainEqual({
-            message: 'Password must be at least 6 characters',
+            message: 'Password must be at least 12 characters',
             type: 'password'
         });
         expect(result.current.errors).toContainEqual({

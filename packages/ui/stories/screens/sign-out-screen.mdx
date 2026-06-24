@@ -1,0 +1,26 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as SignOutScreenStories from './sign-out-screen.stories';
+
+<Meta of={SignOutScreenStories.default} />
+
+# Sign Out Screen
+
+## Overview
+- Shown briefly while local tokens are cleared and the Cognito logout session is opened.
+- No user interaction is needed; the screen transitions automatically.
+
+## Props
+
+None.
+
+## State
+
+Single state: "Signing out" with a clearing session message.
+
+## Interaction Tests
+
+None. This screen transitions automatically once sign-out completes.
+
+## Future Enhancements
+
+- Loading indicator to reflect sign-out progress.

@@ -2,12 +2,18 @@ import React, { useEffect, useState } from 'react';
 
 import FormButton from '../atoms/form-button';
 import FormInputRow from '../molecules/form-input-row';
-import { KeyboardType } from 'react-native';
+import { KeyboardType, Pressable, StyleSheet, Text } from 'react-native';
 import type { FormError } from '@simpletarot/hooks';
+import theme from '../utils/theme';
+
+const t = theme();
 
 export interface LoginFormProps {
     email: string;
     password: string;
+    error?: string | null;
+    isLoading?: boolean;
+    onSignUpPress?: () => void;
     onEmailChange: (text: string) => void;
     onPasswordChange: (text: string) => void;
     onSubmit: () => void;
@@ -17,7 +23,10 @@ export interface LoginFormProps {
 const LoginForm: React.FC<LoginFormProps> = ({
     email,
     password,
+    error,
+    isLoading = false,
     errors,
+    onSignUpPress,
     onEmailChange,
     onPasswordChange,
     onSubmit
@@ -68,13 +77,46 @@ const LoginForm: React.FC<LoginFormProps> = ({
                 inputProps={passwordProps}
                 textProps={{ error: passwordError }}
             />
+            {error ? <Text style={styles.errorText}>{error}</Text> : null}
             <FormButton
-                buttonLabel="Login"
+                buttonLabel={isLoading ? 'Logging in...' : 'Login'}
                 onPress={onSubmit}
-                btnEnabled={errors && errors.length === 0}
+                btnEnabled={!isLoading && errors && errors.length === 0}
             />
+            {onSignUpPress ? (
+                <Pressable
+                    accessibilityRole="link"
+                    onPress={onSignUpPress}
+                    style={({ pressed }) => [
+                        styles.link,
+                        pressed && styles.pressedLink
+                    ]}>
+                    <Text style={styles.linkText}>Create an account</Text>
+                </Pressable>
+            ) : null}
         </>
     );
 };
 
 export default LoginForm;
+
+const styles = StyleSheet.create({
+    errorText: {
+        color: t.colors.error,
+        fontSize: 14,
+        lineHeight: 20,
+        marginBottom: 12
+    },
+    link: {
+        alignSelf: 'center',
+        paddingVertical: 8
+    },
+    linkText: {
+        color: t.colors.primary,
+        fontSize: 14,
+        fontWeight: '600'
+    },
+    pressedLink: {
+        opacity: 0.7
+    }
+});
