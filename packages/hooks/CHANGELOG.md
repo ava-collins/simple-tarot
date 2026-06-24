@@ -1,3 +1,10 @@
+# [@simpletarot/hooks-v1.9.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.8.0...@simpletarot/hooks-v1.9.0) (2026-06-24)
+
+
+### Features
+
+* **auth:** ui signup and signin ([b41cf13](https://github.com/ava-collins/simple-tarot/commit/b41cf1301e502e3d083ccde94054f66954aec91b))
+
 # [@simpletarot/hooks-v1.8.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.7.0...@simpletarot/hooks-v1.8.0) (2026-05-27)
 
 
