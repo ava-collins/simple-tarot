@@ -4,7 +4,7 @@ import Button from '@rneui/themed/dist/Button';
 import React from 'react';
 import theme from '../utils/theme';
 
-interface ButtonProps {
+export interface ButtonProps {
     buttonLabel: string;
     btnEnabled?: boolean;
     onPress: () => void;
