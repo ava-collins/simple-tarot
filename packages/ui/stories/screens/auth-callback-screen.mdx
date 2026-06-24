@@ -1,0 +1,29 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as AuthCallbackScreenStories from './auth-callback-screen.stories';
+
+<Meta of={AuthCallbackScreenStories.default} />
+
+# Auth Callback Screen
+
+## Overview
+- Shown while the app processes the OAuth callback from the Cognito Hosted UI.
+- Displays a loading message while the token exchange is in progress.
+- Shows a success message once the session is established, before navigation completes.
+- Displays an error message if the token exchange fails.
+
+## Props
+- `isLoading`: When true, title reads "Finishing sign in". When false and no error, title reads "Welcome back".
+- `error`: An optional error string. When present, title reads "Sign in needs attention" and the error is shown.
+
+## State
+- `isLoading: true`: Shows "Finishing sign in" with a guidance message.
+- `isLoading: false, error: undefined`: Shows "Welcome back".
+- `error` set: Shows "Sign in needs attention" with the error text.
+
+## Interaction Tests
+
+None. This screen transitions automatically once the session is ready.
+
+## Future Enhancements
+
+- Loading spinner animation while the token exchange is in progress.

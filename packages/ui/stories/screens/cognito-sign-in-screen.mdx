@@ -1,0 +1,35 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as CognitoSignInScreenStories from './cognito-sign-in-screen.stories';
+
+<Meta of={CognitoSignInScreenStories.default} />
+
+# Cognito Sign In Screen
+
+## Overview
+- Presents a Continue button that launches the Cognito Hosted UI in an in-app browser.
+- Button is disabled until the auth request is prepared by `expo-auth-session`.
+- Shows "Opening..." label while the browser session is in progress.
+- Displays an error message if the browser session fails to start.
+
+## Props
+- `authRequestReady`: When true, the Continue button is enabled. Set to false while the PKCE request is being constructed.
+- `isLoading`: When true, the button shows "Opening..." and is disabled.
+- `error`: An optional error string shown above the button when sign-in fails.
+- `onContinuePress`: Callback invoked when the user taps Continue.
+
+## State
+- `authRequestReady: false`: Button is disabled.
+- `authRequestReady: true, isLoading: false`: Button reads "Continue" and is enabled.
+- `isLoading: true`: Button reads "Opening..." and is disabled.
+
+## Interaction Tests
+
+### Button Disabled When Not Ready Test
+- Verifies that the Continue button is disabled when `authRequestReady` is false.
+
+### Button Enabled When Ready Test
+- Verifies that the Continue button is enabled when `authRequestReady` is true.
+
+## Future Enhancements
+
+- Branded Cognito provider button variants if additional identity providers are added.

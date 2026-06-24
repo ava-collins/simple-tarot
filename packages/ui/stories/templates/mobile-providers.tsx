@@ -3,7 +3,7 @@ import { ApolloClient, ApolloProvider, InMemoryCache } from '@apollo/client';
 import React from 'react';
 import { typePolicies } from '@simpletarot/hooks';
 
-const MobileProviders: React.FC<{ env; children: React.ReactNode }> = ({
+const MobileProviders: React.FC<{ env: Record<string, string | undefined>; children: React.ReactNode }> = ({
     env,
     children
 }) => {
@@ -18,6 +18,6 @@ const MobileProviders: React.FC<{ env; children: React.ReactNode }> = ({
 export default MobileProviders;
 
 export interface MobileProvidersProps {
-    env: Record<string, string>;
+    env: Record<string, string | undefined>;
     children: React.ReactNode;
 }

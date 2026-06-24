@@ -1,0 +1,40 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as AccountScreenStories from './account-screen.stories';
+
+<Meta of={AccountScreenStories.default} />
+
+# Account Screen
+
+## Overview
+- Displays account state for both signed-in and signed-out users.
+- Shows a sign-in prompt when the user is unauthenticated.
+- Shows profile claims and a sign-out button when the user is authenticated.
+- Displays a loading indicator while the session is being checked.
+
+## Props
+- `isLoading`: When true, shows a checking session indicator instead of account content.
+- `isSignedIn`: Toggles between the signed-out prompt and the signed-in profile view.
+- `email`: The user's email address from the ID token.
+- `displayName`: The user's display name from the ID token.
+- `subject`: The Cognito subject identifier from the ID token.
+- `error`: An optional error message displayed below the profile panel or in the signed-out view.
+- `onSignInPress`: Callback invoked when the user taps the Sign in button.
+- `onSignOutPress`: Callback invoked when the user taps the Sign out button.
+
+## State
+- `isLoading`: Shows "Checking session..." indicator.
+- `isSignedIn: false`: Shows the signed-out panel with a Sign in button.
+- `isSignedIn: true`: Shows the profile panel with email, name, subject, and a Sign out button.
+
+## Interaction Tests
+
+### Sign In Button Visible Test
+- Verifies that the Sign in button is visible in the signed-out state.
+
+### Sign Out Button Visible Test
+- Verifies that the Sign out button is visible in the signed-in state.
+
+## Future Enhancements
+
+- Avatar image support once profile picture claim is available.
+- Edit profile action when account management is implemented.
