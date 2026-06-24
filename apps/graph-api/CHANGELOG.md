@@ -1,3 +1,10 @@
+# [graph-api-v1.4.1](https://github.com/ava-collins/simple-tarot/compare/graph-api-v1.4.0...graph-api-v1.4.1) (2026-06-24)
+
+
+### Bug Fixes
+
+* knip unused exports ([009b454](https://github.com/ava-collins/simple-tarot/commit/009b454c2554a80f9ab573ef83dd765c05f34b78))
+
 # [graph-api-v1.4.0](https://github.com/ava-collins/simple-tarot/compare/graph-api-v1.3.0...graph-api-v1.4.0) (2026-05-29)
 
 
