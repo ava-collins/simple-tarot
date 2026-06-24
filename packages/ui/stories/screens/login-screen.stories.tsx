@@ -21,6 +21,33 @@ export const Default: Story = {
     args: {
         onSubmit: (emailAddress: string, password: string) => {
             console.log('Submitted:', { emailAddress, password });
+        },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
+        }
+    }
+};
+
+export const Loading: Story = {
+    args: {
+        isLoading: true,
+        onSubmit: (emailAddress: string, password: string) => {
+            console.log('Submitted:', { emailAddress, password });
+        },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
+        }
+    }
+};
+
+export const WithAuthError: Story = {
+    args: {
+        error: 'Incorrect username or password.',
+        onSubmit: (emailAddress: string, password: string) => {
+            console.log('Submitted:', { emailAddress, password });
+        },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
         }
     }
 };

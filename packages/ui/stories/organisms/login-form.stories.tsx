@@ -27,6 +27,9 @@ export const Default: Story = {
         onPasswordChange: (text: string) => {
             console.log('Password changed:', text);
         },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
+        },
         onSubmit: () => {
             console.log('Submitted');
         }
@@ -46,6 +49,51 @@ export const WithError: Story = {
         },
         onPasswordChange: (text: string) => {
             console.log('Password changed:', text);
+        },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
+        },
+        onSubmit: () => {
+            console.log('Submitted');
+        }
+    }
+};
+
+export const Loading: Story = {
+    args: {
+        email: 'reader@example.com',
+        password: 'password123',
+        errors: [],
+        isLoading: true,
+        onEmailChange: (text: string) => {
+            console.log('Email changed:', text);
+        },
+        onPasswordChange: (text: string) => {
+            console.log('Password changed:', text);
+        },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
+        },
+        onSubmit: () => {
+            console.log('Submitted');
+        }
+    }
+};
+
+export const WithAuthError: Story = {
+    args: {
+        email: 'reader@example.com',
+        password: 'password123',
+        errors: [],
+        error: 'Incorrect username or password.',
+        onEmailChange: (text: string) => {
+            console.log('Email changed:', text);
+        },
+        onPasswordChange: (text: string) => {
+            console.log('Password changed:', text);
+        },
+        onSignUpPress: () => {
+            console.log('Create account pressed');
         },
         onSubmit: () => {
             console.log('Submitted');
