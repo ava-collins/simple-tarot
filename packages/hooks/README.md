@@ -4,7 +4,7 @@
 
 This package provides the data fetching and application state management for the ui components to be shared in mobile and web applications.
 
-[Apollo Client](https://www.apollographql.com/docs/react) is used to query the graph-api and maintain a local application state in cache.
+[Apollo Client](https://www.apollographql.com/docs/react) is used for auth and account state management and local application state caching.
 
 ## Contents
 

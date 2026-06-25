@@ -6,79 +6,90 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
 - `bin/simple-tarot-infra.ts` is the CDK entrypoint.
 - `lib/config.ts` loads deployment configuration from `apps/infra/.env`.
-- `lib/cognito-stack.ts` defines the Cognito user pool, public OAuth app
-  client, hosted domain, and Expo-facing CloudFormation outputs.
-- `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
-  contract.
+- `lib/cognito-stack.ts` — Cognito user pool, OAuth app client, hosted domain.
+- `lib/bedrock-infra-stack.ts` — S3 corpus bucket, IAM KB role, AOSS collection + policies.
+- `lib/bedrock-kb-stack.ts` — Bedrock Knowledge Base, S3 data source, API service IAM role.
+- `test/cognito-stack.test.ts` — CDK assertion tests.
 
-## Cognito Stack
+## Stacks
 
-The current CDK app synthesizes one Cognito stack for the configured Simple
-Tarot environment. The stack name follows:
+### `SimpleTarotCognito-<env>`
 
-```text
-SimpleTarotCognito-<environment>
-```
+Cognito auth infrastructure for the mobile app:
 
-The stack creates:
-
-- a Cognito user pool for email sign-in and self sign-up
-- a public app client for Expo/mobile OAuth authorization-code flow
-- a hosted Cognito domain
+- Cognito user pool (email sign-in, self sign-up)
+- Public app client for Expo/mobile OAuth authorization-code flow
+- Hosted Cognito domain
 - CloudFormation outputs that map to Expo `EXPO_PUBLIC_*` values
 
-The app client does not create a client secret. Expo receives public
-identifiers and URLs only.
+The app client has no client secret. `dev` uses destroy removal policy; `prod` uses retain + deletion protection.
 
-`dev` uses destroy removal policy for iteration. `prod` uses retain removal
-policy plus Cognito deletion protection, but production deployment settings
-should be reviewed before first deployment.
+### `SimpleTarotBedrockInfra-<env>`
+
+AOSS and supporting infrastructure for the Bedrock Knowledge Base. Deployed first:
+
+- S3 corpus bucket (`simple-tarot-corpus-<env>-<account>`)
+- IAM role for the Bedrock KB service principal
+- OpenSearch Serverless encryption policy
+- OpenSearch Serverless network policy (`AllowFromPublic: true` — required by AWS for Bedrock without VPC)
+- OpenSearch Serverless vector collection
+- AOSS data access policy (grants KB role index read/write)
+
+Exports `collectionArn`, `kbRoleArn`, `corpusBucketArn`, `corpusBucketName` to `BedrockKbStack`.
+
+### `SimpleTarotBedrockKb-<env>`
+
+Bedrock Knowledge Base and API resources. Deployed second, after a 90-second wait to allow AOSS data access policy propagation:
+
+- Bedrock Knowledge Base (Titan Embeddings v2, OpenSearch Serverless storage)
+- Bedrock S3 data source (fixed-size chunking, 300 tokens, 20% overlap)
+- IAM role for the Express reading API service
+
+Outputs (populate `apps/graph-api/.env` after deploy):
+- `BedrockKnowledgeBaseId` → `BEDROCK_KB_ID`
+- `BedrockDataSourceId` → `BEDROCK_KB_DATA_SOURCE_ID`
+- `CorpusBucketName` → `CORPUS_BUCKET_NAME`
+- `ApiRoleArn`
 
 ## Environment Configuration
-
-Deployment-specific values are intentionally kept out of committed source and
-are loaded from `apps/infra/.env`.
-
-Create the local env file from the example:
 
 ```sh
 cp apps/infra/.env.example apps/infra/.env
 ```
 
-Then fill in every value in `apps/infra/.env` before running CDK commands. The
-real `.env` file is ignored by git.
+Fill in all values before running CDK commands. The `.env` file is gitignored.
 
-The example file lists required variable names only:
+Required variables:
 
-- `SIMPLE_TAROT_ENV`
-- `SIMPLE_TAROT_AWS_REGION`
-- `SIMPLE_TAROT_MOBILE_CALLBACK_URL`
-- `SIMPLE_TAROT_MOBILE_LOGOUT_URL`
-- `SIMPLE_TAROT_WEB_CALLBACK_URL`
-- `SIMPLE_TAROT_WEB_LOGOUT_URL`
-- `SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX`
-
-Do not commit real environment values.
+```sh
+SIMPLE_TAROT_ENV
+SIMPLE_TAROT_AWS_REGION
+SIMPLE_TAROT_MOBILE_CALLBACK_URL
+SIMPLE_TAROT_MOBILE_LOGOUT_URL
+SIMPLE_TAROT_WEB_CALLBACK_URL
+SIMPLE_TAROT_WEB_LOGOUT_URL
+SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX
+```
 
 ## Expo Contract
 
-The Expo-facing public output contract is documented in
-`docs/cognito_expo_config_contract.md`.
-
-After deployment, sync the CDK outputs into:
-
-- `apps/tarot/.env.local` for local development
-- EAS environment variables for preview/testing builds
-
-Use `apps/tarot/.env.local.example` as the local template. The real
-`.env.local` file is ignored by git.
+After deploying the Cognito stack, sync outputs into `apps/tarot/.env.local`. Full mapping in `docs/cognito_expo_config_contract.md`.
 
 ## Commands
 
 ```sh
-yarn workspace infra build
-yarn workspace infra test
-yarn workspace infra cdk synth
+yarn workspace infra build            # Compile CDK app
+yarn workspace infra test             # Run CDK assertion tests
+yarn workspace infra cdk synth        # Synthesize CloudFormation templates
+
+# Bedrock stacks — deploy in sequence with 90s propagation wait
+yarn bedrock:deploy                   # Deploy BedrockInfra then BedrockKb
+yarn bedrock:destroy                  # Destroy BedrockKb then BedrockInfra
+
+# Read outputs after deploy
+aws cloudformation describe-stacks \
+  --stack-name SimpleTarotBedrockKb-dev \
+  --query 'Stacks[0].Outputs'
 ```
 
 `yarn workspace infra cdk synth` requires a populated `apps/infra/.env`.

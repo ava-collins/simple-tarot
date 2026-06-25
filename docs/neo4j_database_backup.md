@@ -1,3 +1,11 @@
+# Neo4j Database Backup (Archived)
+
+> **Archived.** Neo4j was replaced by AWS Bedrock Knowledge Base in June 2026.
+> The graph-api no longer uses Neo4j or Docker. This document is kept for
+> historical reference only. Do not follow these instructions on the current codebase.
+
+---
+
 # Neo4j Database Backup
 
 Simple Tarot stores graph-api data in the local Neo4j data directory at

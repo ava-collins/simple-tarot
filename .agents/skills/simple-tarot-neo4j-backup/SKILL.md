@@ -1,6 +1,14 @@
 ---
 name: simple-tarot-neo4j-backup
-description: Use when changing, debugging, documenting, or explaining Simple Tarot graph-api Neo4j backup and restore scripts, local dump storage, S3 upload guidance, or neo4j-admin database dump/load workflows.
+description: ARCHIVED — Neo4j was replaced by AWS Bedrock Knowledge Base in June 2026. Do not use this skill. The graph-api is now a Bedrock REST API with no Neo4j dependency.
+---
+
+# Simple Tarot Neo4j Backup (Archived)
+
+> **Archived.** Neo4j was replaced by AWS Bedrock Knowledge Base. The
+> graph-api no longer uses Neo4j, Docker Compose, or these backup scripts.
+> This skill is kept for historical reference only.
+
 ---
 
 # Simple Tarot Neo4j Backup

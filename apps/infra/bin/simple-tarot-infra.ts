@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib/core';
-import { BedrockStack } from '../lib/bedrock-stack';
+import { BedrockInfraStack } from '../lib/bedrock-infra-stack';
+import { BedrockKbStack } from '../lib/bedrock-kb-stack';
 import { CognitoStack } from '../lib/cognito-stack';
 import { getInfraConfig, loadInfraEnv } from '../lib/config';
 
@@ -21,8 +22,26 @@ new CognitoStack(app, config.stackName, {
   stackName: config.stackName
 });
 
-new BedrockStack(app, `SimpleTarotBedrock-${config.environmentName}`, {
-  config,
-  env: stackEnv,
-  stackName: `SimpleTarotBedrock-${config.environmentName}`
-});
+const bedrockInfra = new BedrockInfraStack(
+  app,
+  `SimpleTarotBedrockInfra-${config.environmentName}`,
+  {
+    config,
+    env: stackEnv,
+    stackName: `SimpleTarotBedrockInfra-${config.environmentName}`
+  }
+);
+
+new BedrockKbStack(
+  app,
+  `SimpleTarotBedrockKb-${config.environmentName}`,
+  {
+    config,
+    env: stackEnv,
+    stackName: `SimpleTarotBedrockKb-${config.environmentName}`,
+    collectionArn: bedrockInfra.collectionArn,
+    kbRoleArn: bedrockInfra.kbRoleArn,
+    corpusBucketArn: bedrockInfra.corpusBucketArn,
+    corpusBucketName: bedrockInfra.corpusBucketName
+  }
+);

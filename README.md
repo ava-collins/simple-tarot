@@ -7,47 +7,38 @@ Simple Tarot is a rebuild of my older React Native
 readings by using highly customized AI generated content.
 
 ### Backend
-The rebuild is planned in two phases.
 
-1. Phase one migrates legacy tarot content into Neo4j as a graph database so the
-   app can retrieve structured reading context.
-
-2. Phase two will add AI-generated reading content using AWS Bedrock. The likely
-   first approach will use RAG: retrieve relevant graph data and, if needed,
-   vector-similar content, then pass that context into custom prompts for a
-   Bedrock foundation model.
-
-   If retrieval and prompting are not sufficient, a later model customization
-   phase may prepare training data for Bedrock fine-tuning or another supported
-   customization method.
+The backend is an Express v5 REST API backed by AWS Bedrock. Each reading
+request retrieves relevant context from a Bedrock Knowledge Base (RAG) built
+from the tarot corpus, then generates per-card interpretations via Claude Haiku
+and a full-spread synthesis via Claude Sonnet.
 
 ### UI
-Live Component Reference
+
+Live Component Reference:
 [Storybook UI Component Library](https://ava-collins.github.io/simple-tarot/)
 
 ## Contents
 
-A yarn workspace monorepository to manage the mobile tarot application, graph
+A yarn workspace monorepository to manage the mobile tarot application, reading
 API, AWS infrastructure, and shared React Native component libraries.
 
-`apps/graph-api` is an Apollo graph server built on top of Node/Express server
-connected to a Neo4j database, providing the core API for the client
-application.
+`apps/graph-api` is an Express v5 REST API that generates AI-powered tarot
+readings using AWS Bedrock Knowledge Base retrieval and Claude model invocation.
 
-`apps/tarot` is a React Native mobile app uses shared components from hooks and
-ui packages and Expo framework for application configuration, building, testing
-and deployment.
+`apps/tarot` is a React Native mobile app that uses shared components from the
+hooks and ui packages and the Expo framework for application configuration,
+building, testing, and deployment.
 
-`apps/infra` is an AWS CDK v2 TypeScript app. It currently owns the Cognito
-auth infrastructure for Simple Tarot, including the user pool, public OAuth app
-client, hosted Cognito domain, and CloudFormation outputs that define the Expo
-public auth config contract.
+`apps/infra` is an AWS CDK v2 TypeScript app. It provisions Cognito auth
+infrastructure and the Bedrock Knowledge Base stack (AOSS vector store, S3
+corpus bucket, IAM roles).
 
 `docs` are a collection of documents that facilitate the planning and execution
 of the project as a whole, used to provide context over time.
 
 `packages/hooks` is a shared package written in React Native using Apollo Client
-for data fetching, application state management and caching.
+for auth state management and account screens.
 
 `packages/ui` is a shared package written in React Native using Storybook UI for
 building, documenting, testing and exporting UI components.
@@ -73,8 +64,6 @@ messages.
 - [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
 
 - [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
-
-- [Neo4j Database Backup](./docs/neo4j_database_backup.md)
 
 - [Cognito Expo Config Contract](./docs/cognito_expo_config_contract.md)
 
