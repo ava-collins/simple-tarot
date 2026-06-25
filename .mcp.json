@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "/Users/ava/.nvm/versions/node/v24.16.0/bin/npx",
+      "args": ["-y", "chrome-devtools-mcp@latest"]
+    },
+    "context7": {
+      "command": "/Users/ava/.nvm/versions/node/v24.16.0/bin/npx",
+      "args": ["-y", "@upstash/context7-mcp@latest"]
+    },
+    "serena": {
+      "command": "/Users/ava/.nvm/versions/node/v24.16.0/bin/npx",
+      "args": ["-y", "@oramasearch/mcp-server-serena@latest"]
+    }
+  }
+}

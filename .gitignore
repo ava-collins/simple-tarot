@@ -146,7 +146,12 @@ dist
 
 .DS_Store
 
+# Claude Code session data
+.claude/transitions/
+.claude/settings.local.json
+
 **/ignore/
 *storybook.log
 storybook-static
 
+apps/graph-api/corpus

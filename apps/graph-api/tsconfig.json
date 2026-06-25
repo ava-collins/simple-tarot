@@ -12,7 +12,6 @@
         "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true
     },
-    "files": ["src/graphql.d.ts"],
     "include": ["src/**/*"],
-    "exclude": ["dist", "src/types.ts"]
+    "exclude": ["dist"]
 }

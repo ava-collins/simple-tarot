@@ -1,119 +1,82 @@
-/* eslint-disable arrow-body-style */
-import { ApolloServer } from '@apollo/server';
-import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer';
-import { AvatarImageAPI } from './datasources/avatar-image-api';
-import { Neo4jGraphQL } from '@neo4j/graphql';
-import bodyparser from 'body-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { ensureConstraints } from './utils/constraints';
-import express from 'express';
-import { expressMiddleware } from '@as-integrations/express5';
-import { gql } from 'graphql-tag';
+import express, { NextFunction, Request, Response } from 'express';
 import http from 'http';
 import https from 'https';
-import neo4j from 'neo4j-driver';
-import { normalizeGraphData } from './migrations/normalize-graph-data';
-import path from 'path';
 import { readFileSync } from 'fs';
-import { resolvers } from './resolvers';
+import { BedrockService } from './services/bedrock.js';
+import { createReadingRouter } from './routes/reading.js';
 
 dotenv.config();
+
+const REQUIRED_ENV_VARS = [
+    'AWS_REGION',
+    'BEDROCK_KB_ID',
+    'BEDROCK_MODEL_ID_HAIKU',
+    'BEDROCK_MODEL_ID_SONNET',
+];
+
+function validateEnv() {
+    const missing = REQUIRED_ENV_VARS.filter(k => !process.env[k]);
+    if (missing.length > 0) {
+        throw new Error(`Missing required environment variables: ${missing.join(', ')}`);
+    }
+}
 
 const configurations = {
     production: {
         ssl: true,
         port: process.env.PROD_PORT || 443,
-        hostname: process.env.PROD_HOST || '192.168.4.156'
     },
     development: {
         ssl: false,
         port: process.env.DEV_PORT || 4000,
-        hostname: process.env.DEV_HOST
-    }
-};
+    },
+} as const;
 
 type Environment = keyof typeof configurations;
+
 const environment: Environment =
-    process.env.NODE_ENV === 'development' ? 'development' : 'production';
+    process.env.NODE_ENV === 'production' ? 'production' : 'development';
 
 const serverConfig = configurations[environment];
 
-const typeDefs = gql(
-    readFileSync(path.resolve(__dirname, './schema.graphql'), {
-        encoding: 'utf-8'
-    })
-);
+validateEnv();
 
-const NEO4J_URL = process.env.NEO4J_DB_URL || 'bolt://localhost:7687';
-const NEO4J_USER = process.env.NEO4J_AUTH_USER || 'neo4j';
-const NEO4J_PASSWORD = process.env.NEO4J_AUTH_PASSWORD || 'password';
-
-const driver = neo4j.driver(NEO4J_URL, neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD));
-
-const neoSchema = new Neo4jGraphQL({ typeDefs, resolvers, driver });
+const bedrock = new BedrockService();
 const app = express();
 
-const graphqlPath = process.env.GRAPHQL_ENDPOINT || '/graphql';
+app.use(cors());
+app.use(express.json());
 
-let httpServer;
+app.use('/reading', createReadingRouter(bedrock));
+
+// Surfaces errors as structured JSON. Unknown (non-Error) objects are re-thrown
+// so Node.js can handle them and they don't silently disappear.
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    if (err instanceof Error) {
+        const status = (err as Error & { status?: number }).status ?? 500;
+        res.status(status).json({ error: err.message });
+        return;
+    }
+    throw err;
+});
+
+let httpServer: http.Server | https.Server;
+
 if (serverConfig.ssl) {
     httpServer = https.createServer(
         {
             key: readFileSync(`./ssl/${environment}/key.pem`),
-            cert: readFileSync(`./ssl/${environment}/cert.pem`)
+            cert: readFileSync(`./ssl/${environment}/cert.pem`),
         },
-
         app
     );
 } else {
     httpServer = http.createServer(app);
 }
 
-(async () => {
-    try {
-        // Normalize legacy records before strict constraints are applied.
-        await normalizeGraphData(driver);
-
-        // Ensure constraints are created
-        await ensureConstraints(driver);
-
-        const schema = await neoSchema.getSchema();
-        const server = new ApolloServer({
-            schema,
-            plugins: [ApolloServerPluginDrainHttpServer({ httpServer: httpServer })]
-        });
-
-        await server.start();
-
-        app.use(
-            graphqlPath,
-            cors<cors.CorsRequest>({ origin: '*' }),
-            bodyparser.json(),
-            expressMiddleware(server, {
-                context: async ({ req }) => {
-                    return {
-                        dataSources: {
-                            avatarImageAPI: new AvatarImageAPI()
-                        },
-                        driver,
-                        req
-                    };
-                }
-            })
-        );
-
-        await new Promise<void>(resolve =>
-            httpServer.listen({ port: serverConfig.port }, resolve)
-        );
-
-        console.log(
-            `🚀 Server ready at ${serverConfig.ssl === true ? ' https' : 'http'}://${
-                serverConfig.hostname
-            }:${serverConfig.port}${graphqlPath}`
-        );
-    } catch (error) {
-        console.error('Error creating schema:', error);
-        process.exit(1);
-    }
-})();
+httpServer.listen(serverConfig.port, () => {
+    const protocol = serverConfig.ssl ? 'https' : 'http';
+    console.log(`Server ready at ${protocol}://localhost:${serverConfig.port}`);
+});
