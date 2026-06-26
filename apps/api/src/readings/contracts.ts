@@ -19,16 +19,29 @@ export type ReadingPositionResponse = {
     text: string;
 };
 
+export type ReadingCitation = {
+    sourceId: string;
+    text: string;
+    metadata: Record<string, unknown>;
+};
+
 export type ReadingResponse = {
     readingId: string;
     spread: string;
     summary: string;
     positions: ReadingPositionResponse[];
-    citations: [];
+    citations: ReadingCitation[];
     metadata: {
-        mode: 'placeholder';
+        mode: 'local' | 'bedrock';
         itemCount: number;
+        modelId?: string;
     };
+};
+
+export type GeneratedReading = {
+    text: string;
+    citations: ReadingCitation[];
+    modelId?: string;
 };
 
 export type ReadingValidationResult =
