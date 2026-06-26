@@ -10,8 +10,9 @@
         "outDir": "dist",
         "rootDir": ".",
         "target": "ES2022",
-        "ignoreDeprecations": "6.0"
+        "ignoreDeprecations": "6.0",
+        "types": ["node"]
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "scripts/**/*"],
     "exclude": ["dist/**", "node_modules", "**/*.test.ts"]
 }
