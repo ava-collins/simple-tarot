@@ -1,29 +1,28 @@
 import { Router } from 'express';
-import { ReadingRequest, ReadingResponse } from '../readings/contracts';
+import { GeneratedReading, ReadingRequest } from '../readings/contracts';
+import { buildReadingPrompt } from '../readings/prompt-builder';
+import { mapGeneratedReadingResponse } from '../readings/response-mapper';
 import { validateReadingRequest } from '../readings/validation';
 
 export const readingsRouter = Router();
 
-const createPlaceholderReading = (request: ReadingRequest): ReadingResponse => ({
-    readingId: `placeholder-${request.spread}-${request.items.length}`,
-    spread: request.spread,
-    summary: `Placeholder reading for ${request.items.length} card${
-        request.items.length === 1 ? '' : 's'
-    }. Bedrock generation will be added in a later stage.`,
-    positions: request.items.map(item => ({
-        cardIndex: item.cardIndex,
-        cardName: item.cardName,
-        position: item.position,
-        reversed: item.reversed,
-        text: `${item.cardName} ${
-            item.reversed ? 'reversed' : 'upright'
-        } in ${item.position}.`
-    })),
+const createLocalGeneratedReading = (
+    request: ReadingRequest,
+    prompt: string
+): GeneratedReading => ({
+    text: [
+        `Local placeholder reading for ${request.items.length} card${
+            request.items.length === 1 ? '' : 's'
+        }. Bedrock generation will be added in a later stage.`,
+        ...request.items.map(
+            item =>
+                `${item.position}: ${item.cardName} ${
+                    item.reversed ? 'reversed' : 'upright'
+                } awaits generated interpretation.`
+        )
+    ].join('\n'),
     citations: [],
-    metadata: {
-        mode: 'placeholder',
-        itemCount: request.items.length
-    }
+    modelId: `local-prompt-v1:${prompt.length}`
 });
 
 readingsRouter.post('/readings', (req, res) => {
@@ -36,5 +35,8 @@ readingsRouter.post('/readings', (req, res) => {
         return;
     }
 
-    res.status(200).json(createPlaceholderReading(validation.value));
+    const prompt = buildReadingPrompt(validation.value);
+    const generated = createLocalGeneratedReading(validation.value, prompt);
+
+    res.status(200).json(mapGeneratedReadingResponse(validation.value, generated));
 });
