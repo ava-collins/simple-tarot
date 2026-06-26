@@ -1,0 +1,26 @@
+{
+    "name": "api",
+    "version": "0.1.0",
+    "private": true,
+    "main": "dist/src/index.js",
+    "types": "dist/src/index.d.ts",
+    "scripts": {
+        "build": "yarn build-types",
+        "build-types": "rm -rf dist && tsc -b",
+        "dev": "nodemon --watch src --ext ts --exec node -r ts-node/register ./src/index.ts",
+        "start": "node dist/src/index.js",
+        "test": "vitest --config vitest.config.mjs"
+    },
+    "dependencies": {
+        "dotenv": "^17.4.2",
+        "express": "^5.2.1"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.6",
+        "@types/node": "^24.0.1",
+        "nodemon": "^3.1.14",
+        "ts-node": "^10.9.2",
+        "typescript": "^6.0.3",
+        "vitest": "^3.2.4"
+    }
+}
