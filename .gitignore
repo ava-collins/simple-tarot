@@ -150,3 +150,5 @@ dist
 *storybook.log
 storybook-static
 
+# Generated Bedrock corpus artifacts
+apps/api/corpus/generated/
