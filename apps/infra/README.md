@@ -88,12 +88,24 @@ The example file lists required variable names only:
 - `SIMPLE_TAROT_BEDROCK_EMBEDDING_MODEL_ID`
 - `SIMPLE_TAROT_BEDROCK_EMBEDDING_DIMENSIONS`
 - `SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID`
+- `SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN`
 
 Do not commit real environment values.
 
 The Bedrock values have safe development defaults in `.env.example`. Override
 them only when changing model choices, embedding dimensions, or the S3 object
 prefix used for corpus ingestion.
+
+`SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN` is optional. By default the stack grants
+OpenSearch Serverless index creation to the standard modern CDK CloudFormation
+execution role:
+
+```text
+arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
+```
+
+Set `SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN` when deploying with a custom
+CloudFormation execution role or CI deployment role.
 
 ## API Contract
 
@@ -104,7 +116,7 @@ environment:
 - `BedrockKnowledgeBaseId` -> `BEDROCK_KNOWLEDGE_BASE_ID`
 - `BedrockDataSourceId` -> `BEDROCK_DATA_SOURCE_ID`
 - `BedrockRegion` -> `BEDROCK_REGION`
-- `BedrockGenerationModelId` -> `BEDROCK_MODEL_ID`
+- `BedrockGenerationModelId` -> `BEDROCK_INFERENCE_PROFILE_ID`
 
 ## Expo Contract
 

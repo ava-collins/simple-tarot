@@ -31,6 +31,7 @@ export interface InfraConfig {
     bedrockEmbeddingModelId: string;
     bedrockEmbeddingDimensions: number;
     bedrockGenerationModelId: string;
+    aossIndexPrincipalArn?: string;
 }
 
 const DEFAULT_ENVIRONMENT: SimpleTarotEnvironment = 'dev';
@@ -148,7 +149,12 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockGenerationModelId: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID',
-            'anthropic.claude-3-haiku-20240307-v1:0'
-        )
+            'global.anthropic.claude-sonnet-4-5-20250929-v1:0'
+        ),
+        aossIndexPrincipalArn: optionalEnvValue(
+            env,
+            'SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN',
+            ''
+        ) || undefined
     };
 }

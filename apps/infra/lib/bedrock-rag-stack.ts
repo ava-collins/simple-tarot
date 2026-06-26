@@ -91,6 +91,15 @@ export class BedrockRagStack extends cdk.Stack {
       resources: [collection.attrArn],
     }));
 
+    const indexCreatorPrincipalArn = props.config.aossIndexPrincipalArn ??
+      cdk.Stack.of(this).formatArn({
+        service: 'iam',
+        region: '',
+        account: cdk.Aws.ACCOUNT_ID,
+        resource: 'role',
+        resourceName: `cdk-hnb659fds-cfn-exec-role-${cdk.Aws.ACCOUNT_ID}-${cdk.Aws.REGION}`,
+      });
+
     const dataAccessPolicy = new aoss.CfnAccessPolicy(this, 'VectorStoreDataAccessPolicy', {
       name: `${props.config.bedrockCollectionName}-data`,
       type: 'data',
@@ -120,7 +129,10 @@ export class BedrockRagStack extends cdk.Stack {
               ],
             },
           ],
-          Principal: [knowledgeBaseRole.roleArn],
+          Principal: [
+            knowledgeBaseRole.roleArn,
+            indexCreatorPrincipalArn,
+          ],
         },
       ]),
     });

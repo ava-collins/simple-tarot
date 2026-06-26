@@ -12,6 +12,8 @@ const baseEnv = {
   SIMPLE_TAROT_WEB_CALLBACK_URL: 'https://example.com/auth/callback',
   SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
+  SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
+    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-1',
 };
 
 function synthesizeBedrockStack() {
@@ -107,6 +109,11 @@ describe('BedrockRagStack', () => {
       Name: 'st-dev-rag-data',
       Type: 'data',
     });
+
+    const accessPolicies = template.findResources('AWS::OpenSearchServerless::AccessPolicy');
+    expect(JSON.stringify(accessPolicies)).toContain(
+      'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-1'
+    );
   });
 
   it('creates the Bedrock Knowledge Base and S3 data source', () => {
@@ -176,7 +183,7 @@ describe('BedrockRagStack', () => {
       Value: expectedRegion,
     });
     template.hasOutput('BedrockGenerationModelId', {
-      Value: 'anthropic.claude-3-haiku-20240307-v1:0',
+      Value: 'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
     });
   });
 });
