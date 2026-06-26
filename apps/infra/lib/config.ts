@@ -22,6 +22,15 @@ export interface InfraConfig {
     cognitoDomainPrefix: string;
     stackName: string;
     userPoolName: string;
+    bedrockStackName: string;
+    bedrockKnowledgeBaseName: string;
+    bedrockDataSourceName: string;
+    bedrockCollectionName: string;
+    bedrockVectorIndexName: string;
+    bedrockCorpusPrefix: string;
+    bedrockEmbeddingModelId: string;
+    bedrockEmbeddingDimensions: number;
+    bedrockGenerationModelId: string;
 }
 
 const DEFAULT_ENVIRONMENT: SimpleTarotEnvironment = 'dev';
@@ -62,6 +71,29 @@ function requiredEnvValue(env: InfraEnvironment, key: string): string {
     return value;
 }
 
+function optionalEnvValue(env: InfraEnvironment, key: string, defaultValue: string): string {
+    const value = env[key];
+    return typeof value === 'string' && value.length > 0 ? value : defaultValue;
+}
+
+function optionalIntegerEnvValue(
+    env: InfraEnvironment,
+    key: string,
+    defaultValue: number
+): number {
+    const value = env[key];
+    if (typeof value !== 'string' || value.length === 0) {
+        return defaultValue;
+    }
+
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isInteger(parsed) || parsed <= 0) {
+        throw new Error(`Invalid integer value for ${key}.`);
+    }
+
+    return parsed;
+}
+
 function firstDefined<T>(...values: Array<T | undefined>): T {
     const value = values.find((candidate): candidate is T => candidate !== undefined);
     if (value === undefined) {
@@ -92,6 +124,31 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         webLogoutUrl: requiredEnvValue(env, 'SIMPLE_TAROT_WEB_LOGOUT_URL'),
         cognitoDomainPrefix: requiredEnvValue(env, 'SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX'),
         stackName: `SimpleTarotCognito-${environmentName}`,
-        userPoolName: `simple-tarot-${environmentName}-users`
+        userPoolName: `simple-tarot-${environmentName}-users`,
+        bedrockStackName: `SimpleTarotBedrockRag-${environmentName}`,
+        bedrockKnowledgeBaseName: `simple-tarot-${environmentName}-readings`,
+        bedrockDataSourceName: `simple-tarot-${environmentName}-corpus`,
+        bedrockCollectionName: `st-${environmentName}-rag`,
+        bedrockVectorIndexName: 'tarot-readings',
+        bedrockCorpusPrefix: optionalEnvValue(
+            env,
+            'SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX',
+            'corpus/'
+        ),
+        bedrockEmbeddingModelId: optionalEnvValue(
+            env,
+            'SIMPLE_TAROT_BEDROCK_EMBEDDING_MODEL_ID',
+            'amazon.titan-embed-text-v2:0'
+        ),
+        bedrockEmbeddingDimensions: optionalIntegerEnvValue(
+            env,
+            'SIMPLE_TAROT_BEDROCK_EMBEDDING_DIMENSIONS',
+            1024
+        ),
+        bedrockGenerationModelId: optionalEnvValue(
+            env,
+            'SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID',
+            'anthropic.claude-3-haiku-20240307-v1:0'
+        )
     };
 }
