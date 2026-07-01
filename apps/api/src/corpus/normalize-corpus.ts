@@ -32,7 +32,8 @@ const cardIndex = (card: FirestoreCard): number =>
 
 const cardSort = (a: [string, FirestoreCard], b: [string, FirestoreCard]): number => {
     const indexDiff = cardIndex(a[1]) - cardIndex(b[1]);
-    return indexDiff === 0 ? a[0].localeCompare(b[0]) : indexDiff;
+
+return indexDiff === 0 ? a[0].localeCompare(b[0]) : indexDiff;
 };
 
 const buildCardContextDocument = (
