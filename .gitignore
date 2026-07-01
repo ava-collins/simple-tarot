@@ -154,4 +154,4 @@ storybook-static
 apps/api/corpus/generated/
 
 # Generated tarot card components
-packages/cards/src/cards/
+# packages/cards/src/cards/

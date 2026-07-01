@@ -10,12 +10,12 @@ generation utility.
 
 ## Package Responsibilities
 
-- Generate React Native SVG card components from raw SVG source files.
-- Export those generated card components through suite-level indexes.
-- Export `useSvgCards`, which maps a tarot deck index to the matching card
-  component.
-- Keep generated TSX card files out of git because the source SVG files live
-  outside the repository.
+-   Generate React Native SVG card components from raw SVG source files.
+-   Export those generated card components through suite-level indexes.
+-   Export `useSvgCards`, which maps a tarot deck index to the matching card
+    component.
+-   Keep generated TSX card files out of git because the source SVG files live
+    outside the repository.
 
 ## Usage
 
@@ -36,11 +36,11 @@ and `null` when the index does not map to a generated card.
 
 The current deck index order is:
 
-- `0` through `21`: major arcana
-- `22` through `35`: wands
-- `36` through `49`: cups
-- `50` through `63`: swords
-- `64` through `77`: coins
+-   `0` through `21`: major arcana
+-   `22` through `35`: wands
+-   `36` through `49`: cups
+-   `50` through `63`: swords
+-   `64` through `77`: coins
 
 ## Generating Cards
 
@@ -49,7 +49,7 @@ components. It reads the source directory from `CARD_SVG_SOURCE_DIR`; the script
 loads `.env` with `dotenv`, so local development can set the variable there.
 
 ```sh
-CARD_SVG_SOURCE_DIR="/Users/ava/Library/Mobile Documents/iCloud~com~belightsoft~Amadine/Documents/tarot/smith-waite"
+CARD_SVG_SOURCE_DIR=<PATH_TO_CARD_SVGS>
 ```
 
 Run the generator from the repository root:
@@ -60,11 +60,11 @@ yarn workspace @simpletarot/cards generate:cards
 
 The source directory should contain one folder for each suite:
 
-- `major-arcana`
-- `wands`
-- `cups`
-- `swords`
-- `coins`
+-   `major-arcana`
+-   `wands`
+-   `cups`
+-   `swords`
+-   `coins`
 
 The generated output mirrors that suite structure under
 `packages/cards/src/cards/`. That directory is intentionally ignored by git.
