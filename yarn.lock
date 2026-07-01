@@ -7175,6 +7175,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@simpletarot/cards@workspace:packages/cards":
+  version: 0.0.0-use.local
+  resolution: "@simpletarot/cards@workspace:packages/cards"
+  dependencies:
+    "@types/react": "npm:19.2.3"
+    "@vitest/coverage-v8": "npm:^3.2.4"
+    jsdom: "npm:^26.1.0"
+    react: "npm:19.2.3"
+    react-native: "npm:0.85.3"
+    react-native-svg: "npm:15.15.5"
+    typescript: "npm:^6.0.3"
+    vitest: "npm:^3.2.4"
+  peerDependencies:
+    react: 19.2.3
+    react-native: 0.85.3
+    react-native-svg: 15.15.5
+  languageName: unknown
+  linkType: soft
+
 "@simpletarot/hooks@npm:*, @simpletarot/hooks@workspace:packages/hooks":
   version: 0.0.0-use.local
   resolution: "@simpletarot/hooks@workspace:packages/hooks"
