@@ -1,3 +1,10 @@
+# [@simpletarot/ui-v1.12.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.11.1...@simpletarot/ui-v1.12.0) (2026-07-01)
+
+
+### Features
+
+* **cards:** cards package with svg processor ([25d65e4](https://github.com/ava-collins/simple-tarot/commit/25d65e45866302b9329f15916d16fa5aec4c2f64))
+
 # [@simpletarot/ui-v1.11.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.11.0...@simpletarot/ui-v1.11.1) (2026-06-24)
 
 
