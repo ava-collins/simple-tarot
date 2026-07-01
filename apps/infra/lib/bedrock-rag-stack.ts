@@ -27,7 +27,7 @@ export class BedrockRagStack extends cdk.Stack {
       enforceSSL: true,
       versioned: true,
       removalPolicy,
-      autoDeleteObjects: props.config.environmentName !== 'prod',
+      autoDeleteObjects: props.config.environmentName !== 'prod'
     });
 
     const collectionResource = `collection/${props.config.bedrockCollectionName}`;
@@ -39,11 +39,11 @@ export class BedrockRagStack extends cdk.Stack {
         Rules: [
           {
             ResourceType: 'collection',
-            Resource: [collectionResource],
-          },
+            Resource: [collectionResource]
+          }
         ],
-        AWSOwnedKey: true,
-      }),
+        AWSOwnedKey: true
+      })
     });
 
     const networkPolicy = new aoss.CfnSecurityPolicy(this, 'VectorStoreNetworkPolicy', {
@@ -54,41 +54,41 @@ export class BedrockRagStack extends cdk.Stack {
           Rules: [
             {
               ResourceType: 'collection',
-              Resource: [collectionResource],
+              Resource: [collectionResource]
             },
             {
               ResourceType: 'dashboard',
-              Resource: [collectionResource],
-            },
+              Resource: [collectionResource]
+            }
           ],
-          AllowFromPublic: true,
-        },
-      ]),
+          AllowFromPublic: true
+        }
+      ])
     });
 
     const collection = new aoss.CfnCollection(this, 'VectorStoreCollection', {
       name: props.config.bedrockCollectionName,
       type: 'VECTORSEARCH',
       standbyReplicas: 'DISABLED',
-      description: 'Simple Tarot Bedrock Knowledge Base vector store',
+      description: 'Simple Tarot Bedrock Knowledge Base vector store'
     });
     collection.addDependency(encryptionPolicy);
     collection.addDependency(networkPolicy);
 
     const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
-      assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com'),
+      assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com')
     });
 
     corpusBucket.grantRead(knowledgeBaseRole);
     knowledgeBaseRole.addToPolicy(new iam.PolicyStatement({
       actions: ['bedrock:InvokeModel'],
       resources: [
-        `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/${props.config.bedrockEmbeddingModelId}`,
-      ],
+        `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/${props.config.bedrockEmbeddingModelId}`
+      ]
     }));
     knowledgeBaseRole.addToPolicy(new iam.PolicyStatement({
       actions: ['aoss:APIAccessAll'],
-      resources: [collection.attrArn],
+      resources: [collection.attrArn]
     }));
 
     const indexCreatorPrincipalArn = props.config.aossIndexPrincipalArn ??
@@ -97,7 +97,7 @@ export class BedrockRagStack extends cdk.Stack {
         region: '',
         account: cdk.Aws.ACCOUNT_ID,
         resource: 'role',
-        resourceName: `cdk-hnb659fds-cfn-exec-role-${cdk.Aws.ACCOUNT_ID}-${cdk.Aws.REGION}`,
+        resourceName: `cdk-hnb659fds-cfn-exec-role-${cdk.Aws.ACCOUNT_ID}-${cdk.Aws.REGION}`
       });
 
     const dataAccessPolicy = new aoss.CfnAccessPolicy(this, 'VectorStoreDataAccessPolicy', {
@@ -113,8 +113,8 @@ export class BedrockRagStack extends cdk.Stack {
                 'aoss:CreateCollectionItems',
                 'aoss:DeleteCollectionItems',
                 'aoss:DescribeCollectionItems',
-                'aoss:UpdateCollectionItems',
-              ],
+                'aoss:UpdateCollectionItems'
+              ]
             },
             {
               ResourceType: 'index',
@@ -125,16 +125,16 @@ export class BedrockRagStack extends cdk.Stack {
                 'aoss:DescribeIndex',
                 'aoss:ReadDocument',
                 'aoss:UpdateIndex',
-                'aoss:WriteDocument',
-              ],
-            },
+                'aoss:WriteDocument'
+              ]
+            }
           ],
           Principal: [
             knowledgeBaseRole.roleArn,
-            indexCreatorPrincipalArn,
-          ],
-        },
-      ]),
+            indexCreatorPrincipalArn
+          ]
+        }
+      ])
     });
 
     const vectorIndex = new aoss.CfnIndex(this, 'VectorStoreIndex', {
@@ -142,8 +142,8 @@ export class BedrockRagStack extends cdk.Stack {
       indexName: props.config.bedrockVectorIndexName,
       settings: {
         index: {
-          knn: true,
-        },
+          knn: true
+        }
       },
       mappings: {
         properties: {
@@ -153,17 +153,17 @@ export class BedrockRagStack extends cdk.Stack {
             method: {
               name: 'hnsw',
               engine: 'faiss',
-              spaceType: 'l2',
-            },
+              spaceType: 'l2'
+            }
           },
           [TEXT_FIELD]: {
-            type: 'text',
+            type: 'text'
           },
           [METADATA_FIELD]: {
-            type: 'text',
-          },
-        },
-      },
+            type: 'text'
+          }
+        }
+      }
     });
     vectorIndex.addDependency(collection);
     vectorIndex.addDependency(dataAccessPolicy);
@@ -178,10 +178,10 @@ export class BedrockRagStack extends cdk.Stack {
           embeddingModelArn: `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/${props.config.bedrockEmbeddingModelId}`,
           embeddingModelConfiguration: {
             bedrockEmbeddingModelConfiguration: {
-              dimensions: props.config.bedrockEmbeddingDimensions,
-            },
-          },
-        },
+              dimensions: props.config.bedrockEmbeddingDimensions
+            }
+          }
+        }
       },
       storageConfiguration: {
         type: 'OPENSEARCH_SERVERLESS',
@@ -191,10 +191,10 @@ export class BedrockRagStack extends cdk.Stack {
           fieldMapping: {
             vectorField: VECTOR_FIELD,
             textField: TEXT_FIELD,
-            metadataField: METADATA_FIELD,
-          },
-        },
-      },
+            metadataField: METADATA_FIELD
+          }
+        }
+      }
     });
     knowledgeBase.addDependency(vectorIndex);
 
@@ -206,37 +206,37 @@ export class BedrockRagStack extends cdk.Stack {
         type: 'S3',
         s3Configuration: {
           bucketArn: corpusBucket.bucketArn,
-          inclusionPrefixes: [props.config.bedrockCorpusPrefix],
-        },
+          inclusionPrefixes: [props.config.bedrockCorpusPrefix]
+        }
       },
       vectorIngestionConfiguration: {
         chunkingConfiguration: {
           chunkingStrategy: 'FIXED_SIZE',
           fixedSizeChunkingConfiguration: {
             maxTokens: 512,
-            overlapPercentage: 20,
-          },
-        },
-      },
+            overlapPercentage: 20
+          }
+        }
+      }
     });
 
     new cdk.CfnOutput(this, 'BedrockCorpusBucketName', {
-      value: corpusBucket.bucketName,
+      value: corpusBucket.bucketName
     });
     new cdk.CfnOutput(this, 'BedrockKnowledgeBaseId', {
-      value: knowledgeBase.attrKnowledgeBaseId,
+      value: knowledgeBase.attrKnowledgeBaseId
     });
     new cdk.CfnOutput(this, 'BedrockDataSourceId', {
-      value: dataSource.attrDataSourceId,
+      value: dataSource.attrDataSourceId
     });
     new cdk.CfnOutput(this, 'BedrockRegion', {
-      value: props.config.awsRegion,
+      value: props.config.awsRegion
     });
     new cdk.CfnOutput(this, 'BedrockGenerationModelId', {
-      value: props.config.bedrockGenerationModelId,
+      value: props.config.bedrockGenerationModelId
     });
     new cdk.CfnOutput(this, 'BedrockEmbeddingModelId', {
-      value: props.config.bedrockEmbeddingModelId,
+      value: props.config.bedrockEmbeddingModelId
     });
   }
 }

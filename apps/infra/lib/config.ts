@@ -74,7 +74,8 @@ function requiredEnvValue(env: InfraEnvironment, key: string): string {
 
 function optionalEnvValue(env: InfraEnvironment, key: string, defaultValue: string): string {
     const value = env[key];
-    return typeof value === 'string' && value.length > 0 ? value : defaultValue;
+
+return typeof value === 'string' && value.length > 0 ? value : defaultValue;
 }
 
 function optionalIntegerEnvValue(

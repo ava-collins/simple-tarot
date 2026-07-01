@@ -54,7 +54,7 @@ const parsePositiveInteger = (
 const nonEmpty = (value: string | undefined): string | undefined =>
     typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
 
-const modelArnFor = (region: string, env: NodeJS.ProcessEnv): string | undefined => {
+const modelArnFor = (region: string, env: typeof process.env): string | undefined => {
     const inferenceProfileArn = nonEmpty(env.BEDROCK_INFERENCE_PROFILE_ARN);
     if (inferenceProfileArn) {
         return inferenceProfileArn;
@@ -71,12 +71,11 @@ const modelArnFor = (region: string, env: NodeJS.ProcessEnv): string | undefined
     }
 
     const modelId = nonEmpty(env.BEDROCK_MODEL_ID);
-    return modelId
-        ? `arn:aws:bedrock:${region}::foundation-model/${modelId}`
-        : undefined;
+
+    return modelId ? `arn:aws:bedrock:${region}::foundation-model/${modelId}` : undefined;
 };
 
-const getBedrockRuntimeConfig = (env: NodeJS.ProcessEnv): BedrockRuntimeConfig => {
+const getBedrockRuntimeConfig = (env: typeof process.env): BedrockRuntimeConfig => {
     const retrievalResults = parsePositiveInteger(
         env.BEDROCK_RETRIEVAL_RESULTS,
         5,

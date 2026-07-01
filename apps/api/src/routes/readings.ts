@@ -47,7 +47,8 @@ readingsRouter.post('/readings', async (req, res, next) => {
         res.status(400).json({
             errors: validation.errors
         });
-        return;
+
+return;
     }
 
     const prompt = buildReadingPrompt(validation.value);

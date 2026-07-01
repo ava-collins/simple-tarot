@@ -15,7 +15,7 @@ const sourceIdFor = (
         NonNullable<RetrieveAndGenerateCommandOutput['citations']>[number]['retrievedReferences']
     >[number]
 ): string => {
-    const location = reference.location;
+    const { location } = reference;
 
     return (
         location?.s3Location?.uri ??
