@@ -7,6 +7,7 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build-types": "rm -rf dist && tsc -b",
+        "generate:cards": "node ./scripts/generate-cards.mjs",
         "test": "vitest --config vitetest.config.mjs --coverage",
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
@@ -16,8 +17,12 @@
         "react-native-svg": "15.15.5"
     },
     "devDependencies": {
+        "@svgr/core": "^8.1.0",
+        "@svgr/plugin-jsx": "^8.1.0",
+        "@svgr/plugin-prettier": "^8.1.0",
         "@types/react": "19.2.3",
         "@vitest/coverage-v8": "^3.2.4",
+        "dotenv": "^17.4.2",
         "jsdom": "^26.1.0",
         "react": "19.2.3",
         "react-native": "0.85.3",
