@@ -28,9 +28,8 @@ describe('hooks package exports', () => {
         expect(typeof HooksIndex.useSignupForm).toBe('function');
     });
 
-    it('should export useSvgCards', () => {
-        expect(HooksIndex.useSvgCards).toBeDefined();
-        expect(typeof HooksIndex.useSvgCards).toBe('function');
+    it('should not export useSvgCards', () => {
+        expect(HooksIndex).not.toHaveProperty('useSvgCards');
     });
 
     it('should export AvatarConfig enum', () => {

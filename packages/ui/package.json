@@ -66,6 +66,7 @@
         "react-native-web": "^0.21.0"
     },
     "dependencies": {
+        "@simpletarot/cards": "workspace:*",
         "@simpletarot/hooks": "*",
         "msw": "^2.10.2",
         "react-native-reanimated-monorepo": "react-native-reanimated/plugin"

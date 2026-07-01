@@ -61,6 +61,10 @@ of the project as a whole, used to provide context over time.
 `packages/hooks` is a shared package written in React Native using Apollo Client
 for data fetching, application state management and caching.
 
+`packages/cards` is a shared React Native package for generated tarot card SVG
+components and the `useSvgCards` hook. It generates card face components from
+raw SVG files with SVGR.
+
 `packages/ui` is a shared package written in React Native using Storybook UI for
 building, documenting, testing and exporting UI components.
 
@@ -81,25 +85,27 @@ messages.
 
 👉🏽 Check out
 
-- [@simpletarot/hooks](./packages/hooks/README.md)
+-   [@simpletarot/hooks](./packages/hooks/README.md)
 
-- [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
+-   [@simpletarot/cards](./docs/cards_package.md)
 
-- [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
+-   [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
 
-- [Neo4j Database Backup](./docs/neo4j_database_backup.md)
+-   [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
 
-- [Cognito Expo Config Contract](./docs/cognito_expo_config_contract.md)
+-   [Neo4j Database Backup](./docs/neo4j_database_backup.md)
 
-- [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md)
+-   [Cognito Expo Config Contract](./docs/cognito_expo_config_contract.md)
 
-- [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md)
+-   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md)
 
-- [REST API App](./apps/api/README.md)
+-   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md)
 
-- [Infrastructure App](./apps/infra/README.md)
+-   [REST API App](./apps/api/README.md)
 
-- [Bedrock RAG API MVP Plan](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
+-   [Infrastructure App](./apps/infra/README.md)
+
+-   [Bedrock RAG API MVP Plan](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
 
 # Copyright
 

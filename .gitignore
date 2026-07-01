@@ -152,3 +152,6 @@ storybook-static
 
 # Generated Bedrock corpus artifacts
 apps/api/corpus/generated/
+
+# Generated tarot card components
+# packages/cards/src/cards/
