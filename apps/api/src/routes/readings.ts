@@ -29,12 +29,15 @@ const createLocalGeneratedReading = (
 
 const generateReading = async (
     request: ReadingRequest,
-    prompt: string
+    prompt: string,
+    requestId?: string
 ): Promise<GeneratedReading> => {
     const config = getApiConfig().bedrock;
 
     if (config.mode === 'bedrock') {
-        return createBedrockReadingGenerator(config).generateReading(prompt);
+        return createBedrockReadingGenerator(config, undefined, {
+            requestId
+        }).generateReading(prompt);
     }
 
     return createLocalGeneratedReading(request, prompt);
@@ -48,13 +51,17 @@ readingsRouter.post('/readings', async (req, res, next) => {
             errors: validation.errors
         });
 
-return;
+        return;
     }
 
     const prompt = buildReadingPrompt(validation.value);
 
     try {
-        const generated = await generateReading(validation.value, prompt);
+        const generated = await generateReading(
+            validation.value,
+            prompt,
+            res.locals.requestId
+        );
 
         res.status(200).json(mapGeneratedReadingResponse(validation.value, generated));
     } catch (error) {

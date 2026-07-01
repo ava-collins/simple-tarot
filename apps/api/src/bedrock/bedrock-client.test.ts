@@ -44,6 +44,10 @@ describe('createBedrockReadingGenerator', () => {
                         ]
                     };
                 }
+            },
+            {
+                logError: () => {},
+                logInfo: () => {}
             }
         );
 
@@ -80,6 +84,51 @@ describe('createBedrockReadingGenerator', () => {
                     },
                     type: 'KNOWLEDGE_BASE'
                 }
+            }
+        ]);
+    });
+
+    it('logs Bedrock request boundaries without logging the full prompt', async () => {
+        const logs: unknown[] = [];
+        const generator = createBedrockReadingGenerator(
+            {
+                knowledgeBaseId: 'KB123',
+                modelArn:
+                    'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
+                maxAttempts: 5,
+                region: 'us-east-1',
+                retrievalResults: 3
+            },
+            {
+                send: async () => ({
+                    output: {
+                        text: 'Generated reading text.'
+                    }
+                })
+            },
+            {
+                logInfo: (_message, context) => logs.push(context),
+                requestId: 'req-123'
+            }
+        );
+
+        await generator.generateReading('Prompt text that should not be logged');
+
+        expect(logs).toEqual([
+            {
+                knowledgeBaseId: 'KB123',
+                modelArn:
+                    'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
+                promptLength: 37,
+                requestId: 'req-123',
+                retrievalResults: 3
+            },
+            {
+                citationCount: 0,
+                modelArn:
+                    'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
+                requestId: 'req-123',
+                textLength: 23
             }
         ]);
     });
