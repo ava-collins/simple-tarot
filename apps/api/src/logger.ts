@@ -31,7 +31,8 @@ const writeLog = (
 
     if (level === 'error') {
         console.error(serialized);
-        return;
+
+return;
     }
 
     console.log(serialized);
