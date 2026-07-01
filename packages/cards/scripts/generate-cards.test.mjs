@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os';
 
 import { describe, expect, it } from 'vitest';
 
-import { generateCards, resolveSourceDir } from './generate-cards.mjs';
+import { generateCards, resolveSourceDir, selfCloseEmptyElements } from './generate-cards.mjs';
 
 const tinySvg = '<svg viewBox="0 0 10 10"><path d="M0 0h10v10H0z" /></svg>';
 
@@ -48,6 +48,7 @@ describe('generateCards', () => {
                 join(outputDir, 'major-arcana', 'Arcana0Fool.tsx'),
                 'utf8'
             );
+            expect(fool).toContain('/* eslint-disable @typescript-eslint/ban-ts-comment */');
             expect(fool).toContain('// @ts-nocheck');
             expect(fool).toContain('from "react-native-svg"');
             expect(fool).toContain('const Arcana0Fool =');
@@ -74,5 +75,14 @@ describe('generateCards', () => {
                 CARD_SVG_SOURCE_DIR: '  /tmp/source-cards  '
             })
         ).toBe('/tmp/source-cards');
+    });
+
+    it('self-closes empty generated JSX elements', () => {
+        expect(selfCloseEmptyElements('<Defs id="defs292"></Defs>')).toBe(
+            '<Defs id="defs292" />'
+        );
+        expect(selfCloseEmptyElements('<G\n    id="layer1"\n></G>')).toBe(
+            '<G\n    id="layer1"\n />'
+        );
     });
 });

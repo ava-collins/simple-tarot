@@ -7175,7 +7175,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@simpletarot/cards@workspace:packages/cards":
+"@simpletarot/cards@workspace:*, @simpletarot/cards@workspace:packages/cards":
   version: 0.0.0-use.local
   resolution: "@simpletarot/cards@workspace:packages/cards"
   dependencies:
@@ -7219,7 +7219,6 @@ __metadata:
     react: 19.2.3
     react-dom: 19.2.3
     react-native: 0.85.3
-    react-native-svg: 15.15.5
   languageName: unknown
   linkType: soft
 
@@ -7234,6 +7233,7 @@ __metadata:
     "@mdx-js/react": "npm:^3.1.0"
     "@rneui/base": "npm:5.0.0"
     "@rneui/themed": "npm:5.0.0"
+    "@simpletarot/cards": "workspace:*"
     "@simpletarot/hooks": "npm:*"
     "@storybook/addon-docs": "npm:^10.1.0"
     "@storybook/addon-react-native-web": "npm:^0.0.29"

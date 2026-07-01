@@ -96,6 +96,9 @@ const getSvgFiles = async directory => {
         .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
 };
 
+export const selfCloseEmptyElements = code =>
+    code.replace(/<([A-Z][A-Za-z0-9]*)\b([^>]*)>\s*<\/\1>/gu, '<$1$2 />');
+
 const generateComponent = async ({ componentName, sourcePath, outputPath }) => {
     const source = await readFile(sourcePath, 'utf8');
     const code = await transform(
@@ -113,7 +116,7 @@ const generateComponent = async ({ componentName, sourcePath, outputPath }) => {
             }
         }
     );
-    const generatedCode = `/* eslint-disable @typescript-eslint/ban-ts-comment */\n// @ts-nocheck\n${code}`;
+    const generatedCode = `/* eslint-disable @typescript-eslint/ban-ts-comment */\n// @ts-nocheck\n${selfCloseEmptyElements(code)}`;
 
     await writeFile(
         outputPath,

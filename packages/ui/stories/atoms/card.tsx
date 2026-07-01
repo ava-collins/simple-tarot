@@ -2,7 +2,7 @@
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 
 import React from 'react';
-import useSvgCards from '@simpletarot/hooks/src/cards/use-svg-cards';
+import { useSvgCards } from '@simpletarot/cards';
 import { vmin } from 'react-native-expo-viewport-units';
 
 export type CardProps = {

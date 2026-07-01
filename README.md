@@ -61,6 +61,10 @@ of the project as a whole, used to provide context over time.
 `packages/hooks` is a shared package written in React Native using Apollo Client
 for data fetching, application state management and caching.
 
+`packages/cards` is a shared React Native package for generated tarot card SVG
+components and the `useSvgCards` hook. It generates card face components from
+raw SVG files with SVGR and keeps those generated files out of git.
+
 `packages/ui` is a shared package written in React Native using Storybook UI for
 building, documenting, testing and exporting UI components.
 
@@ -82,6 +86,8 @@ messages.
 👉🏽 Check out
 
 - [@simpletarot/hooks](./packages/hooks/README.md)
+
+- [@simpletarot/cards](./docs/cards_package.md)
 
 - [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
 
