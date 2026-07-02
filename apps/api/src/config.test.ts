@@ -40,6 +40,16 @@ describe('getApiConfig', () => {
         );
     });
 
+    it('loads the user data table name when configured', () => {
+        expect(
+            getApiConfig({
+                USER_DATA_TABLE_NAME: 'simple-tarot-dev-user-data'
+            }).userData
+        ).toEqual({
+            tableName: 'simple-tarot-dev-user-data'
+        });
+    });
+
     it('loads Bedrock runtime configuration from environment values', () => {
         expect(
             getApiConfig({

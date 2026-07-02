@@ -3,6 +3,7 @@ export type ApiConfig = {
     bedrock: BedrockRuntimeConfig;
     hostname: string;
     port: number;
+    userData: UserDataConfig;
 };
 
 export type DisabledAuthConfig = {
@@ -16,6 +17,10 @@ export type CognitoAuthConfig = {
 };
 
 export type AuthConfig = DisabledAuthConfig | CognitoAuthConfig;
+
+export type UserDataConfig = {
+    tableName?: string;
+};
 
 export type LocalBedrockRuntimeConfig = {
     maxAttempts: number;
@@ -98,6 +103,10 @@ const getAuthConfig = (env: typeof process.env): AuthConfig => {
     };
 };
 
+const getUserDataConfig = (env: typeof process.env): UserDataConfig => ({
+    tableName: nonEmpty(env.USER_DATA_TABLE_NAME)
+});
+
 const modelArnFor = (region: string, env: typeof process.env): string | undefined => {
     const inferenceProfileArn = nonEmpty(env.BEDROCK_INFERENCE_PROFILE_ARN);
     if (inferenceProfileArn) {
@@ -175,6 +184,7 @@ export function getApiConfig(env = process.env): ApiConfig {
         auth: getAuthConfig(env),
         bedrock: getBedrockRuntimeConfig(env),
         hostname: env.HOST ?? 'localhost',
-        port: parsePort(env.PORT)
+        port: parsePort(env.PORT),
+        userData: getUserDataConfig(env)
     };
 }
