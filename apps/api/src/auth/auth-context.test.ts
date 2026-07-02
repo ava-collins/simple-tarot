@@ -53,6 +53,33 @@ describe('authenticatedUserFromGatewayRequest', () => {
             userId: 'user-sub-123'
         });
     });
+
+    it('reads Cognito JWT claims from the serverless-express eventContext middleware shape', () => {
+        expect(
+            authenticatedUserFromGatewayRequest({
+                apiGateway: {
+                    context: {
+                        awsRequestId: 'lambda-request-123'
+                    },
+                    event: {
+                        requestContext: {
+                            authorizer: {
+                                jwt: {
+                                    claims: {
+                                        client_id: 'public-client-id',
+                                        sub: 'user-sub-123',
+                                        token_use: 'access'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        ).toMatchObject({
+            userId: 'user-sub-123'
+        });
+    });
 });
 
 describe('requireAuthentication', () => {
