@@ -15,6 +15,7 @@ export type ReadingFailure = {
 
 export type SaveSuccessfulReadingInput = {
     createdAt: string;
+    cognitoIssuer?: string;
     generatedReading: GeneratedReading;
     readingResponse: ReadingResponse;
     request: ReadingRequest;
@@ -45,6 +46,21 @@ export type ReadingHistoryRecord = {
     schemaVersion: 1;
     sk: string;
     spread: string;
+    updatedAt: string;
+    userId: string;
+};
+
+export type UserProfileRecord = {
+    cognitoIssuer?: string;
+    createdAt: string;
+    entityType: 'userProfile';
+    firstSeenAt: string;
+    lastReadingAt: string;
+    lastSeenAt: string;
+    pk: string;
+    readingCount: number;
+    schemaVersion: 1;
+    sk: 'PROFILE';
     updatedAt: string;
     userId: string;
 };

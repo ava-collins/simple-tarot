@@ -3,6 +3,7 @@ import { ReadingHistoryStore } from './contracts';
 export type { ReadingHistoryStore } from './contracts';
 
 export const USER_KEY_PREFIX = 'USER#';
+export const PROFILE_SORT_KEY = 'PROFILE';
 export const READING_KEY_PREFIX = 'READING#';
 export const READING_ATTEMPT_KEY_PREFIX = 'READING_ATTEMPT#';
 
