@@ -13,6 +13,7 @@ export interface AccountScreenProps {
     displayName?: string;
     subject?: string;
     error?: string | null;
+    onReadingHistoryPress?: () => void;
     onSignInPress: () => void;
     onSignOutPress: () => void;
 }
@@ -24,6 +25,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     displayName,
     subject,
     error,
+    onReadingHistoryPress,
     onSignInPress,
     onSignOutPress
 }) => {
@@ -80,6 +82,17 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                         ) : null}
                     </View>
                     {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                    {onReadingHistoryPress ? (
+                        <Pressable
+                            accessibilityRole="button"
+                            onPress={onReadingHistoryPress}
+                            style={({ pressed }) => [
+                                styles.button,
+                                pressed && styles.pressed
+                            ]}>
+                            <Text style={styles.buttonText}>Reading history</Text>
+                        </Pressable>
+                    ) : null}
                     <Pressable
                         accessibilityRole="button"
                         onPress={onSignOutPress}

@@ -22,20 +22,20 @@ export class UserDataStack extends cdk.Stack {
       tableName: props.config.userDataTableName,
       partitionKey: {
         name: 'pk',
-        type: dynamodb.AttributeType.STRING,
+        type: dynamodb.AttributeType.STRING
       },
       sortKey: {
         name: 'sk',
-        type: dynamodb.AttributeType.STRING,
+        type: dynamodb.AttributeType.STRING
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
       encryption: dynamodb.TableEncryption.DEFAULT,
       pointInTimeRecoverySpecification: isProd
         ? {
-            pointInTimeRecoveryEnabled: true,
+            pointInTimeRecoveryEnabled: true
           }
         : undefined,
-      removalPolicy,
+      removalPolicy
     });
 
     const apiLogBucket = new s3.Bucket(this, 'ApiLogBucket', {
@@ -44,27 +44,27 @@ export class UserDataStack extends cdk.Stack {
       enforceSSL: true,
       lifecycleRules: [
         {
-          expiration: cdk.Duration.days(isProd ? 365 : 30),
-        },
+          expiration: cdk.Duration.days(isProd ? 365 : 30)
+        }
       ],
       removalPolicy,
-      autoDeleteObjects: !isProd,
+      autoDeleteObjects: !isProd
     });
 
     this.apiLogBucket = apiLogBucket;
     this.userDataTable = userDataTable;
 
     new cdk.CfnOutput(this, 'UserDataTableName', {
-      value: props.config.userDataTableName,
+      value: props.config.userDataTableName
     });
     new cdk.CfnOutput(this, 'UserDataTableArn', {
-      value: userDataTable.tableArn,
+      value: userDataTable.tableArn
     });
     new cdk.CfnOutput(this, 'ApiLogBucketName', {
-      value: apiLogBucket.bucketName,
+      value: apiLogBucket.bucketName
     });
     new cdk.CfnOutput(this, 'ApiLogBucketArn', {
-      value: apiLogBucket.bucketArn,
+      value: apiLogBucket.bucketArn
     });
   }
 }

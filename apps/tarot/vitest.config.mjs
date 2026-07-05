@@ -2,11 +2,13 @@ import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
 const srcPath = fileURLToPath(new URL('./src', import.meta.url));
+const reactPath = fileURLToPath(new URL('../../node_modules/react', import.meta.url));
 
 export default defineConfig({
   resolve: {
     alias: {
-      '@': srcPath
+      '@': srcPath,
+      react: reactPath
     }
   },
   test: {
