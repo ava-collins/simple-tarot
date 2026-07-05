@@ -29,7 +29,7 @@ export class UserDataStack extends cdk.Stack {
         type: dynamodb.AttributeType.STRING,
       },
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      encryption: dynamodb.TableEncryption.AWS_MANAGED,
+      encryption: dynamodb.TableEncryption.DEFAULT,
       pointInTimeRecoverySpecification: isProd
         ? {
             pointInTimeRecoveryEnabled: true,

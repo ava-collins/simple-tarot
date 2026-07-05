@@ -1,4 +1,5 @@
 import express from 'express';
+import { RequestHandler } from 'express';
 import {
     CognitoJwtVerifier,
     apiGatewayAuthContextMiddleware,
@@ -15,6 +16,10 @@ import {
 import { healthRouter } from './routes/health';
 import { readingsRouter } from './routes/readings';
 
+const { eventContext } = require('@codegenie/serverless-express/src/middleware') as {
+    eventContext: () => RequestHandler;
+};
+
 export type CreateApiServerOptions = {
     config?: ApiConfig;
     tokenVerifier?: CognitoJwtVerifier;
@@ -27,6 +32,7 @@ export function createApiServer(options: CreateApiServerOptions = {}) {
     app.use(express.json());
     app.use(requestIdMiddleware);
     app.use(requestLoggingMiddleware);
+    app.use(eventContext());
     app.use(apiGatewayAuthContextMiddleware);
     app.use(healthRouter);
 

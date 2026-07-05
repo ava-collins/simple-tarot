@@ -61,7 +61,7 @@ describe('UserDataStack', () => {
         },
       ],
       SSESpecification: {
-        SSEEnabled: true,
+        SSEEnabled: false,
       },
     });
   });
