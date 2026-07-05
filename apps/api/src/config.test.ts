@@ -50,6 +50,16 @@ describe('getApiConfig', () => {
         });
     });
 
+    it('loads the API log bucket name when configured', () => {
+        expect(
+            getApiConfig({
+                API_LOG_BUCKET_NAME: 'simple-tarot-dev-api-logs'
+            }).apiLog
+        ).toEqual({
+            bucketName: 'simple-tarot-dev-api-logs'
+        });
+    });
+
     it('loads Bedrock runtime configuration from environment values', () => {
         expect(
             getApiConfig({
