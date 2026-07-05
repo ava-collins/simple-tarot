@@ -3,6 +3,7 @@ import * as cdk from 'aws-cdk-lib/core';
 import { BedrockRagStack } from '../lib/bedrock-rag-stack';
 import { CognitoStack } from '../lib/cognito-stack';
 import { getInfraConfig, loadInfraEnv } from '../lib/config';
+import { UserDataStack } from '../lib/user-data-stack';
 
 const app = new cdk.App();
 const config = getInfraConfig({
@@ -17,6 +18,15 @@ new CognitoStack(app, config.stackName, {
     region: config.awsRegion
   },
   stackName: config.stackName
+});
+
+new UserDataStack(app, config.userDataStackName, {
+  config,
+  env: {
+    account: process.env.CDK_DEFAULT_ACCOUNT,
+    region: config.awsRegion
+  },
+  stackName: config.userDataStackName
 });
 
 new BedrockRagStack(app, config.bedrockStackName, {

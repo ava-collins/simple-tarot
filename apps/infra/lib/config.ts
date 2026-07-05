@@ -22,6 +22,8 @@ export interface InfraConfig {
     cognitoDomainPrefix: string;
     stackName: string;
     userPoolName: string;
+    userDataStackName: string;
+    userDataTableName: string;
     bedrockStackName: string;
     bedrockKnowledgeBaseName: string;
     bedrockDataSourceName: string;
@@ -127,6 +129,8 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         cognitoDomainPrefix: requiredEnvValue(env, 'SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX'),
         stackName: `SimpleTarotCognito-${environmentName}`,
         userPoolName: `simple-tarot-${environmentName}-users`,
+        userDataStackName: `SimpleTarotUserData-${environmentName}`,
+        userDataTableName: `simple-tarot-${environmentName}-user-data`,
         bedrockStackName: `SimpleTarotBedrockRag-${environmentName}`,
         bedrockKnowledgeBaseName: `simple-tarot-${environmentName}-readings`,
         bedrockDataSourceName: `simple-tarot-${environmentName}-corpus`,
