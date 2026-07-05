@@ -28,6 +28,17 @@ The full mapping is documented in
 For preview and testing builds, create the same `EXPO_PUBLIC_*` values in the
 appropriate EAS environment.
 
+## API Public Config
+
+Reading generation and reading history call the deployed REST API through:
+
+```sh
+EXPO_PUBLIC_TAROT_API_URL=https://<api-id>.execute-api.<region>.amazonaws.com
+```
+
+This URL is a public service endpoint, not a secret. The app sends the Cognito
+access token in the `Authorization` header for reading requests.
+
 ## Commands
 
 Run commands from the repository root:

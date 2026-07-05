@@ -37,18 +37,18 @@ export class ApiStack extends cdk.Stack {
         BEDROCK_KNOWLEDGE_BASE_ID: props.knowledgeBase.attrKnowledgeBaseId,
         BEDROCK_REGION: props.config.awsRegion,
         BEDROCK_RUNTIME_MODE: 'local',
-        USER_DATA_TABLE_NAME: props.config.userDataTableName,
+        USER_DATA_TABLE_NAME: props.config.userDataTableName
       },
       bundling: {
-        target: 'node22',
-      },
+        target: 'node22'
+      }
     });
 
     props.userDataTable.grantReadWriteData(apiFunction);
     props.apiLogBucket.grantPut(apiFunction, 'api-logs/*');
     apiFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['bedrock:RetrieveAndGenerate'],
-      resources: [props.knowledgeBase.attrKnowledgeBaseArn],
+      resources: [props.knowledgeBase.attrKnowledgeBaseArn]
     }));
 
     const httpApi = new apigatewayv2.HttpApi(this, 'HttpApi', {
@@ -56,8 +56,8 @@ export class ApiStack extends cdk.Stack {
       corsPreflight: {
         allowHeaders: ['authorization', 'content-type', 'x-request-id'],
         allowMethods: [apigatewayv2.CorsHttpMethod.ANY],
-        allowOrigins: ['*'],
-      },
+        allowOrigins: ['*']
+      }
     });
     const integration = new integrations.HttpLambdaIntegration(
       'ApiLambdaIntegration',
@@ -67,7 +67,7 @@ export class ApiStack extends cdk.Stack {
       'CognitoJwtAuthorizer',
       `https://cognito-idp.${props.config.awsRegion}.amazonaws.com/${props.userPool.userPoolId}`,
       {
-        jwtAudience: [props.userPoolClient.userPoolClientId],
+        jwtAudience: [props.userPoolClient.userPoolClientId]
       }
     );
 
@@ -75,23 +75,23 @@ export class ApiStack extends cdk.Stack {
       authorizer,
       integration,
       methods: [apigatewayv2.HttpMethod.ANY],
-      path: '/{proxy+}',
+      path: '/{proxy+}'
     });
     httpApi.addRoutes({
       authorizer,
       integration,
       methods: [apigatewayv2.HttpMethod.ANY],
-      path: '/',
+      path: '/'
     });
 
     new cdk.CfnOutput(this, 'ApiUrl', {
-      value: httpApi.apiEndpoint,
+      value: httpApi.apiEndpoint
     });
     new cdk.CfnOutput(this, 'ApiFunctionName', {
-      value: props.config.apiFunctionName,
+      value: props.config.apiFunctionName
     });
     new cdk.CfnOutput(this, 'ApiFunctionArn', {
-      value: apiFunction.functionArn,
+      value: apiFunction.functionArn
     });
   }
 }

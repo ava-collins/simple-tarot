@@ -16,6 +16,8 @@ export default function TabLayout() {
                     <Stack.Screen name="auth/callback" />
                     <Stack.Screen name="auth/logout" />
                     <Stack.Screen name="auth/sign-out" />
+                    <Stack.Screen name="readings/index" />
+                    <Stack.Screen name="readings/new" />
                     <Stack.Screen name="index" />
                 </Stack>
             </AuthProvider>

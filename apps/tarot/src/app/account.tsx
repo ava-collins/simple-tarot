@@ -19,6 +19,7 @@ export default function AccountRoute() {
             displayName={claimText(idTokenClaims?.name)}
             subject={claimText(idTokenClaims?.sub)}
             error={error}
+            onReadingHistoryPress={() => router.push('/readings' as Href)}
             onSignInPress={() => router.push('/auth/sign-in' as Href)}
             onSignOutPress={() => router.push('/auth/sign-out' as Href)}
         />
