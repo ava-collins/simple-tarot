@@ -30,14 +30,32 @@ appropriate EAS environment.
 
 ## API Public Config
 
-Reading generation and reading history call the deployed REST API through:
+Reading generation and reading history call the deployed API Gateway HTTP API
+through:
 
 ```sh
 EXPO_PUBLIC_TAROT_API_URL=https://<api-id>.execute-api.<region>.amazonaws.com
 ```
 
-This URL is a public service endpoint, not a secret. The app sends the Cognito
-access token in the `Authorization` header for reading requests.
+Use the exact `ApiUrl` CloudFormation output from
+`SimpleTarotApi-<environment>`. This URL is a public service endpoint, not a
+secret. The current API is an HTTP API, so the output does not include a REST
+API stage path such as `/dev`.
+
+The app sends the Cognito access token in the `Authorization` header for
+reading requests.
+
+## Reading History
+
+Signed-in users can generate a one-card reading and view saved reading history.
+The mobile app calls:
+
+- `POST /readings` to generate and persist a reading
+- `GET /readings` to fetch only the signed-in user's successful readings,
+  newest first
+
+Failed generation attempts are persisted by the API for support/admin use but
+are not shown in the mobile history screen.
 
 ## Commands
 
@@ -49,6 +67,8 @@ yarn workspace tarot ios
 yarn workspace tarot android
 yarn workspace tarot web
 yarn workspace tarot lint
+yarn workspace tarot test
+yarn workspace tarot build-types
 ```
 
 ## Notes

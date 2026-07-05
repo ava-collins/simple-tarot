@@ -11,10 +11,19 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 - `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, OpenSearch
   Serverless vector store, Bedrock Knowledge Base, S3 data source, and API
   handoff outputs for generated tarot readings.
+- `lib/user-data-stack.ts` defines the DynamoDB user-data table and S3 API log
+  bucket used by authenticated reading persistence.
+- `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
+  JWT authorizer, and Lambda permissions for DynamoDB, S3 API logs, and
+  Bedrock.
 - `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
   contract.
 - `test/bedrock-rag-stack.test.ts` contains CDK assertion tests for the
   Bedrock RAG contract.
+- `test/user-data-stack.test.ts` contains CDK assertion tests for the DynamoDB
+  user-data table and S3 API log bucket.
+- `test/api-stack.test.ts` contains CDK assertion tests for the HTTP API,
+  Lambda runtime, Cognito authorizer, and runtime permissions.
 
 ## Cognito Stack
 
@@ -60,6 +69,55 @@ The stack creates:
 The first MVP pass uses public OpenSearch Serverless network access so Bedrock
 can manage ingestion without introducing VPC routing. Tighten this after the
 API deployment topology is known.
+
+## User Data Stack
+
+The CDK app synthesizes one user-data stack for the configured Simple Tarot
+environment. The stack name follows:
+
+```text
+SimpleTarotUserData-<environment>
+```
+
+The stack creates:
+
+- a DynamoDB table with `pk` and `sk` string keys for user profile, successful
+  reading, and failed reading-attempt items
+- an S3 bucket for structured API request/diagnostic logs under `api-logs/`
+- CloudFormation outputs for table name/ARN and log bucket name/ARN
+
+Development environments use destroy removal policy and a 30-day API log
+lifecycle. Production uses retain removal policy and point-in-time recovery for
+the DynamoDB table.
+
+## API Stack
+
+The CDK app synthesizes one API stack for the configured Simple Tarot
+environment. The stack name follows:
+
+```text
+SimpleTarotApi-<environment>
+```
+
+The stack creates:
+
+- a Node.js 22 Lambda for `apps/api`
+- an API Gateway HTTP API protected by the Cognito JWT authorizer
+- `ANY /{proxy+}` and `ANY /` routes to the Lambda integration
+- Lambda environment variables for Bedrock, user-data table, and API log bucket
+- least-privilege grants for DynamoDB read/write, S3 API log writes, and
+  Bedrock `RetrieveAndGenerate`
+- `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
+
+`ApiUrl` is the mobile app's `EXPO_PUBLIC_TAROT_API_URL`. The current API uses
+API Gateway HTTP API, so this output does not include a REST API stage path such
+as `/dev`.
+
+The API stack currently deploys `BEDROCK_RUNTIME_MODE=local` so the mobile
+reading-history persistence flow works while Bedrock model access is pending.
+When Bedrock access is approved, change the Lambda environment to
+`BEDROCK_RUNTIME_MODE=bedrock`, confirm corpus ingestion, and redeploy
+`SimpleTarotApi-<environment>`.
 
 ## Environment Configuration
 
@@ -109,14 +167,27 @@ CloudFormation execution role or CI deployment role.
 
 ## API Contract
 
-After deploying the Bedrock RAG stack, sync these outputs into the API runtime
-environment:
+The deployed API stack wires Bedrock, Cognito, user-data, and log-bucket
+outputs directly into Lambda environment variables. For local API runs, copy the
+same CloudFormation outputs into `apps/api/.env`.
+
+Bedrock outputs:
 
 - `BedrockCorpusBucketName` -> `BEDROCK_CORPUS_BUCKET`
 - `BedrockKnowledgeBaseId` -> `BEDROCK_KNOWLEDGE_BASE_ID`
 - `BedrockDataSourceId` -> `BEDROCK_DATA_SOURCE_ID`
 - `BedrockRegion` -> `BEDROCK_REGION`
 - `BedrockGenerationModelId` -> `BEDROCK_INFERENCE_PROFILE_ID`
+
+User-data outputs:
+
+- `UserDataTableName` -> `USER_DATA_TABLE_NAME`
+- `ApiLogBucketName` -> `API_LOG_BUCKET_NAME`
+
+Cognito outputs:
+
+- `CognitoIssuer` -> `COGNITO_ISSUER`
+- `CognitoUserPoolClientId` -> `COGNITO_CLIENT_ID`
 
 ## Expo Contract
 
@@ -134,7 +205,7 @@ Use `apps/tarot/.env.local.example` as the local template. The real
 ## Commands
 
 ```sh
-yarn workspace infra build
+yarn workspace infra build-types
 yarn workspace infra test
 yarn workspace infra cdk synth
 ```
