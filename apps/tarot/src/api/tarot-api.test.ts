@@ -80,7 +80,6 @@ describe('createTarotApiClient', () => {
     });
 
     it('posts readings with the Cognito access token', async () => {
-        vi.spyOn(console, 'log').mockImplementation(() => undefined);
         const fetchMock = vi.fn().mockResolvedValue(jsonResponse(readingResponse));
         vi.stubGlobal('fetch', fetchMock);
 
@@ -103,7 +102,6 @@ describe('createTarotApiClient', () => {
     });
 
     it('fetches reading history with the Cognito access token', async () => {
-        vi.spyOn(console, 'log').mockImplementation(() => undefined);
         const historyResponse = {
             readings: [
                 {
@@ -138,13 +136,12 @@ describe('createTarotApiClient', () => {
     });
 
     it('surfaces API error messages when reading requests fail', async () => {
-        vi.spyOn(console, 'log').mockImplementation(() => undefined);
         vi.stubGlobal(
             'fetch',
             vi.fn().mockResolvedValue(
                 jsonResponse(
                     {
-                    message: 'Authentication is required.'
+                        message: 'Authentication is required.'
                     },
                     false,
                     401
@@ -163,7 +160,6 @@ describe('createTarotApiClient', () => {
     });
 
     it('logs response diagnostics when the API returns non-JSON content', async () => {
-        vi.spyOn(console, 'log').mockImplementation(() => undefined);
         const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
         vi.stubGlobal(
             'fetch',

@@ -73,10 +73,10 @@ export default function NewReadingRoute() {
                 </Pressable>
             </View>
 
-            <Text style={styles.eyebrow}>Local test flow</Text>
+            <Text style={styles.eyebrow}>One-card reading</Text>
             <Text style={styles.title}>New reading</Text>
             <Text style={styles.body}>
-                Generate a one-card reading through the API while Bedrock access is pending.
+                Ask a question and save a one-card reading to your history.
             </Text>
 
             <View style={styles.formSection}>
