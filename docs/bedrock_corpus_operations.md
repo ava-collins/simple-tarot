@@ -146,7 +146,8 @@ instead of `corpus/`.
 
 ## API Handoff
 
-After the corpus has been uploaded and synced, set API Bedrock mode:
+After the corpus has been uploaded and synced, set API Bedrock mode for local
+API runs:
 
 ```sh
 BEDROCK_RUNTIME_MODE=bedrock
@@ -162,6 +163,15 @@ Then start the API:
 ```sh
 yarn api:dev
 ```
+
+The deployed `SimpleTarotApi-<environment>` stack currently sets the Lambda
+environment to `BEDROCK_RUNTIME_MODE=local` so the mobile persistence flow can
+run while Bedrock access is pending. When Bedrock access is approved, update the
+API stack/Lambda environment to `BEDROCK_RUNTIME_MODE=bedrock` and redeploy.
+
+Before enabling Bedrock mode in production, also update
+`apps/api/src/readings/response-mapper.ts` so `ReadingResponse.metadata.mode`
+records `bedrock` for Bedrock-generated readings.
 
 ## Refresh Checklist
 

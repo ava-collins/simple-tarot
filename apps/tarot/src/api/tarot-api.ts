@@ -130,13 +130,6 @@ async function parseJsonResponse<T>(
         throw new Error(message);
     }
 
-    console.log('[tarot-api] response', {
-        contentType,
-        method: request.method,
-        status: response.status,
-        url: request.url
-    });
-
     return body as T;
 }
 
@@ -159,12 +152,6 @@ export function createTarotApiClient({
         async createReading(request) {
             const url = `${apiBaseUrl}/readings`;
             const method = 'POST';
-            console.log('[tarot-api] request', {
-                hasQuestion: Boolean(request.question),
-                itemCount: request.items.length,
-                method,
-                url
-            });
             const response = await fetch(url, {
                 body: JSON.stringify(request),
                 headers: {
@@ -179,10 +166,6 @@ export function createTarotApiClient({
         async listReadings() {
             const url = `${apiBaseUrl}/readings`;
             const method = 'GET';
-            console.log('[tarot-api] request', {
-                method,
-                url
-            });
             const response = await fetch(url, {
                 headers: authHeaders,
                 method

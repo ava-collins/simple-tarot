@@ -9,9 +9,11 @@ documents in S3.
 The Bedrock RAG work adds a REST API path for generated tarot readings:
 
 - `apps/api` receives reading requests and builds a deterministic retrieval
-  prompt.
+  prompt. Authenticated requests also persist reading history through the API's
+  user-data store.
 - `apps/infra` deploys the Bedrock Knowledge Base dependencies: S3, OpenSearch
-  Serverless, IAM, and Bedrock data source resources.
+  Serverless, IAM, Bedrock data source resources, the user-data table, the API
+  log bucket, and the API Gateway/Lambda runtime.
 - A normalized corpus JSONL file is generated from the Firestore-shaped tarot
   source export for Knowledge Base ingestion.
 
@@ -23,6 +25,7 @@ default so developers can run the API without AWS credentials.
 ```mermaid
 flowchart LR
     Mobile["Tarot app or API client"]
+    Auth["Cognito JWT authorizer"]
     Route["POST /readings<br/>apps/api/src/routes/readings.ts"]
     Prompt["Prompt builder<br/>readings/prompt-builder.ts"]
     Local["Local placeholder generator"]
@@ -32,8 +35,11 @@ flowchart LR
     AOSS["OpenSearch Serverless<br/>vector index"]
     S3["S3 corpus bucket<br/>corpus/ prefix"]
     Mapper["Response mapper<br/>readings/response-mapper.ts"]
+    DDB["DynamoDB user-data table<br/>profile, readings, failed attempts"]
+    Logs["S3 API log bucket<br/>request diagnostics"]
 
-    Mobile --> Route
+    Mobile --> Auth
+    Auth --> Route
     Route --> Prompt
     Prompt --> Route
     Route -->|"BEDROCK_RUNTIME_MODE != bedrock"| Local
@@ -44,6 +50,8 @@ flowchart LR
     KB --> S3
     Local --> Mapper
     BedrockClient --> Mapper
+    Route --> DDB
+    Route --> Logs
     Mapper --> Mobile
 ```
 
@@ -59,6 +67,14 @@ The route:
 4. Uses the local placeholder generator unless `BEDROCK_RUNTIME_MODE=bedrock`.
 5. Calls Bedrock `RetrieveAndGenerate` in Bedrock mode.
 6. Maps generated text and citations into the public reading response.
+7. Persists authenticated successful readings and minimal profile updates.
+8. Persists authenticated failed generation attempts with sanitized failure
+   fields.
+9. Writes request/diagnostic metadata to the S3 API log bucket when configured.
+
+`GET /readings` returns only the signed-in user's successful readings, newest
+first. Failed generation attempts are persisted for support/admin use but are
+not returned to the mobile app history screen.
 
 The request contract lives in `apps/api/src/readings/contracts.ts`.
 
@@ -142,11 +158,17 @@ Model selection precedence:
 When `BEDROCK_MODEL_ID` is set, the API expands it into a regional foundation
 model ARN. Inference profile IDs and ARNs are passed through as provided.
 
+The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` while
+Bedrock model access is pending AWS Support review. When access is approved,
+change the API Lambda environment to `BEDROCK_RUNTIME_MODE=bedrock`, confirm
+Knowledge Base ingestion is complete, and redeploy the API stack.
+
 ## Infrastructure Flow
 
-`apps/infra/bin/simple-tarot-infra.ts` creates both the Cognito stack and the
-Bedrock RAG stack. The Bedrock stack is implemented in
-`apps/infra/lib/bedrock-rag-stack.ts`.
+`apps/infra/bin/simple-tarot-infra.ts` creates the Cognito, user-data, Bedrock
+RAG, and API stacks. The Bedrock stack is implemented in
+`apps/infra/lib/bedrock-rag-stack.ts`; user-data and API runtime resources live
+in `apps/infra/lib/user-data-stack.ts` and `apps/infra/lib/api-stack.ts`.
 
 ```mermaid
 flowchart TB
@@ -159,6 +181,8 @@ flowchart TB
     Role["Bedrock KnowledgeBaseRole"]
     KB["Bedrock CfnKnowledgeBase"]
     DS["Bedrock CfnDataSource<br/>S3 inclusion prefix"]
+    UserData["UserDataStack<br/>DynamoDB + S3 API logs"]
+    APIStack["ApiStack<br/>HTTP API + Lambda"]
     Outputs["CloudFormation outputs"]
 
     Config --> Stack
@@ -172,6 +196,9 @@ flowchart TB
     Index --> KB
     Bucket --> DS
     KB --> DS
+    UserData --> APIStack
+    KB --> APIStack
+    APIStack --> Outputs
     DS --> Outputs
 ```
 
@@ -184,7 +211,10 @@ The stack creates:
 - IAM role assumed by Bedrock.
 - Bedrock Knowledge Base using the configured embedding model.
 - S3 data source scoped to the configured corpus prefix.
-- CloudFormation outputs needed by the API and corpus operations.
+- DynamoDB user-data table for profile, reading history, and failed attempts.
+- S3 API log bucket for request diagnostics that should not live in DynamoDB.
+- API Gateway HTTP API + Lambda runtime with Cognito JWT authorization.
+- CloudFormation outputs needed by the API, mobile app, and corpus operations.
 
 Development environments use destroy removal policy and auto-delete bucket
 objects. Production uses retain removal policy.
@@ -262,13 +292,27 @@ runtime environment:
 | `BedrockCorpusBucketName` | upload target, not read by current API |
 | `BedrockDataSourceId` | ingestion sync target, not read by current API |
 
+For local authenticated persistence runs, also copy:
+
+| CloudFormation output | API env var |
+| --- | --- |
+| `UserDataTableName` | `USER_DATA_TABLE_NAME` |
+| `ApiLogBucketName` | `API_LOG_BUCKET_NAME` |
+| `CognitoIssuer` | `COGNITO_ISSUER` |
+| `CognitoUserPoolClientId` | `COGNITO_CLIENT_ID` |
+
+For the mobile app, copy `ApiUrl` to `EXPO_PUBLIC_TAROT_API_URL`. The current
+API Gateway resource is an HTTP API, so the URL does not include a `/dev` REST
+stage path unless CloudFormation outputs one.
+
 ## Known Caveats
 
 - The repo currently has normalization automation only. Uploading corpus files
   and starting Bedrock ingestion are manual or external-script operations.
 - `apps/api/src/readings/response-mapper.ts` currently sets response
   `metadata.mode` to `local` regardless of whether the generated text came from
-  Bedrock. Treat this as a response metadata issue, not a retrieval issue.
+  Bedrock. Before enabling Bedrock mode in production, update this so persisted
+  `ReadingResponse.metadata.mode` can record `bedrock`.
 - The OpenSearch Serverless network policy currently allows public access for
   MVP ingestion simplicity. Revisit this when the API deployment topology is
   settled.
