@@ -15,7 +15,22 @@ const errorName = (error: unknown): string | undefined =>
         ? String(error.name)
         : undefined;
 
+const errorStatus = (error: unknown): number | undefined =>
+    typeof error === 'object' && error !== null && 'status' in error
+        ? Number(error.status)
+        : undefined;
+
 export function toApiError(error: unknown): ApiError {
+    if (errorName(error) === 'UnauthorizedError' || errorStatus(error) === 401) {
+        return {
+            status: 401,
+            body: {
+                code: 'UNAUTHORIZED',
+                message: 'Authentication is required.'
+            }
+        };
+    }
+
     if (errorName(error) === 'ThrottlingException') {
         return {
             status: 429,
