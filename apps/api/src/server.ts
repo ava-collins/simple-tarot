@@ -1,4 +1,12 @@
 import express from 'express';
+import { RequestHandler } from 'express';
+import {
+    CognitoJwtVerifier,
+    apiGatewayAuthContextMiddleware,
+    requireAuthentication
+} from './auth/auth-context';
+import { createCognitoJwtVerifier } from './auth/cognito-jwt';
+import { ApiConfig, getApiConfig } from './config';
 import { errorHandler } from './errors';
 import {
     errorLoggingMiddleware,
@@ -8,14 +16,37 @@ import {
 import { healthRouter } from './routes/health';
 import { readingsRouter } from './routes/readings';
 
-export function createApiServer() {
+const { eventContext } = require('@codegenie/serverless-express/src/middleware') as {
+    eventContext: () => RequestHandler;
+};
+
+export type CreateApiServerOptions = {
+    config?: ApiConfig;
+    tokenVerifier?: CognitoJwtVerifier;
+};
+
+export function createApiServer(options: CreateApiServerOptions = {}) {
+    const config = options.config ?? getApiConfig();
     const app = express();
 
     app.use(express.json());
     app.use(requestIdMiddleware);
     app.use(requestLoggingMiddleware);
+    app.use(eventContext());
+    app.use(apiGatewayAuthContextMiddleware);
     app.use(healthRouter);
-    app.use(readingsRouter);
+
+    if (config.auth.mode === 'cognito') {
+        app.use(
+            requireAuthentication(
+                options.tokenVerifier ?? createCognitoJwtVerifier(config.auth)
+            ),
+            readingsRouter
+        );
+    } else {
+        app.use(readingsRouter);
+    }
+
     app.use(errorLoggingMiddleware);
     app.use(errorHandler);
 

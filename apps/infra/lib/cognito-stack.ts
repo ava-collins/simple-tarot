@@ -8,6 +8,9 @@ export interface CognitoStackProps extends cdk.StackProps {
 }
 
 export class CognitoStack extends cdk.Stack {
+  public readonly userPool: cognito.UserPool;
+  public readonly userPoolClient: cognito.UserPoolClient;
+
   constructor(scope: Construct, id: string, props: CognitoStackProps) {
     super(scope, id, props);
 
@@ -75,6 +78,9 @@ export class CognitoStack extends cdk.Stack {
 
     const cognitoDomain = `${props.config.cognitoDomainPrefix}.auth.${props.config.awsRegion}.amazoncognito.com`;
     const cognitoIssuer = `https://cognito-idp.${props.config.awsRegion}.amazonaws.com/${userPool.userPoolId}`;
+
+    this.userPool = userPool;
+    this.userPoolClient = userPoolClient;
 
     new cdk.CfnOutput(this, 'CognitoUserPoolId', {
       value: userPool.userPoolId

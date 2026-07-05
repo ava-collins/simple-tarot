@@ -1,7 +1,30 @@
 export type ApiConfig = {
+    apiLog: ApiLogConfig;
+    auth: AuthConfig;
     bedrock: BedrockRuntimeConfig;
     hostname: string;
     port: number;
+    userData: UserDataConfig;
+};
+
+export type DisabledAuthConfig = {
+    mode: 'disabled';
+};
+
+export type CognitoAuthConfig = {
+    clientId: string;
+    issuer: string;
+    mode: 'cognito';
+};
+
+export type AuthConfig = DisabledAuthConfig | CognitoAuthConfig;
+
+export type ApiLogConfig = {
+    bucketName?: string;
+};
+
+export type UserDataConfig = {
+    tableName?: string;
 };
 
 export type LocalBedrockRuntimeConfig = {
@@ -53,6 +76,45 @@ const parsePositiveInteger = (
 
 const nonEmpty = (value: string | undefined): string | undefined =>
     typeof value === 'string' && value.trim().length > 0 ? value.trim() : undefined;
+
+const getAuthConfig = (env: typeof process.env): AuthConfig => {
+    if (env.API_AUTH_MODE !== 'cognito') {
+        return {
+            mode: 'disabled'
+        };
+    }
+
+    const issuer = nonEmpty(env.COGNITO_ISSUER);
+    const clientId = nonEmpty(env.COGNITO_CLIENT_ID);
+    const missing = [
+        issuer ? undefined : 'COGNITO_ISSUER',
+        clientId ? undefined : 'COGNITO_CLIENT_ID'
+    ].filter((value): value is string => value !== undefined);
+
+    if (missing.length > 0) {
+        throw new Error(
+            `Missing Cognito auth environment variables: ${missing.join(', ')}`
+        );
+    }
+
+    if (!issuer || !clientId) {
+        throw new Error('Invalid Cognito auth configuration.');
+    }
+
+    return {
+        clientId,
+        issuer,
+        mode: 'cognito'
+    };
+};
+
+const getUserDataConfig = (env: typeof process.env): UserDataConfig => ({
+    tableName: nonEmpty(env.USER_DATA_TABLE_NAME)
+});
+
+const getApiLogConfig = (env: typeof process.env): ApiLogConfig => ({
+    bucketName: nonEmpty(env.API_LOG_BUCKET_NAME)
+});
 
 const modelArnFor = (region: string, env: typeof process.env): string | undefined => {
     const inferenceProfileArn = nonEmpty(env.BEDROCK_INFERENCE_PROFILE_ARN);
@@ -128,8 +190,11 @@ const getBedrockRuntimeConfig = (env: typeof process.env): BedrockRuntimeConfig 
 
 export function getApiConfig(env = process.env): ApiConfig {
     return {
+        apiLog: getApiLogConfig(env),
+        auth: getAuthConfig(env),
         bedrock: getBedrockRuntimeConfig(env),
         hostname: env.HOST ?? 'localhost',
-        port: parsePort(env.PORT)
+        port: parsePort(env.PORT),
+        userData: getUserDataConfig(env)
     };
 }

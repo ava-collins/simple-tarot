@@ -260,15 +260,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
             const logoutUrl = getCognitoLogoutUrl(cognitoConfig);
             const redirectUri = getCognitoLogoutRedirectUri(cognitoConfig);
 
-            console.log('[auth] sign-out request debug', {
-                logoutUrl,
-                redirectUri
-            });
             await clearStoredTokens();
             setTokens(null);
             await WebBrowser.openAuthSessionAsync(logoutUrl, redirectUri);
         } catch (authError) {
-            console.log('[auth] sign-out failed', authError);
             setError(
                 authError instanceof Error
                     ? authError.message

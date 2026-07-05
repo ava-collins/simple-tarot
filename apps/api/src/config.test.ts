@@ -2,11 +2,61 @@ import { describe, expect, it } from 'vitest';
 import { getApiConfig } from './config';
 
 describe('getApiConfig', () => {
-    it('uses local Bedrock runtime mode by default', () => {
-        expect(getApiConfig({}).bedrock).toEqual({
-            mode: 'local',
-            maxAttempts: 5,
-            retrievalResults: 5
+    it('uses disabled auth and local Bedrock runtime mode by default', () => {
+        expect(getApiConfig({})).toMatchObject({
+            auth: {
+                mode: 'disabled'
+            },
+            bedrock: {
+                mode: 'local',
+                maxAttempts: 5,
+                retrievalResults: 5
+            }
+        });
+    });
+
+    it('loads Cognito API auth configuration from environment values', () => {
+        expect(
+            getApiConfig({
+                API_AUTH_MODE: 'cognito',
+                COGNITO_CLIENT_ID: 'public-client-id',
+                COGNITO_ISSUER:
+                    'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example'
+            }).auth
+        ).toEqual({
+            mode: 'cognito',
+            clientId: 'public-client-id',
+            issuer: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example'
+        });
+    });
+
+    it('requires Cognito auth values when API auth is enabled', () => {
+        expect(() =>
+            getApiConfig({
+                API_AUTH_MODE: 'cognito'
+            })
+        ).toThrow(
+            'Missing Cognito auth environment variables: COGNITO_ISSUER, COGNITO_CLIENT_ID'
+        );
+    });
+
+    it('loads the user data table name when configured', () => {
+        expect(
+            getApiConfig({
+                USER_DATA_TABLE_NAME: 'simple-tarot-dev-user-data'
+            }).userData
+        ).toEqual({
+            tableName: 'simple-tarot-dev-user-data'
+        });
+    });
+
+    it('loads the API log bucket name when configured', () => {
+        expect(
+            getApiConfig({
+                API_LOG_BUCKET_NAME: 'simple-tarot-dev-api-logs'
+            }).apiLog
+        ).toEqual({
+            bucketName: 'simple-tarot-dev-api-logs'
         });
     });
 
