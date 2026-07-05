@@ -1,3 +1,10 @@
+# [@simpletarot/ui-v1.13.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.12.0...@simpletarot/ui-v1.13.0) (2026-07-05)
+
+
+### Features
+
+* **tarot:** user reading generate (local) & saved history ([d2f403e](https://github.com/ava-collins/simple-tarot/commit/d2f403e09bee8a4c81aa64507ea1ff8601684663))
+
 # [@simpletarot/ui-v1.12.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.11.1...@simpletarot/ui-v1.12.0) (2026-07-01)
 
 
