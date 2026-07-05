@@ -15,6 +15,8 @@ const TEXT_FIELD = 'bedrock-text';
 const METADATA_FIELD = 'bedrock-metadata';
 
 export class BedrockRagStack extends cdk.Stack {
+  public readonly knowledgeBase: bedrock.CfnKnowledgeBase;
+
   constructor(scope: Construct, id: string, props: BedrockRagStackProps) {
     super(scope, id, props);
 
@@ -197,6 +199,7 @@ export class BedrockRagStack extends cdk.Stack {
       }
     });
     knowledgeBase.addDependency(vectorIndex);
+    this.knowledgeBase = knowledgeBase;
 
     const dataSource = new bedrock.CfnDataSource(this, 'CorpusDataSource', {
       name: props.config.bedrockDataSourceName,

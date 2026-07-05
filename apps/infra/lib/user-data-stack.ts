@@ -9,6 +9,9 @@ export interface UserDataStackProps extends cdk.StackProps {
 }
 
 export class UserDataStack extends cdk.Stack {
+  public readonly apiLogBucket: s3.Bucket;
+  public readonly userDataTable: dynamodb.Table;
+
   constructor(scope: Construct, id: string, props: UserDataStackProps) {
     super(scope, id, props);
 
@@ -47,6 +50,9 @@ export class UserDataStack extends cdk.Stack {
       removalPolicy,
       autoDeleteObjects: !isProd,
     });
+
+    this.apiLogBucket = apiLogBucket;
+    this.userDataTable = userDataTable;
 
     new cdk.CfnOutput(this, 'UserDataTableName', {
       value: props.config.userDataTableName,
