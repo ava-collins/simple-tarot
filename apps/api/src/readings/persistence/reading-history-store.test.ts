@@ -1,9 +1,10 @@
-import { PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { PutCommand, QueryCommand, UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { describe, expect, it, vi } from 'vitest';
 import { ReadingRequest, ReadingResponse, GeneratedReading } from '../contracts';
 import {
     createDynamoDbReadingHistoryStore,
     toFailedReadingAttemptItem,
+    toUserProfileUpdateInput,
     toSuccessfulReadingItem
 } from './dynamodb-reading-history-store';
 
@@ -164,8 +165,52 @@ describe('toFailedReadingAttemptItem', () => {
     });
 });
 
+describe('toUserProfileUpdateInput', () => {
+    it('creates a minimal user profile update beside reading history items', () => {
+        expect(
+            toUserProfileUpdateInput({
+                cognitoIssuer:
+                    'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example',
+                createdAt: '2026-07-02T14:00:00.000Z',
+                generatedReading,
+                readingResponse,
+                request,
+                userId: 'user-sub-123'
+            })
+        ).toEqual({
+            ExpressionAttributeNames: {
+                '#cognitoIssuer': 'cognitoIssuer',
+                '#createdAt': 'createdAt',
+                '#entityType': 'entityType',
+                '#firstSeenAt': 'firstSeenAt',
+                '#lastReadingAt': 'lastReadingAt',
+                '#lastSeenAt': 'lastSeenAt',
+                '#readingCount': 'readingCount',
+                '#schemaVersion': 'schemaVersion',
+                '#updatedAt': 'updatedAt',
+                '#userId': 'userId'
+            },
+            ExpressionAttributeValues: {
+                ':cognitoIssuer':
+                    'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example',
+                ':createdAt': '2026-07-02T14:00:00.000Z',
+                ':entityType': 'userProfile',
+                ':one': 1,
+                ':schemaVersion': 1,
+                ':userId': 'user-sub-123'
+            },
+            Key: {
+                pk: 'USER#user-sub-123',
+                sk: 'PROFILE'
+            },
+            UpdateExpression:
+                'SET #entityType = :entityType, #schemaVersion = :schemaVersion, #userId = :userId, #createdAt = if_not_exists(#createdAt, :createdAt), #firstSeenAt = if_not_exists(#firstSeenAt, :createdAt), #updatedAt = :createdAt, #lastSeenAt = :createdAt, #lastReadingAt = :createdAt, #cognitoIssuer = :cognitoIssuer ADD #readingCount :one'
+        });
+    });
+});
+
 describe('createDynamoDbReadingHistoryStore', () => {
-    it('puts successful reading items into the configured table', async () => {
+    it('puts successful reading items and updates the user profile in the configured table', async () => {
         const send = vi.fn().mockResolvedValue({});
         const store = createDynamoDbReadingHistoryStore({
             client: {
@@ -182,12 +227,21 @@ describe('createDynamoDbReadingHistoryStore', () => {
             userId: 'user-sub-123'
         });
 
+        expect(send).toHaveBeenCalledTimes(2);
         expect(send).toHaveBeenCalledWith(expect.any(PutCommand));
         expect(send.mock.calls[0][0].input).toMatchObject({
             TableName: 'simple-tarot-dev-user-data',
             Item: {
                 pk: 'USER#user-sub-123',
                 sk: 'READING#2026-07-02T14:00:00.000Z#reading-123'
+            }
+        });
+        expect(send).toHaveBeenCalledWith(expect.any(UpdateCommand));
+        expect(send.mock.calls[1][0].input).toMatchObject({
+            TableName: 'simple-tarot-dev-user-data',
+            Key: {
+                pk: 'USER#user-sub-123',
+                sk: 'PROFILE'
             }
         });
     });

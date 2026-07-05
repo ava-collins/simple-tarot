@@ -1,5 +1,11 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import {
+    DynamoDBDocumentClient,
+    PutCommand,
+    QueryCommand,
+    UpdateCommand,
+    type UpdateCommandInput
+} from '@aws-sdk/lib-dynamodb';
 import {
     FailedReadingAttemptRecord,
     ReadingHistoryRecord,
@@ -8,6 +14,7 @@ import {
     SaveSuccessfulReadingInput
 } from './contracts';
 import {
+    PROFILE_SORT_KEY,
     READING_KEY_PREFIX,
     readingAttemptSortKey,
     readingSortKey,
@@ -72,6 +79,59 @@ export const toFailedReadingAttemptItem = (
     ...(input.request.question ? { question: input.request.question } : {})
 });
 
+export const toUserProfileUpdateInput = (
+    input: SaveSuccessfulReadingInput
+): Omit<UpdateCommandInput, 'TableName'> => {
+    const expressionAttributeNames: NonNullable<
+        UpdateCommandInput['ExpressionAttributeNames']
+    > = {
+        '#createdAt': 'createdAt',
+        '#entityType': 'entityType',
+        '#firstSeenAt': 'firstSeenAt',
+        '#lastReadingAt': 'lastReadingAt',
+        '#lastSeenAt': 'lastSeenAt',
+        '#readingCount': 'readingCount',
+        '#schemaVersion': 'schemaVersion',
+        '#updatedAt': 'updatedAt',
+        '#userId': 'userId'
+    };
+    const expressionAttributeValues: NonNullable<
+        UpdateCommandInput['ExpressionAttributeValues']
+    > = {
+        ':createdAt': input.createdAt,
+        ':entityType': 'userProfile',
+        ':one': 1,
+        ':schemaVersion': 1,
+        ':userId': input.userId
+    };
+    const setExpressions = [
+        '#entityType = :entityType',
+        '#schemaVersion = :schemaVersion',
+        '#userId = :userId',
+        '#createdAt = if_not_exists(#createdAt, :createdAt)',
+        '#firstSeenAt = if_not_exists(#firstSeenAt, :createdAt)',
+        '#updatedAt = :createdAt',
+        '#lastSeenAt = :createdAt',
+        '#lastReadingAt = :createdAt'
+    ];
+
+    if (input.cognitoIssuer) {
+        expressionAttributeNames['#cognitoIssuer'] = 'cognitoIssuer';
+        expressionAttributeValues[':cognitoIssuer'] = input.cognitoIssuer;
+        setExpressions.push('#cognitoIssuer = :cognitoIssuer');
+    }
+
+    return {
+        ExpressionAttributeNames: expressionAttributeNames,
+        ExpressionAttributeValues: expressionAttributeValues,
+        Key: {
+            pk: userPartitionKey(input.userId),
+            sk: PROFILE_SORT_KEY
+        },
+        UpdateExpression: `SET ${setExpressions.join(', ')} ADD #readingCount :one`
+    };
+};
+
 const defaultDocumentClient = (): DynamoDbDocumentClient =>
     DynamoDBDocumentClient.from(new DynamoDBClient({}), {
         marshallOptions: {
@@ -111,6 +171,12 @@ export const createDynamoDbReadingHistoryStore = ({
         await client.send(
             new PutCommand({
                 Item: toSuccessfulReadingItem(input),
+                TableName: tableName
+            })
+        );
+        await client.send(
+            new UpdateCommand({
+                ...toUserProfileUpdateInput(input),
                 TableName: tableName
             })
         );

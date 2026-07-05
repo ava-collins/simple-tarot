@@ -31,6 +31,7 @@ const generatedReading: GeneratedReading = {
 
 const authenticatedUser: AuthenticatedUser = {
     claims: {
+        iss: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example',
         sub: 'user-sub-123'
     },
     userId: 'user-sub-123'
@@ -107,6 +108,7 @@ describe('createPostReadingHandler', () => {
             summary: 'Local test reading variant 1: one clear card anchors the moment.'
         });
         expect(store.saveSuccessfulReading).toHaveBeenCalledWith({
+            cognitoIssuer: 'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example',
             createdAt: '2026-07-02T14:00:00.000Z',
             generatedReading,
             readingResponse: response.json.mock.calls[0][0],

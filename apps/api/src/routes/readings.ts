@@ -50,6 +50,11 @@ const authenticatedUserIdFor = (res: Response): string | undefined =>
         ? res.locals.authenticatedUser.userId
         : undefined;
 
+const cognitoIssuerFor = (res: Response): string | undefined =>
+    typeof res.locals.authenticatedUser?.claims?.iss === 'string'
+        ? res.locals.authenticatedUser.claims.iss
+        : undefined;
+
 const sourceIpFor = (req: Request): string => {
     const forwardedFor = req.header('x-forwarded-for');
 
@@ -165,6 +170,7 @@ export const createPostReadingHandler = ({
     try {
         if (readingHistoryStore && userId) {
             await readingHistoryStore.saveSuccessfulReading({
+                cognitoIssuer: cognitoIssuerFor(res),
                 createdAt,
                 generatedReading: generated,
                 readingResponse,
