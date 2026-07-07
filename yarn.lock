@@ -7298,7 +7298,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@simpletarot/ui@workspace:packages/ui"
   dependencies:
-    "@apollo/client": "npm:^3.13.8"
     "@babel/core": "npm:^7.29.7"
     "@babel/plugin-proposal-export-namespace-from": "npm:^7.18.9"
     "@babel/preset-react": "npm:^7.29.7"
@@ -7322,7 +7321,6 @@ __metadata:
     expo: "npm:^57.0.4"
     expo-asset: "npm:~57.0.3"
     expo-linear-gradient: "npm:~57.0.0"
-    graphql: "npm:^16.11.0"
     msw: "npm:^2.10.2"
     msw-storybook-addon: "npm:^2.0.5"
     react: "npm:19.2.3"
@@ -7342,7 +7340,6 @@ __metadata:
     typescript: "npm:~6.0.3"
     vite: "npm:^6.3.5"
   peerDependencies:
-    "@apollo/client": "*"
     "@rneui/base": 5.0.0
     "@rneui/themed": 5.0.0
     expo-asset: ~57.0.3
