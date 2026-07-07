@@ -13,11 +13,11 @@ export default function AccountRoute() {
 
     return (
         <AccountScreen
+            apiBaseUrl={process.env.EXPO_PUBLIC_TAROT_API_URL ?? ''}
             isLoading={isLoading}
             isSignedIn={isSignedIn}
             email={claimText(idTokenClaims?.email)}
             displayName={claimText(idTokenClaims?.name)}
-            subject={claimText(idTokenClaims?.sub)}
             error={error}
             onReadingHistoryPress={() => router.push('/readings' as Href)}
             onSignInPress={() => router.push('/auth/sign-in' as Href)}

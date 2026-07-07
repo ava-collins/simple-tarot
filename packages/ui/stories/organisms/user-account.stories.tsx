@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { avatarImagesMock } from '../tests/mocks/avatarImages';
-import { graphql, HttpResponse } from 'msw';
+import { http, HttpResponse } from 'msw';
 import mdx from './user-account.mdx';
 
 import React from 'react';
@@ -17,7 +17,7 @@ const meta = {
         },
         msw: {
             handlers: [
-                graphql.query('AvatarImages', () =>
+                http.get('http://localhost:4100/avatars', () =>
                     HttpResponse.json(avatarImagesMock, {
                         status: 200
                     })
@@ -31,6 +31,7 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
     args: {
+        apiBaseUrl: 'http://localhost:4100',
         useremail: 'email@domain.com',
         logout: () => {
             console.log('Logout clicked');
@@ -43,6 +44,7 @@ export const Default: Story = {
 
 export const Anonymous: Story = {
     args: {
+        apiBaseUrl: 'http://localhost:4100',
         useremail: 'anon1198@anon.com',
         logout: () => {
             console.log('Logout clicked');

@@ -2,16 +2,22 @@
 
 `apps/api` is the REST backend for the Bedrock RAG tarot reading MVP.
 
-- [Endpoints](#endpoints)
-- [Local Mode](#local-mode)
-- [Bedrock Mode](#bedrock-mode)
-- [Commands](#commands)
+-   [Endpoints](#endpoints)
+-   [Local Mode](#local-mode)
+-   [Bedrock Mode](#bedrock-mode)
+-   [Commands](#commands)
 
 ## Endpoints
 
-- `GET /health`
-- `POST /readings`
-- `GET /readings`
+-   `GET /health`
+-   `GET /avatars`
+-   `POST /readings`
+-   `GET /readings`
+
+`GET /avatars` returns `{ thumbnails: string[] }` — a list of image URLs sourced
+from Google Images via SerpAPI. Requires `SERPAPI_API_KEY` in the environment;
+returns an empty array when the key is absent so the app degrades gracefully to
+the default placeholder image.
 
 `POST /readings` accepts a spread, ordered card items, reversed flags, and an
 optional question. The route validates input, builds a deterministic retrieval

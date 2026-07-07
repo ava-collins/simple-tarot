@@ -1,41 +1,46 @@
-import React, { useEffect, useState } from 'react';
-import { gql, useQuery } from '@apollo/client';
+import { useCallback, useEffect, useState } from 'react';
 
 export enum AvatarConfig {
-    DEFAULT_AVATAR_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/e/e5/Graukarte.svg'
+    DEFAULT_AVATAR_IMAGE = 'https://images.rawpixel.com/image_png_social_square/czNmcy1wcml2YXRlL3Jhd3BpeGVsX2ltYWdlcy93ZWJzaXRlX2NvbnRlbnQvam9iNjY4LTExNS1wXzEtbDE0YW1vbXgucG5n.png'
 }
 
-const GET_AVATAR_IMAGES = gql`
-    query AvatarImages {
-        avatarImages {
-            thumbnail
-        }
-    }
-`;
+type AvatarsResponse = {
+    thumbnails: string[];
+};
 
-const useAvatarImage = () => {
+const useAvatarImage = (apiBaseUrl: string) => {
     const [avatarImage, setAvatarImage] = useState<string>(
         AvatarConfig.DEFAULT_AVATAR_IMAGE
     );
     const [images, setImages] = useState<string[]>([]);
-
-    const { loading, error, data } = useQuery(GET_AVATAR_IMAGES);
+    const [error, setError] = useState<Error | undefined>();
 
     useEffect(() => {
-        if (loading) {
-            console.log('Loading avatar image...');
-        }
-        if (data && data.avatarImages && data.avatarImages.length > 0) {
-            const randomIndex = Math.floor(Math.random() * data.avatarImages.length);
-            setAvatarImage(data.avatarImages[randomIndex].thumbnail);
-            setImages(
-                data.avatarImages.map((image: { thumbnail: string }) => image.thumbnail)
-            );
-        }
-        if (error) {
-            console.error('Error fetching avatar images:', error);
-        }
-    }, [loading, error, data]);
+        if (!apiBaseUrl) return;
+
+        const fetchAvatars = async () => {
+            try {
+                const response = await fetch(`${apiBaseUrl}/avatars`);
+                if (!response.ok) {
+                    throw new Error(`Avatar fetch failed with status ${response.status}`);
+                }
+                const data: AvatarsResponse = await response.json();
+                if (data.thumbnails.length > 0) {
+                    const randomIndex = Math.floor(
+                        Math.random() * data.thumbnails.length
+                    );
+                    setAvatarImage(
+                        data.thumbnails[randomIndex] ?? AvatarConfig.DEFAULT_AVATAR_IMAGE
+                    );
+                    setImages(data.thumbnails);
+                }
+            } catch (err) {
+                setError(err instanceof Error ? err : new Error('Unknown error'));
+            }
+        };
+
+        fetchAvatars();
+    }, [apiBaseUrl]);
 
     const getAvatarImage = () => avatarImage;
 
@@ -43,11 +48,13 @@ const useAvatarImage = () => {
         console.log('Long press on avatar image');
     };
 
-    const getNewAvatarImage = () => {
-        const randomIndex = Math.floor(Math.random() * data.avatarImages.length);
+    const getNewAvatarImage = useCallback(() => {
+        if (images.length === 0) return;
+        const randomIndex = Math.floor(Math.random() * images.length);
         setAvatarImage(images[randomIndex] ?? AvatarConfig.DEFAULT_AVATAR_IMAGE);
-    };
+    }, [images]);
 
     return { avatarImage, error, getAvatarImage, getNewAvatarImage, saveAvatarImage };
 };
+
 export default useAvatarImage;

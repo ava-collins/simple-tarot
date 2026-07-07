@@ -7298,7 +7298,6 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@simpletarot/ui@workspace:packages/ui"
   dependencies:
-    "@apollo/client": "npm:^3.13.8"
     "@babel/core": "npm:^7.29.7"
     "@babel/plugin-proposal-export-namespace-from": "npm:^7.18.9"
     "@babel/preset-react": "npm:^7.29.7"
@@ -7322,7 +7321,6 @@ __metadata:
     expo: "npm:^57.0.4"
     expo-asset: "npm:~57.0.3"
     expo-linear-gradient: "npm:~57.0.0"
-    graphql: "npm:^16.11.0"
     msw: "npm:^2.10.2"
     msw-storybook-addon: "npm:^2.0.5"
     react: "npm:19.2.3"
@@ -7342,7 +7340,6 @@ __metadata:
     typescript: "npm:~6.0.3"
     vite: "npm:^6.3.5"
   peerDependencies:
-    "@apollo/client": "*"
     "@rneui/base": 5.0.0
     "@rneui/themed": 5.0.0
     expo-asset: ~57.0.3
@@ -9238,6 +9235,7 @@ __metadata:
     express: "npm:^5.2.1"
     jose: "npm:5.10.0"
     nodemon: "npm:^3.1.14"
+    serpapi: "npm:^2.2.1"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^6.0.3"
     vitest: "npm:^3.2.4"
@@ -21057,7 +21055,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
   languageName: node
   linkType: hard
 
-"serpapi@npm:^2.1.0":
+"serpapi@npm:^2.1.0, serpapi@npm:^2.2.1":
   version: 2.2.1
   resolution: "serpapi@npm:2.2.1"
   checksum: 10c0/854b3beaee889a734350cbcab7510f27a498ee9b32f505203cc2245f9463f0e0fe8b30b10f73ad8304815a075cb91a0b7cfd9b48a1cc36fc5a1ee9c84ebc7e91

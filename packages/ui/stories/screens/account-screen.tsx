@@ -1,17 +1,18 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 
+import AvatarImage from '../atoms/avatar-image';
 import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
 
 const t = theme();
 
 export interface AccountScreenProps {
+    apiBaseUrl?: string;
     isLoading?: boolean;
     isSignedIn?: boolean;
     email?: string;
     displayName?: string;
-    subject?: string;
     error?: string | null;
     onReadingHistoryPress?: () => void;
     onSignInPress: () => void;
@@ -19,11 +20,11 @@ export interface AccountScreenProps {
 }
 
 const AccountScreen: React.FC<AccountScreenProps> = ({
+    apiBaseUrl = '',
     isLoading = false,
     isSignedIn = false,
     email,
     displayName,
-    subject,
     error,
     onReadingHistoryPress,
     onSignInPress,
@@ -62,46 +63,43 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
         <MobileView>
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.wrapper}>
-                    <Text style={styles.title}>Account</Text>
-                    <View style={styles.claimsSection}>
-                        <View style={styles.claimRow}>
-                            <Text style={styles.label}>Email</Text>
-                            <Text style={styles.body}>{email ?? 'Not provided'}</Text>
-                        </View>
-                        {displayName ? (
-                            <View style={styles.claimRow}>
-                                <Text style={styles.label}>Name</Text>
-                                <Text style={styles.body}>{displayName}</Text>
-                            </View>
-                        ) : null}
-                        {subject ? (
-                            <View style={styles.claimRow}>
-                                <Text style={styles.label}>Subject</Text>
-                                <Text style={styles.body}>{subject}</Text>
-                            </View>
-                        ) : null}
+                    <View style={styles.avatarSection}>
+                        <AvatarImage apiBaseUrl={apiBaseUrl} size={200} />
+                        {email ? <Text style={styles.emailText}>{email}</Text> : null}
                     </View>
+                    {displayName ? (
+                        <View style={styles.claimsSection}>
+                            {displayName ? (
+                                <View style={styles.claimRow}>
+                                    <Text style={styles.label}>Name</Text>
+                                    <Text style={styles.body}>{displayName}</Text>
+                                </View>
+                            ) : null}
+                        </View>
+                    ) : null}
                     {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                    {onReadingHistoryPress ? (
+                    <View style={styles.buttonGroup}>
+                        {onReadingHistoryPress ? (
+                            <Pressable
+                                accessibilityRole="button"
+                                onPress={onReadingHistoryPress}
+                                style={({ pressed }) => [
+                                    styles.button,
+                                    pressed && styles.pressed
+                                ]}>
+                                <Text style={styles.buttonText}>Reading history</Text>
+                            </Pressable>
+                        ) : null}
                         <Pressable
                             accessibilityRole="button"
-                            onPress={onReadingHistoryPress}
+                            onPress={onSignOutPress}
                             style={({ pressed }) => [
-                                styles.button,
+                                styles.signOutButton,
                                 pressed && styles.pressed
                             ]}>
-                            <Text style={styles.buttonText}>Reading history</Text>
+                            <Text style={styles.signOutButtonText}>Sign out</Text>
                         </Pressable>
-                    ) : null}
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onSignOutPress}
-                        style={({ pressed }) => [
-                            styles.signOutButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.signOutButtonText}>Sign out</Text>
-                    </Pressable>
+                    </View>
                 </View>
             </ScrollView>
         </MobileView>
@@ -111,15 +109,24 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
 export default AccountScreen;
 
 const styles = StyleSheet.create({
-    wrapper: {
-        width: '100%',
-        paddingHorizontal: 40,
-        gap: 16,
-        alignItems: 'stretch'
-    },
     scrollContent: {
         flexGrow: 1,
-        justifyContent: 'center'
+        paddingTop: 80,
+        paddingBottom: 40
+    },
+    wrapper: {
+        paddingHorizontal: 40,
+        gap: 24
+    },
+    avatarSection: {
+        alignItems: 'center',
+        gap: 16
+    },
+    emailText: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: t.colors.primary,
+        textAlign: 'center'
     },
     claimsSection: {
         gap: 12
@@ -153,13 +160,15 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         color: t.colors.error
     },
+    buttonGroup: {
+        gap: 16
+    },
     button: {
         alignItems: 'center',
         backgroundColor: t.colors.grey5,
         borderRadius: 4,
         height: 60,
-        justifyContent: 'center',
-        paddingHorizontal: 40
+        justifyContent: 'center'
     },
     buttonText: {
         color: t.colors.white,
@@ -168,11 +177,10 @@ const styles = StyleSheet.create({
     },
     signOutButton: {
         alignItems: 'center',
-        backgroundColor: t.colors.error,
+        backgroundColor: t.colors.grey3,
         borderRadius: 4,
         height: 60,
-        justifyContent: 'center',
-        paddingHorizontal: 40
+        justifyContent: 'center'
     },
     signOutButtonText: {
         color: t.colors.white,

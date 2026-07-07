@@ -19,7 +19,6 @@
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "devDependencies": {
-        "@apollo/client": "^3.13.8",
         "@babel/core": "^7.29.7",
         "@babel/plugin-proposal-export-namespace-from": "^7.18.9",
         "@babel/preset-react": "^7.29.7",
@@ -41,7 +40,6 @@
         "expo": "^57.0.4",
         "expo-asset": "~57.0.3",
         "expo-linear-gradient": "~57.0.0",
-        "graphql": "^16.11.0",
         "msw-storybook-addon": "^2.0.5",
         "react": "19.2.3",
         "react-dom": "19.2.3",
@@ -60,7 +58,6 @@
         "vite": "^6.3.5"
     },
     "peerDependencies": {
-        "@apollo/client": "*",
         "@rneui/base": "5.0.0",
         "@rneui/themed": "5.0.0",
         "expo-asset": "~57.0.3",

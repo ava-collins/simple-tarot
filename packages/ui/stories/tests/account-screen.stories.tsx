@@ -36,9 +36,9 @@ export const SignInButtonVisibleTest: Story = {
 export const SignOutButtonVisibleTest: Story = {
     args: {
         isSignedIn: true,
+        apiBaseUrl: '',
         email: 'user@example.com',
         displayName: 'Jane Doe',
-        subject: 'us-east-1:abc123',
         onSignInPress: () => {
             console.log('Sign in pressed');
         },

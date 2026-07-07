@@ -1,10 +1,10 @@
-import { Dimensions, SafeAreaView } from 'react-native';
+import { Dimensions } from 'react-native';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 
-import MobileProviders from './mobile-providers';
 import React from 'react';
 import theme from '../utils/theme';
 
-interface MobileSignupProps {
+interface MobileViewProps {
     children: React.ReactNode;
 }
 
@@ -12,12 +12,8 @@ const t = theme();
 
 const { width, height } = Dimensions.get('window');
 
-const env = {
-    GRAPH_URI: process.env.STORYBOOK_DATA_GRAPH_URI || process.env.EXPO_PUBLIC_GRAPH_API
-};
-
-const MobileView: React.FC<MobileSignupProps> = ({ children }) => (
-    <MobileProviders env={env}>
+const MobileView: React.FC<MobileViewProps> = ({ children }) => (
+    <SafeAreaProvider>
         <SafeAreaView
             style={{
                 width,
@@ -29,7 +25,7 @@ const MobileView: React.FC<MobileSignupProps> = ({ children }) => (
             }}>
             {children}
         </SafeAreaView>
-    </MobileProviders>
+    </SafeAreaProvider>
 );
 
 export default MobileView;
