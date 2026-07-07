@@ -8,9 +8,11 @@ This package provides the data fetching and application state management for the
 
 ## Contents
 
-`src/account` provide interactions and data connections for account screens in mobile app.
+`src/account` provides auth form hooks (`useLoginForm`, `useSignupForm`, `useForgotPasswordForm`), `useAvatarImage`, form validation, and `FormError` for account screens.
 
-`src/graph` includes shared modules required by apollo client.
+`src/graph` includes shared modules required by Apollo Client, including type policies for application cache state.
+
+`src/reading` provides hooks for tarot reading interactions, including `useInstructions`.
 
 ## State
 

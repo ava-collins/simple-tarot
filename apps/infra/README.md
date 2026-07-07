@@ -2,6 +2,16 @@
 
 This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
+- [App Structure](#app-structure)
+- [Cognito Stack](#cognito-stack)
+- [Bedrock RAG Stack](#bedrock-rag-stack)
+- [User Data Stack](#user-data-stack)
+- [API Stack](#api-stack)
+- [Environment Configuration](#environment-configuration)
+- [API Contract](#api-contract)
+- [Expo Contract](#expo-contract)
+- [Commands](#commands)
+
 ## App Structure
 
 - `bin/simple-tarot-infra.ts` is the CDK entrypoint.

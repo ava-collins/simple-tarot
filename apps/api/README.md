@@ -2,6 +2,11 @@
 
 `apps/api` is the REST backend for the Bedrock RAG tarot reading MVP.
 
+- [Endpoints](#endpoints)
+- [Local Mode](#local-mode)
+- [Bedrock Mode](#bedrock-mode)
+- [Commands](#commands)
+
 ## Endpoints
 
 - `GET /health`

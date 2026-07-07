@@ -2,18 +2,17 @@
 
 ## Overview
 
-Simple Tarot is a rebuild of my older React Native
-[mobile app](https://github.com/avacollins/tarot-ix) that aims to enrich
-readings by using highly customized AI generated content.
+Simple Tarot is a React Native app that gives simple tarot
+readings using highly customized AI generated content.
 
 ### Backend
 
 The rebuild is organized around three backend surfaces.
 
-1. `apps/graph-api` preserves the graph-backed tarot content API built on
+1. `apps/graph-api` - (V1 api) preserves the graph-backed tarot content API built on
    Neo4j.
 
-2. `apps/api` is the REST API for generated readings. It validates reading
+2. `apps/api` - (V2 api) is the REST API for generated readings. It validates reading
    requests, builds deterministic prompts, and can either return local
    placeholder responses or call Amazon Bedrock Knowledge Bases through
    Bedrock Agent Runtime `RetrieveAndGenerate`.
@@ -42,8 +41,10 @@ connected to a Neo4j database, providing the core API for the client
 application.
 
 `apps/api` is an Express REST API for generated tarot readings. It exposes
-`GET /health` and `POST /readings`, includes a local development mode, and can
-call Bedrock Knowledge Bases in Bedrock runtime mode.
+`GET /health`, `POST /readings`, and `GET /readings`. It validates Cognito JWT
+tokens to support authenticated reading persistence to DynamoDB and reading
+history retrieval. It includes a local development mode and can call Bedrock
+Knowledge Bases in Bedrock runtime mode.
 
 `apps/tarot` is a React Native mobile app uses shared components from hooks and
 ui packages and Expo framework for application configuration, building, testing
@@ -58,8 +59,10 @@ that hand off deployment values to the API and corpus operations.
 `docs` are a collection of documents that facilitate the planning and execution
 of the project as a whole, used to provide context over time.
 
-`packages/hooks` is a shared package written in React Native using Apollo Client
-for data fetching, application state management and caching.
+`packages/hooks` is a shared package providing account auth form hooks
+(`useLoginForm`, `useSignupForm`, `useForgotPasswordForm`), reading hooks
+(`useInstructions`), Apollo Client graph type policies, and shared form
+validation utilities.
 
 `packages/cards` is a shared React Native package for generated tarot card SVG
 components and the `useSvgCards` hook. It generates card face components from
@@ -83,29 +86,42 @@ messages.
 
 ## Docs
 
-👉🏽 Check out
+### Apps
 
--   [@simpletarot/hooks](./packages/hooks/README.md)
+| | |
+|---|---|
+| [Tarot App](./apps/tarot/README.md) | Expo SDK 56 mobile app — auth flow, reading screens, history |
+| [REST API](./apps/api/README.md) | V2 reading generation — endpoints, auth modes, Bedrock config |
+| [Graph API](./apps/graph-api/README.md) | V1 Neo4j content API — GraphQL schema, queries, local setup |
+| [Infrastructure](./apps/infra/README.md) | CDK stacks — Cognito, Bedrock RAG, DynamoDB, API Gateway Lambda |
 
--   [@simpletarot/cards](./docs/cards_package.md)
+### Shared Packages
 
--   [Monorepository orientation](./docs/yarn_workspace_dependency_goals.md)
+| | |
+|---|---|
+| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, Apollo type policies |
+| [@simpletarot/cards](./docs/cards_package.md) | SVGR card component generation and `useSvgCards` hook |
 
--   [Semantic Release Commit Messages](./docs/semantic_release_commit_messages.md)
+### Architecture
 
--   [Neo4j Database Backup](./docs/neo4j_database_backup.md)
+- [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — end-to-end flow from mobile request to Bedrock Knowledge Base retrieval, module map, and CloudFormation output wiring
+- [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
+- [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) — CDK output → `EXPO_PUBLIC_*` mapping and EAS delivery; used by [Infrastructure](./apps/infra/README.md#expo-contract) and [Tarot App](./apps/tarot/README.md)
 
--   [Cognito Expo Config Contract](./docs/cognito_expo_config_contract.md)
+### Operations
 
--   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md)
+- [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
+- [Neo4j Database Backup](./docs/neo4j_database_backup.md) — backup and restore procedures for the local Neo4j graph database used by [Graph API](./apps/graph-api/README.md)
 
--   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md)
+### Developer Workflow
 
--   [REST API App](./apps/api/README.md)
+- [Monorepository Orientation](./docs/yarn_workspace_dependency_goals.md) — workspace dependency rules, `workspace:*` protocol, peer/dev/runtime split
+- [Commit Messages & Releases](./docs/semantic_release_commit_messages.md) — conventional commit format, type → semver mapping, valid scopes
 
--   [Infrastructure App](./apps/infra/README.md)
+### Planning
 
--   [Bedrock RAG API MVP Plan](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
+- [Bedrock RAG API MVP Stages](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
+- [User Reading Persistence Stages](./docs/superpowers/plans/2026-07-02-user-reading-persistence.md)
 
 # Copyright
 
