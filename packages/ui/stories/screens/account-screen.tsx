@@ -9,6 +9,7 @@ const t = theme();
 
 export interface AccountScreenProps {
     apiBaseUrl?: string;
+    avatarSlot?: React.ReactNode;
     isLoading?: boolean;
     isSignedIn?: boolean;
     email?: string;
@@ -21,6 +22,7 @@ export interface AccountScreenProps {
 
 const AccountScreen: React.FC<AccountScreenProps> = ({
     apiBaseUrl = '',
+    avatarSlot,
     isLoading = false,
     isSignedIn = false,
     email,
@@ -64,7 +66,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.wrapper}>
                     <View style={styles.avatarSection}>
-                        <AvatarImage apiBaseUrl={apiBaseUrl} size={200} />
+                        {avatarSlot ?? <AvatarImage apiBaseUrl={apiBaseUrl} size={200} />}
                         {email ? <Text style={styles.emailText}>{email}</Text> : null}
                     </View>
                     {displayName ? (

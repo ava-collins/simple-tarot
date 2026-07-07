@@ -20053,6 +20053,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
     react-native-worklets: "npm:0.10.0"
     react-server-dom-webpack: "npm:19.2.4"
     react-test-renderer: "npm:19.2.4"
+    server-only: "npm:^0.0.1"
     typescript: "npm:~6.0.3"
     vitest: "npm:^3.2.4"
     webpack: "npm:^5.108.4"
