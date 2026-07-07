@@ -7,14 +7,14 @@
     "types": "dist/index.d.ts",
     "scripts": {
         "build-types": "rm -rf dist && tsc -b",
-        "test": "vitest --config vitetest.config.mjs --coverage",
+        "test": "vitest run --config vitetest.config.mjs --coverage",
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "peerDependencies": {
         "@apollo/client": "^3.13.8",
         "react": "19.2.3",
         "react-dom": "19.2.3",
-        "react-native": "0.85.3"
+        "react-native": "0.86.0"
     },
     "devDependencies": {
         "@apollo/client": "^3.13.8",
@@ -27,6 +27,7 @@
         "jsdom": "^26.1.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
+        "react-native": "0.86.0",
         "typescript": "^6.0.3",
         "vitest": "^3.2.4"
     }

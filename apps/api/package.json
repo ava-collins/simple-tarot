@@ -10,7 +10,7 @@
         "corpus:normalize": "node -r ts-node/register ./scripts/normalize-corpus.ts",
         "dev": "nodemon --watch src --ext ts --exec node -r ts-node/register ./src/index.ts",
         "start": "node dist/src/index.js",
-        "test": "vitest --config vitest.config.mjs"
+        "test": "vitest run --config vitest.config.mjs"
     },
     "dependencies": {
         "@aws-sdk/client-bedrock-agent-runtime": "3.1075.0",

@@ -18,7 +18,6 @@ yarn knip               # dead code analysis
 
 ```sh
 yarn api:dev            # nodemon dev server (default: port 4100)
-yarn api:test           # vitest
 yarn api:build          # compile TypeScript
 ```
 
@@ -47,11 +46,14 @@ yarn workspace infra test        # CDK assertion tests (Jest)
 yarn workspace infra build-types # compile TypeScript
 ```
 
-### Single workspace test
+### Running tests
 
 ```sh
-yarn workspace <name> test   # e.g. yarn workspace @simpletarot/hooks test
+yarn test                     # all workspaces with test suites
+yarn workspace <name> test    # single workspace, e.g. yarn workspace @simpletarot/hooks test
 ```
+
+`apps/graph-api` and `packages/ui` have no test suite and are excluded from `yarn test`.
 
 ## Environment files
 
@@ -117,7 +119,7 @@ CloudFormation outputs from infra stacks feed directly into `apps/api` env vars.
 
 ### `apps/tarot` — Expo mobile app
 
-- Expo SDK 56, expo-router for file-based navigation
+- Expo SDK 57, expo-router for file-based navigation
 - Auth via `AuthProvider` in `src/app/_layout.tsx` wrapping a Cognito OAuth flow (`expo-auth-session`, `expo-web-browser`)
 - **Always check versioned Expo docs at `https://docs.expo.dev/versions/v56.0.0/` before writing Expo-specific code** (APIs change significantly between SDK versions)
 
