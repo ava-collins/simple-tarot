@@ -1,3 +1,17 @@
+# [@simpletarot/hooks-v2.0.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.10.0...@simpletarot/hooks-v2.0.0) (2026-07-07)
+
+
+### Features
+
+* remove graph-api workspace and consolidate to REST API ([dfe7d7b](https://github.com/ava-collins/simple-tarot/commit/dfe7d7b84ac2897e7bf8177d037b66735865cafd))
+
+
+### BREAKING CHANGES
+
+* apps/graph-api (Apollo Server / Neo4j) removed from the monorepo. All data access now goes through apps/api REST endpoints. Apollo Client, typePolicies, and GraphQL MSW handlers removed from packages/hooks and packages/ui. Consumers that imported MobileProviders, DisplayCardNames, or typePolicies from @simpletarot/hooks or @simpletarot/ui must remove those imports.
+
+Co-Authored-By: Claude Sonnet 4.6 <noreply@anthropic.com>
+
 # [@simpletarot/hooks-v1.10.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.9.1...@simpletarot/hooks-v1.10.0) (2026-07-01)
 
 
