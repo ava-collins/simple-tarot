@@ -51,15 +51,11 @@ If network is blocked, request approval instead of guessing.
 ## Workspace Expectations
 
 `apps/tarot` is the Expo React Native mobile app. It provides concrete runtime
-versions for React, React Native, Expo, RNEUI, Apollo, and mobile dependencies.
+versions for React, React Native, Expo, RNEUI, and mobile dependencies.
 It consumes `@simpletarot/ui` through `workspace:*`.
 
-`apps/admin` is the Next.js App Router admin app. It uses React Native Web
-directly, aliases `react-native$` to `react-native-web`, and transpiles React
-Native Web, RNEUI, React Native Elements, and shared source packages.
-
-`apps/graph-api` is the server package. Runtime imports belong in
-`dependencies`; codegen, TypeScript, nodemon, and build tools belong in
+`apps/api` is the REST API server package. Runtime imports belong in
+`dependencies`; TypeScript, nodemon, and build tools belong in
 `devDependencies`.
 
 `packages/hooks` owns shared hook logic and non-visual application types. It

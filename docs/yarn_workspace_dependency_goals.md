@@ -2,7 +2,7 @@
 
 ## Overview
 
-Simple Tarot uses Yarn 4 workspaces to keep the mobile app, graph API, AWS
+Simple Tarot uses Yarn 4 workspaces to keep the mobile app, REST API, AWS
 infrastructure, shared hooks, and shared UI package in one repository without
 hiding package ownership. Each workspace should declare the packages it imports,
 even when another workspace already brings those packages into the root install.
@@ -13,7 +13,7 @@ its own terms.
 ## Workspace Map
 
 - `apps/tarot` is the Expo React Native mobile application.
-- `apps/graph-api` is the Apollo/Express/Neo4j API server.
+- `apps/api` is the Express REST API for generated tarot readings and avatar images.
 - `apps/infra` is the AWS CDK v2 TypeScript app. It currently owns the Cognito
   auth stack and its Expo-facing public output contract.
 - `packages/hooks` contains shared React hooks, state, data access helpers, and
@@ -36,7 +36,7 @@ workspace intentionally.
 Libraries should peer their host runtime.
 
 Shared packages such as `@simpletarot/hooks` and `@simpletarot/ui` should list
-React, React Native, React Native Web, Apollo, and UI runtime requirements as
+React, React Native, React Native Web, and UI runtime requirements as
 `peerDependencies` when consumers must provide the runtime instance. They should
 also list the same packages in `devDependencies` when needed for local builds,
 tests, or Storybook.
@@ -66,8 +66,8 @@ Use `devDependencies` for build tools, test tools, Storybook, TypeScript,
 linting, and local-only providers needed to exercise a library workspace.
 
 Use `peerDependencies` for runtime packages that must be supplied by the
-consumer, especially React, React DOM, React Native, React Native Web, Apollo
-Client, RNEUI, Expo modules, and native/web UI dependencies.
+consumer, especially React, React DOM, React Native, React Native Web, RNEUI,
+Expo modules, and native/web UI dependencies.
 
 Use both `peerDependencies` and `devDependencies` for shared library packages
 when the package requires a consumer-provided runtime but also needs that
@@ -124,7 +124,7 @@ The dependency architecture should move toward explicit ownership:
 - `packages/hooks` owns shared non-visual types and hook logic.
 - `packages/ui` owns visual components and Storybook.
 - `apps/tarot` provides Expo and mobile runtime dependencies.
-- `apps/graph-api` provides server runtime dependencies.
+- `apps/api` provides server runtime dependencies for the REST API.
 - `apps/infra` provides AWS CDK infrastructure, including the Cognito user pool,
   public OAuth app client, hosted domain, and Expo public config outputs.
 

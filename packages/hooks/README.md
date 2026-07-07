@@ -2,28 +2,17 @@
 
 ## Overview
 
-This package provides the data fetching and application state management for the ui components to be shared in mobile and web applications.
-
-[Apollo Client](https://www.apollographql.com/docs/react) is used to query the graph-api and maintain a local application state in cache.
+This package provides data fetching and application state hooks shared across mobile and web UI components.
 
 ## Contents
 
 `src/account` provides auth form hooks (`useLoginForm`, `useSignupForm`, `useForgotPasswordForm`), `useAvatarImage`, form validation, and `FormError` for account screens.
 
-`src/graph` includes shared modules required by Apollo Client, including type policies for application cache state.
-
 `src/reading` provides hooks for tarot reading interactions, including `useInstructions`.
-
-## State
-
-State is maintained by providing type policies for the shape of the application cache. Type policies connect directly to the graph-api and can also add additional local variables to the global application state as required.
-
-
-*Note that usage of other state management packages such as redux is considered an anti-pattern when using apollo client.
 
 ## Hooks
 
-Hooks map state to ui components by exposing an api for a single component and connecting it to application state.
+Hooks map state to UI components by exposing an API for a single component and connecting it to application state.
 
 Hooks are documented in the Storybook UI library alongside the component they are implemented in for specific inputs.
 

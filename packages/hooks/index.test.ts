@@ -32,6 +32,10 @@ describe('hooks package exports', () => {
         expect(HooksIndex).not.toHaveProperty('useSvgCards');
     });
 
+    it('should not export typePolicies', () => {
+        expect(HooksIndex).not.toHaveProperty('typePolicies');
+    });
+
     it('should export AvatarConfig enum', () => {
         expect(HooksIndex.AvatarConfig).toBeDefined();
         expect(HooksIndex.AvatarConfig.DEFAULT_AVATAR_IMAGE).toBeDefined();
@@ -53,11 +57,6 @@ describe('hooks package exports', () => {
         expect(HooksIndex.errorMessages.PASSWORD_MISMATCH).toBeDefined();
     });
 
-    it('should export type policies', () => {
-        expect(HooksIndex.typePolicies).toBeDefined();
-        expect(typeof HooksIndex.typePolicies).toBe('object');
-    });
-
     it('should have all expected exports', () => {
         const expectedExports = [
             'useSignupForm',
@@ -67,8 +66,7 @@ describe('hooks package exports', () => {
             'AvatarConfig',
             'validateEmail',
             'validatePassword',
-            'errorMessages',
-            'typePolicies'
+            'errorMessages'
         ];
 
         expectedExports.forEach(exportName => {
