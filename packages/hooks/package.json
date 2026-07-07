@@ -11,8 +11,8 @@
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "peerDependencies": {
-        "react": "19.2.3",
-        "react-dom": "19.2.3",
+        "react": "19.2.4",
+        "react-dom": "19.2.4",
         "react-native": "0.86.0"
     },
     "devDependencies": {
@@ -22,8 +22,8 @@
         "@vitest/coverage-v8": "^3.2.4",
         "@vitest/ui": "^3.2.4",
         "jsdom": "^26.1.0",
-        "react": "19.2.3",
-        "react-dom": "19.2.3",
+        "react": "19.2.4",
+        "react-dom": "19.2.4",
         "react-native": "0.86.0",
         "typescript": "^6.0.3",
         "vitest": "^3.2.4"

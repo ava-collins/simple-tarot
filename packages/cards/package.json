@@ -12,7 +12,7 @@
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
     "peerDependencies": {
-        "react": "19.2.3",
+        "react": "19.2.4",
         "react-native": "0.86.0",
         "react-native-svg": "15.15.4"
     },
@@ -24,7 +24,7 @@
         "@vitest/coverage-v8": "^3.2.4",
         "dotenv": "^17.4.2",
         "jsdom": "^26.1.0",
-        "react": "19.2.3",
+        "react": "19.2.4",
         "react-native": "0.86.0",
         "react-native-svg": "15.15.4",
         "typescript": "^6.0.3",
