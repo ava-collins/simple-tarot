@@ -1,3 +1,10 @@
+# [@simpletarot/ui-v1.13.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.13.0...@simpletarot/ui-v1.13.1) (2026-07-07)
+
+
+### Bug Fixes
+
+* **semantic-release:** convert workspace directive to * ([1305585](https://github.com/ava-collins/simple-tarot/commit/130558593cd6591b9b07adaec14718ae75b4a3c7))
+
 # [@simpletarot/ui-v1.13.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.12.0...@simpletarot/ui-v1.13.0) (2026-07-05)
 
 
