@@ -22,8 +22,7 @@ Root workspace:
 
 Leaf workspaces:
 
-- `apps/admin`
-- `apps/graph-api`
+- `apps/api`
 - `apps/tarot`
 - `packages/hooks`
 - `packages/ui`

@@ -21,7 +21,7 @@ Examples:
 fix(ui): align card title spacing
 feat(tarot): add daily reading spread
 docs(release): describe commit message format
-chore(graph-api): update generated types
+chore(api): update reading response types
 ```
 
 ## Version Impact
@@ -62,8 +62,9 @@ Prefer scopes that match the part of the monorepo you changed:
 
 | Scope | Use for |
 | --- | --- |
-| `graph-api` | `apps/graph-api` |
+| `api` | `apps/api` |
 | `tarot` | `apps/tarot` |
+| `infra` | `apps/infra` |
 | `hooks` | `packages/hooks` |
 | `ui` | `packages/ui` |
 | `release` | semantic-release configuration or workflow changes |

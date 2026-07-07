@@ -14,13 +14,9 @@
     "scripts": {
         "build-storybook": "yarn workspace @simpletarot/ui build-storybook",
         "build": "yarn lint && yarn workspaces foreach -A run build-types",
-        "graph:build": "yarn workspace graph-api build",
-        "graph:dev": "yarn workspace graph-api dev",
-        "graph:start": "yarn workspace graph-api start",
-        "graph:db:backup": "apps/graph-api/scripts/backup-neo4j.sh",
         "generate:card-position-meanings": "node ./scripts/generate-card-position-meanings.js",
         "ios": "yarn workspace tarot ios",
-        "test": "yarn workspaces foreach -A --exclude simpletarot --exclude graph-api --exclude @simpletarot/ui run test",
+        "test": "yarn workspaces foreach -A --exclude simpletarot --exclude @simpletarot/ui run test",
         "api:build": "yarn workspace api build",
         "api:dev": "yarn workspace api dev",
         "api:start": "yarn workspace api start",
@@ -28,21 +24,17 @@
         "lint": "eslint --ext .ts,.tsx apps packages",
         "release:dry-run": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo --dry-run",
         "release": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo",
-        "run-db": "yarn workspace graph-api run-db",
-        "stop-db": "yarn workspace graph-api stop-db",
         "storybook-static": "npx http-server -S true -C ./ssl/development/cert.pem -K ./ssl/development/key.pem ./packages/ui/storybook-static",
         "storybook": "yarn workspace @simpletarot/ui storybook",
         "knip": "knip"
     },
     "resolutions": {
-        "graphql": "^16.11.0",
         "ts-node": "^10.9.2",
         "@types/node": "22.14.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
         "react-native": "0.86.0",
-        "@types/react": "~19.2.4",
-        "@apollo/client": "^3.13.8"
+        "@types/react": "~19.2.4"
     },
     "devDependencies": {
         "@commitlint/cli": "^19.8.1",

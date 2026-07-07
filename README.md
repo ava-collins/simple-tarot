@@ -7,17 +7,14 @@ readings using highly customized AI generated content.
 
 ### Backend
 
-The rebuild is organized around three backend surfaces.
+The backend is organized around two surfaces.
 
-1. `apps/graph-api` - (V1 api) preserves the graph-backed tarot content API built on
-   Neo4j.
-
-2. `apps/api` - (V2 api) is the REST API for generated readings. It validates reading
+1. `apps/api` is the REST API for generated readings. It validates reading
    requests, builds deterministic prompts, and can either return local
    placeholder responses or call Amazon Bedrock Knowledge Bases through
    Bedrock Agent Runtime `RetrieveAndGenerate`.
 
-3. `apps/infra` provisions AWS infrastructure with CDK, including Cognito auth
+2. `apps/infra` provisions AWS infrastructure with CDK, including Cognito auth
    and the Bedrock RAG stack for generated tarot readings.
 
 The current Bedrock path uses RAG with normalized tarot corpus documents in S3,
@@ -33,18 +30,14 @@ Live Component Reference
 
 ## Contents
 
-A yarn workspace monorepository to manage the mobile tarot application, graph
-API, AWS infrastructure, and shared React Native component libraries.
-
-`apps/graph-api` is an Apollo graph server built on top of Node/Express server
-connected to a Neo4j database, providing the core API for the client
-application.
+A yarn workspace monorepository to manage the mobile tarot application,
+AWS infrastructure, and shared React Native component libraries.
 
 `apps/api` is an Express REST API for generated tarot readings. It exposes
-`GET /health`, `POST /readings`, and `GET /readings`. It validates Cognito JWT
-tokens to support authenticated reading persistence to DynamoDB and reading
-history retrieval. It includes a local development mode and can call Bedrock
-Knowledge Bases in Bedrock runtime mode.
+`GET /health`, `GET /avatars`, `POST /readings`, and `GET /readings`. It
+validates Cognito JWT tokens to support authenticated reading persistence to
+DynamoDB and reading history retrieval. It includes a local development mode
+and can call Bedrock Knowledge Bases in Bedrock runtime mode.
 
 `apps/tarot` is a React Native mobile app uses shared components from hooks and
 ui packages and Expo framework for application configuration, building, testing
@@ -61,7 +54,7 @@ of the project as a whole, used to provide context over time.
 
 `packages/hooks` is a shared package providing account auth form hooks
 (`useLoginForm`, `useSignupForm`, `useForgotPasswordForm`), reading hooks
-(`useInstructions`), Apollo Client graph type policies, and shared form
+(`useInstructions`), avatar image hooks (`useAvatarImage`), and shared form
 validation utilities.
 
 `packages/cards` is a shared React Native package for generated tarot card SVG
@@ -90,16 +83,15 @@ messages.
 
 | | |
 |---|---|
-| [Tarot App](./apps/tarot/README.md) | Expo SDK 56 mobile app — auth flow, reading screens, history |
-| [REST API](./apps/api/README.md) | V2 reading generation — endpoints, auth modes, Bedrock config |
-| [Graph API](./apps/graph-api/README.md) | V1 Neo4j content API — GraphQL schema, queries, local setup |
+| [Tarot App](./apps/tarot/README.md) | Expo SDK 57 mobile app — auth flow, reading screens, history |
+| [REST API](./apps/api/README.md) | Reading generation — endpoints, auth modes, Bedrock config, avatar images |
 | [Infrastructure](./apps/infra/README.md) | CDK stacks — Cognito, Bedrock RAG, DynamoDB, API Gateway Lambda |
 
 ### Shared Packages
 
 | | |
 |---|---|
-| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, Apollo type policies |
+| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, avatar image hook |
 | [@simpletarot/cards](./docs/cards_package.md) | SVGR card component generation and `useSvgCards` hook |
 
 ### Architecture
@@ -111,7 +103,6 @@ messages.
 ### Operations
 
 - [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
-- [Neo4j Database Backup](./docs/neo4j_database_backup.md) — backup and restore procedures for the local Neo4j graph database used by [Graph API](./apps/graph-api/README.md)
 
 ### Developer Workflow
 
