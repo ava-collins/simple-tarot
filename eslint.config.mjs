@@ -31,8 +31,6 @@ export default defineConfig([
             '**/public/**',
             '**/scripts/**',
             'apps/admin/.next/**',
-            'apps/graph-api/codegen.ts',
-            'apps/graph-api/src/types.ts',
             'apps/infra/jest.config.js',
             'apps/infra/cdk.out/**',
             'apps/tarot/.expo/**',

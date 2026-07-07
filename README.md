@@ -89,11 +89,11 @@ messages.
 
 ### Shared Packages
 
-|                                                  |                                                       |
-| ------------------------------------------------ | ----------------------------------------------------- |
-| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, avatar image hook     |
-| [@simpletarot/cards](./docs/cards_package.md)    | SVGR card component generation and `useSvgCards` hook |
-| [@simpletarot/ui](https://ava-collins.github.io/simple-tarot/) | Storybook-driven React Native component library — screens, organisms, atoms |
+|                                                  |                                                                             |
+| ------------------------------------------------ | --------------------------------------------------------------------------- |
+| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, avatar image hook                           |
+| [@simpletarot/cards](./packages/cards/README.md) | SVGR card component generation and `useSvgCards` hook                       |
+| [@simpletarot/ui](./packages/ui/README.md)       | Storybook-driven React Native component library — screens, organisms, atoms |
 
 ### Architecture
 
