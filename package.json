@@ -20,10 +20,10 @@
         "graph:db:backup": "apps/graph-api/scripts/backup-neo4j.sh",
         "generate:card-position-meanings": "node ./scripts/generate-card-position-meanings.js",
         "ios": "yarn workspace tarot ios",
+        "test": "yarn workspaces foreach -A --exclude simpletarot --exclude graph-api --exclude @simpletarot/ui run test",
         "api:build": "yarn workspace api build",
         "api:dev": "yarn workspace api dev",
         "api:start": "yarn workspace api start",
-        "api:test": "yarn workspace api test",
         "lint:fix": "eslint --ext .ts,.tsx apps packages --fix",
         "lint": "eslint --ext .ts,.tsx apps packages",
         "release:dry-run": "yarn workspaces foreach -A --exclude simpletarot run semantic-release -e semantic-release-monorepo --dry-run",
@@ -40,8 +40,8 @@
         "@types/node": "22.14.0",
         "react": "19.2.3",
         "react-dom": "19.2.3",
-        "react-native": "0.85.3",
-        "@types/react": "19.2.3",
+        "react-native": "0.86.0",
+        "@types/react": "~19.2.4",
         "@apollo/client": "^3.13.8"
     },
     "devDependencies": {
