@@ -4,13 +4,14 @@ import React, { useEffect } from 'react';
 import Avatar from '@rneui/themed/dist/Avatar';
 
 type AvatarImageProps = {
+    apiBaseUrl: string;
     size: number | 'small' | 'medium' | 'large' | 'xlarge' | undefined;
     saved?: string;
 };
 
-const AvatarImage: React.FC<AvatarImageProps> = ({ size = 'xlarge', saved }) => {
+const AvatarImage: React.FC<AvatarImageProps> = ({ apiBaseUrl, size = 'xlarge', saved }) => {
     const { avatarImage, getNewAvatarImage, getAvatarImage, saveAvatarImage } =
-        useAvatarImage();
+        useAvatarImage(apiBaseUrl);
     const [hasSaved, setHasSaved] = React.useState<boolean>(
         saved !== undefined && saved !== ''
     );

@@ -10,12 +10,14 @@ const t = theme();
 const { width, height } = Dimensions.get('window');
 
 export interface UserAccountProps {
+    apiBaseUrl: string;
     useremail: string;
     logout: () => void;
     resetPassword: () => void;
 }
 
 const UserAccount: React.FC<UserAccountProps> = ({
+    apiBaseUrl,
     useremail,
     logout,
     resetPassword
@@ -33,7 +35,7 @@ const UserAccount: React.FC<UserAccountProps> = ({
         <ScrollView>
             <View style={styles.container}>
                 <View style={styles.avatar}>
-                    <AvatarImage size={254} />
+                    <AvatarImage apiBaseUrl={apiBaseUrl} size={254} />
                     <Text style={styles.useremail}>{useremail}</Text>
                 </View>
                 <View style={styles.anonInfo}>

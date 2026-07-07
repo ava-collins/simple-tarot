@@ -5,57 +5,50 @@ import * as AvatarImageStories from './avatar-image.stories';
 
 # AvatarImage Component
 
-Uses the hook `useAvatarImage` to get the image URL and other properties from the core-api app.
+Displays a randomly selected tarot-themed avatar image fetched from the REST API.
 
 ## Overview
 
-- Uses `useAvatarImage` hook to fetch random image URL from the core-api.
-- Displays the image with a specified size inside a round black border.
-- Press on the image to generate a new random image.
-- [TODO]: 
-    - Add long press functionality to save the image URL to user profile.
+- Accepts an `apiBaseUrl` prop and calls `GET ${apiBaseUrl}/avatars` via `useAvatarImage` to load a pool of images.
+- Displays the selected image with a specified size inside a round black border.
+- Press on the image to cycle to a new random image from the loaded pool.
+- Long press is stubbed for a future save-to-profile feature.
 
 <Canvas of={AvatarImageStories.Primary} />
 
 ## Props
 
+- `apiBaseUrl`: Base URL for the REST API (e.g. `http://localhost:4100`). Required. Pass an empty string to skip fetching and display the default grey card.
 - `size`: Size of the avatar image, default is `xlarge`.
-- `saved`: Boolean prop to indicate if the image is saved or not. If true, the image will load from saved url and not fetch a random one from the core-api.
+- `saved`: Optional URL. If provided, the component bypasses the API and displays this image directly.
 
 ## State
 
-- `hasSaved`: Initializes to evaluation of `saved` prop; it will only be set on component load or if `saved` prop changes.
-- `displayImage`: The image url being displayed in the component view. If the avatar image is pressed and a new image appears it is only set in
-the component `displayImage` state. If continue to press the image will continue to change the image URL.
-- `useAvatarImage`: Hook that fetches the image URL from the core-api; 
-`    returns { avatarImage, error, getAvatarImage, getNewAvatarImage, saveAvatarImage };`
+- `hasSaved`: Initializes from the `saved` prop; pressing the avatar clears it so cycling resumes.
+- `displayImage`: The URL currently rendered. Changes on each press without a new API call — cycling draws from the pool already held in hook state.
+
+## Hook: useAvatarImage
+
+```typescript
+import { useAvatarImage } from '@simpletarot/hooks';
+
+const { avatarImage, error, getAvatarImage, getNewAvatarImage, saveAvatarImage } =
+    useAvatarImage(apiBaseUrl);
+```
+
+The hook calls `GET ${apiBaseUrl}/avatars` once on mount (skipped when `apiBaseUrl` is empty), stores the full `thumbnails` array in local state, and picks a random entry as the initial `avatarImage`. `getNewAvatarImage` cycles within that same array without a second network request.
+
+### Returns
+
+- `avatarImage`: Current image URL (defaults to the grey card placeholder until the fetch resolves).
+- `error`: `Error | undefined` — set if the fetch fails or returns a non-2xx status.
+- `getAvatarImage`: Returns the current `avatarImage` from state.
+- `getNewAvatarImage`: Picks a new random URL from the loaded pool and updates `avatarImage`.
+- `saveAvatarImage`: Stubbed — logs on long press; save-to-profile not yet implemented.
 
 <img src={(location.hostname === 'avacollins.github.io'? `/simple-tarot/avatar-image-display-state.png`: '/avatar-image-display-state.png')} alt="AvatarImage display state" width="600"/>
 
-
 ## Future Enhancements
 
-- UX treatment to inform user of the press to generate new image feature.
-- Add functionality to save the image URL to user profile on long press.
-
-
-# useAvatarImage Hook
-
-The `useAvatarImage` hook is used to fetch a random avatar image URL from the core-api using apollo client for caching and state management.
-It provides methods to get a new avatar image, save the current avatar image, and handle errors.
-
-## Usage
-
-```javascript
-import { useAvatarImage } from '@simpletarot/core-api';
-
-const { avatarImage, error, getAvatarImage, getNewAvatarImage, saveAvatarImage } = useAvatarImage();
-```
-
-### API
-
-- `avatarImage`: The current avatar image URL saved in hook state.
-- `error`: Error object if there is an issue fetching the avatar image.
-- `getAvatarImage`: Function to fetch the avatar image from local state.
-- `getNewAvatarImage`: Function to fetch a new random avatar image from the core-api and update local state.
-- `saveAvatarImage`: Stubbed to save the current avatar image URL to the user profile in future implementations.
+- UX treatment to communicate the press-to-cycle interaction.
+- Save avatar URL to user profile on long press via the REST API.

@@ -13,6 +13,7 @@ import {
     requestIdMiddleware,
     requestLoggingMiddleware
 } from './logger';
+import { avatarsRouter } from './routes/avatars';
 import { healthRouter } from './routes/health';
 import { readingsRouter } from './routes/readings';
 
@@ -35,6 +36,7 @@ export function createApiServer(options: CreateApiServerOptions = {}) {
     app.use(eventContext());
     app.use(apiGatewayAuthContextMiddleware);
     app.use(healthRouter);
+    app.use(avatarsRouter);
 
     if (config.auth.mode === 'cognito') {
         app.use(

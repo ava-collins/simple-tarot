@@ -9238,6 +9238,7 @@ __metadata:
     express: "npm:^5.2.1"
     jose: "npm:5.10.0"
     nodemon: "npm:^3.1.14"
+    serpapi: "npm:^2.2.1"
     ts-node: "npm:^10.9.2"
     typescript: "npm:^6.0.3"
     vitest: "npm:^3.2.4"
@@ -21057,7 +21058,7 @@ react-native-reanimated-monorepo@react-native-reanimated/plugin:
   languageName: node
   linkType: hard
 
-"serpapi@npm:^2.1.0":
+"serpapi@npm:^2.1.0, serpapi@npm:^2.2.1":
   version: 2.2.1
   resolution: "serpapi@npm:2.2.1"
   checksum: 10c0/854b3beaee889a734350cbcab7510f27a498ee9b32f505203cc2245f9463f0e0fe8b30b10f73ad8304815a075cb91a0b7cfd9b48a1cc36fc5a1ee9c84ebc7e91
