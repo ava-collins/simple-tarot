@@ -24,6 +24,7 @@ Leaf workspaces:
 
 - `apps/api`
 - `apps/tarot`
+- `packages/cards`
 - `packages/hooks`
 - `packages/ui`
 
