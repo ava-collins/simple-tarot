@@ -81,38 +81,39 @@ messages.
 
 ### Apps
 
-| | |
-|---|---|
-| [Tarot App](./apps/tarot/README.md) | Expo SDK 57 mobile app — auth flow, reading screens, history |
-| [REST API](./apps/api/README.md) | Reading generation — endpoints, auth modes, Bedrock config, avatar images |
-| [Infrastructure](./apps/infra/README.md) | CDK stacks — Cognito, Bedrock RAG, DynamoDB, API Gateway Lambda |
+|                                          |                                                                           |
+| ---------------------------------------- | ------------------------------------------------------------------------- |
+| [Tarot App](./apps/tarot/README.md)      | Expo SDK 57 mobile app — auth flow, reading screens, history              |
+| [REST API](./apps/api/README.md)         | Reading generation — endpoints, auth modes, Bedrock config, avatar images |
+| [Infrastructure](./apps/infra/README.md) | CDK stacks — Cognito, Bedrock RAG, DynamoDB, API Gateway Lambda           |
 
 ### Shared Packages
 
-| | |
-|---|---|
-| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, avatar image hook |
-| [@simpletarot/cards](./docs/cards_package.md) | SVGR card component generation and `useSvgCards` hook |
+|                                                  |                                                       |
+| ------------------------------------------------ | ----------------------------------------------------- |
+| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, avatar image hook     |
+| [@simpletarot/cards](./docs/cards_package.md)    | SVGR card component generation and `useSvgCards` hook |
+| [@simpletarot/ui](https://ava-collins.github.io/simple-tarot/) | Storybook-driven React Native component library — screens, organisms, atoms |
 
 ### Architecture
 
-- [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — end-to-end flow from mobile request to Bedrock Knowledge Base retrieval, module map, and CloudFormation output wiring
-- [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
-- [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) — CDK output → `EXPO_PUBLIC_*` mapping and EAS delivery; used by [Infrastructure](./apps/infra/README.md#expo-contract) and [Tarot App](./apps/tarot/README.md)
+-   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — end-to-end flow from mobile request to Bedrock Knowledge Base retrieval, module map, and CloudFormation output wiring
+-   [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
+-   [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) — CDK output → `EXPO_PUBLIC_*` mapping and EAS delivery; used by [Infrastructure](./apps/infra/README.md#expo-contract) and [Tarot App](./apps/tarot/README.md)
 
 ### Operations
 
-- [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
+-   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
 
 ### Developer Workflow
 
-- [Monorepository Orientation](./docs/yarn_workspace_dependency_goals.md) — workspace dependency rules, `workspace:*` protocol, peer/dev/runtime split
-- [Commit Messages & Releases](./docs/semantic_release_commit_messages.md) — conventional commit format, type → semver mapping, valid scopes
+-   [Monorepository Orientation](./docs/yarn_workspace_dependency_goals.md) — workspace dependency rules, `workspace:*` protocol, peer/dev/runtime split
+-   [Commit Messages & Releases](./docs/semantic_release_commit_messages.md) — conventional commit format, type → semver mapping, valid scopes
 
 ### Planning
 
-- [Bedrock RAG API MVP Stages](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
-- [User Reading Persistence Stages](./docs/superpowers/plans/2026-07-02-user-reading-persistence.md)
+-   [Bedrock RAG API MVP Stages](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
+-   [User Reading Persistence Stages](./docs/superpowers/plans/2026-07-02-user-reading-persistence.md)
 
 # Copyright
 
