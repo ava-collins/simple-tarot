@@ -9,13 +9,13 @@ function claimText(value: unknown): string | undefined {
 }
 
 export default function AccountRoute() {
-    const { error, idTokenClaims, isLoading, isSignedIn } = useAuth();
+    const { error, idTokenClaims, isLoading, isSignedIn, tokens } = useAuth();
     const router = useRouter();
 
     return (
         <AccountScreen
             apiBaseUrl={process.env.EXPO_PUBLIC_TAROT_API_URL ?? ''}
-            avatarSlot={<RscAvatarImage size={200} />}
+            avatarSlot={<RscAvatarImage accessToken={tokens?.accessToken} size={200} />}
             isLoading={isLoading}
             isSignedIn={isSignedIn}
             email={claimText(idTokenClaims?.email)}

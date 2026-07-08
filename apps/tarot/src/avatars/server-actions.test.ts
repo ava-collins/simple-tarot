@@ -18,7 +18,7 @@ describe('avatar server actions', () => {
         createClientMock.mockReset();
     });
 
-    it('loads avatar thumbnails through the existing API client', async () => {
+    it('loads avatar thumbnails through the existing API client with the access token', async () => {
         const response = {
             thumbnails: ['https://example.com/a.png']
         };
@@ -27,9 +27,10 @@ describe('avatar server actions', () => {
             listAvatarThumbnails
         });
 
-        await expect(listAvatarThumbnailsOnServer()).resolves.toEqual(response);
+        await expect(listAvatarThumbnailsOnServer('access-token')).resolves.toEqual(response);
 
         expect(createClientMock).toHaveBeenCalledWith({
+            accessToken: 'access-token',
             baseUrl: 'https://api.example.com'
         });
         expect(listAvatarThumbnails).toHaveBeenCalledOnce();

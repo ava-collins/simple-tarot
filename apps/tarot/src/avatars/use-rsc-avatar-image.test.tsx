@@ -9,14 +9,17 @@ import { useRscAvatarImage, type UseRscAvatarImageResult } from './use-rsc-avata
 const fixedRandom = () => 0.75;
 
 function HookProbe({
+    accessToken,
     listAvatarThumbnails,
     onRender
 }: {
-    listAvatarThumbnails: () => Promise<{ thumbnails: string[] }>;
+    accessToken: string | null;
+    listAvatarThumbnails: (accessToken: string) => Promise<{ thumbnails: string[] }>;
     onRender: (result: UseRscAvatarImageResult) => void;
 }) {
     onRender(
         useRscAvatarImage({
+            accessToken,
             listAvatarThumbnails,
             random: fixedRandom
         })
@@ -63,6 +66,7 @@ describe('useRscAvatarImage', () => {
         await act(async () => {
             TestRenderer.create(
                 <HookProbe
+                    accessToken="access-token"
                     listAvatarThumbnails={listAvatarThumbnails}
                     onRender={nextResult => {
                         result = nextResult;
@@ -71,7 +75,7 @@ describe('useRscAvatarImage', () => {
             );
         });
 
-        expect(listAvatarThumbnails).toHaveBeenCalledOnce();
+        expect(listAvatarThumbnails).toHaveBeenCalledWith('access-token');
         expect(result?.avatarImage).toBe('third.png');
         expect(result?.error).toBeUndefined();
     });
@@ -85,6 +89,7 @@ describe('useRscAvatarImage', () => {
         await act(async () => {
             TestRenderer.create(
                 <HookProbe
+                    accessToken="access-token"
                     listAvatarThumbnails={listAvatarThumbnails}
                     onRender={nextResult => {
                         result = nextResult;
@@ -105,6 +110,7 @@ describe('useRscAvatarImage', () => {
         await act(async () => {
             TestRenderer.create(
                 <HookProbe
+                    accessToken="access-token"
                     listAvatarThumbnails={listAvatarThumbnails}
                     onRender={nextResult => {
                         result = nextResult;
@@ -119,5 +125,23 @@ describe('useRscAvatarImage', () => {
 
         expect(result?.avatarImage).toBe('third.png');
         expect(listAvatarThumbnails).toHaveBeenCalledOnce();
+    });
+
+    it('does not call the server function without an access token', async () => {
+        const listAvatarThumbnails = vi.fn().mockResolvedValue({
+            thumbnails: ['first.png']
+        });
+
+        await act(async () => {
+            TestRenderer.create(
+                <HookProbe
+                    accessToken={null}
+                    listAvatarThumbnails={listAvatarThumbnails}
+                    onRender={() => undefined}
+                />
+            );
+        });
+
+        expect(listAvatarThumbnails).not.toHaveBeenCalled();
     });
 });

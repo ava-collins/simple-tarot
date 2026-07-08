@@ -49,7 +49,7 @@ describe('createAvatarApiClient', () => {
         vi.unstubAllGlobals();
     });
 
-    it('loads avatar thumbnails from the REST API', async () => {
+    it('loads avatar thumbnails from the REST API with the Cognito access token', async () => {
         const fetchMock = vi.fn().mockResolvedValue(
             jsonResponse({
                 thumbnails: ['https://example.com/a.png']
@@ -58,6 +58,7 @@ describe('createAvatarApiClient', () => {
         vi.stubGlobal('fetch', fetchMock);
 
         const client = createAvatarApiClient({
+            accessToken: 'access-token',
             baseUrl: 'https://api.example.com/dev/'
         });
 
@@ -65,6 +66,9 @@ describe('createAvatarApiClient', () => {
             thumbnails: ['https://example.com/a.png']
         });
         expect(fetchMock).toHaveBeenCalledWith('https://api.example.com/dev/avatars', {
+            headers: {
+                Authorization: 'Bearer access-token'
+            },
             method: 'GET'
         });
     });
@@ -90,5 +94,40 @@ describe('createAvatarApiClient', () => {
         await expect(client.listAvatarThumbnails()).rejects.toThrow(
             'Failed to fetch avatar images'
         );
+    });
+
+    it('logs response diagnostics when the API returns non-JSON content', async () => {
+        const consoleWarn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+        vi.stubGlobal(
+            'fetch',
+            vi.fn().mockResolvedValue({
+                headers: {
+                    get: vi.fn((name: string) =>
+                        name.toLowerCase() === 'content-type'
+                            ? 'text/html; charset=utf-8'
+                            : null
+                    )
+                },
+                ok: false,
+                status: 401,
+                text: vi.fn().mockResolvedValue('<!DOCTYPE html><html>Unauthorized</html>')
+            })
+        );
+
+        const client = createAvatarApiClient({
+            accessToken: 'access-token',
+            baseUrl: 'https://api.example.com'
+        });
+
+        await expect(client.listAvatarThumbnails()).rejects.toThrow(
+            'Avatar API returned text/html; charset=utf-8 for GET https://api.example.com/avatars with status 401.'
+        );
+        expect(consoleWarn).toHaveBeenCalledWith('[avatar-api] non-json response', {
+            bodyPreview: '<!DOCTYPE html><html>Unauthorized</html>',
+            contentType: 'text/html; charset=utf-8',
+            method: 'GET',
+            status: 401,
+            url: 'https://api.example.com/avatars'
+        });
     });
 });

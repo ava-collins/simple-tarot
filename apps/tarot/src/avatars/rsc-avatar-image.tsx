@@ -5,12 +5,18 @@ import Avatar from '@rneui/themed/dist/Avatar';
 import { useRscAvatarImage } from './use-rsc-avatar-image';
 
 type RscAvatarImageProps = {
+    accessToken: string | null | undefined;
     saved?: string;
     size?: number | 'small' | 'medium' | 'large' | 'xlarge';
 };
 
-export function RscAvatarImage({ saved, size = 'xlarge' }: RscAvatarImageProps) {
+export function RscAvatarImage({
+    accessToken,
+    saved,
+    size = 'xlarge'
+}: RscAvatarImageProps) {
     const { avatarImage, getNewAvatarImage, saveAvatarImage } = useRscAvatarImage({
+        accessToken,
         saved
     });
 

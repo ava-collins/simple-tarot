@@ -7,7 +7,8 @@ import { listAvatarThumbnailsOnServer } from './server-actions';
 import type { AvatarsResponse } from './avatar-contracts';
 
 type UseRscAvatarImageOptions = {
-    listAvatarThumbnails?: () => Promise<AvatarsResponse>;
+    accessToken: string | null | undefined;
+    listAvatarThumbnails?: (accessToken: string) => Promise<AvatarsResponse>;
     random?: () => number;
     saved?: string;
 };
@@ -31,10 +32,11 @@ const chooseImage = (thumbnails: string[], random: () => number): string | undef
 };
 
 export function useRscAvatarImage({
+    accessToken,
     listAvatarThumbnails = listAvatarThumbnailsOnServer,
     random = Math.random,
     saved
-}: UseRscAvatarImageOptions = {}): UseRscAvatarImageResult {
+}: UseRscAvatarImageOptions): UseRscAvatarImageResult {
     const [avatarImage, setAvatarImage] = useState<string>(
         saved || AvatarConfig.DEFAULT_AVATAR_IMAGE
     );
@@ -51,8 +53,12 @@ export function useRscAvatarImage({
         let isMounted = true;
 
         const loadAvatars = async () => {
+            if (!accessToken) {
+                return;
+            }
+
             try {
-                const response = await listAvatarThumbnails();
+                const response = await listAvatarThumbnails(accessToken);
 
                 if (!isMounted) {
                     return;
@@ -84,7 +90,7 @@ export function useRscAvatarImage({
         return () => {
             isMounted = false;
         };
-    }, [listAvatarThumbnails, random, saved]);
+    }, [accessToken, listAvatarThumbnails, random, saved]);
 
     const getAvatarImage = () => avatarImage;
 
