@@ -1,3 +1,15 @@
+# [@simpletarot/hooks-v2.1.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v2.0.0...@simpletarot/hooks-v2.1.0) (2026-07-08)
+
+
+### Bug Fixes
+
+* use directives on legacy components ([62f975d](https://github.com/ava-collins/simple-tarot/commit/62f975d13102aacc38fe0b4ff072a5789cbb7c27))
+
+
+### Features
+
+* **hooks:** move rsc hook logic out of app and into packages ([1b1b69f](https://github.com/ava-collins/simple-tarot/commit/1b1b69f2ca183bd4e0460a33ba0fd40893aa2a19))
+
 # [@simpletarot/hooks-v2.0.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v1.10.0...@simpletarot/hooks-v2.0.0) (2026-07-07)
 
 
