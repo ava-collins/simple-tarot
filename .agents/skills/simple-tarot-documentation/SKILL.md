@@ -39,6 +39,11 @@ It should be reachable from:
 The root entry should mention the app/API/infra branches so a reader can move
 from the high-level index into the affected surfaces.
 
+When a cross-cutting pilot has an implementation-plan rollback path, include a
+brief rollback section in the durable architecture doc. Keep it operational:
+which files to revert, which fallback paths must stay available, and which
+verification commands prove the rollback.
+
 ## Validation
 
 After documentation link changes:

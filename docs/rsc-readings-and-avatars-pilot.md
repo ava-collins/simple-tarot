@@ -29,6 +29,26 @@ Expo RSC support is beta, so this pilot avoids full route-level Server Component
 -   [Infrastructure README](../apps/infra/README.md#expo-contract) documents the `ApiUrl` handoff used by the app.
 -   [Cognito -> Expo Config Contract](./cognito_expo_config_contract.md) documents the public Expo auth configuration that remains client-side.
 
+## Rollback
+
+If Expo RSC bundling breaks native development or deployment, revert only the
+reading route imports and hook calls back to `useReadingHistory`. Leave the
+server-action files in place for a later retry.
+
+Keep these fallback paths available until the pilot ships successfully:
+
+-   `apps/tarot/src/readings/use-reading-history.ts`
+-   `packages/hooks/src/account/use-avatar-image.ts`
+-   `apps/tarot/src/api/tarot-api.ts`
+-   Shared `AvatarImage` REST fallback behavior in `packages/ui`
+
+After any rollback, run:
+
+```sh
+yarn workspace tarot build-types
+yarn workspace tarot test
+```
+
 ## Next Candidates
 
 1. Build a server-rendered reading result preview once the reading UI stabilizes.
