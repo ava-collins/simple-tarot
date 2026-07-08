@@ -16,7 +16,7 @@ const styles = StyleSheet.create({
 });
 
 const meta = {
-    title: 'Atoms/Background',
+    title: 'Atoms/Dev/Background',
     component: Background,
     parameters: {
         docs: {

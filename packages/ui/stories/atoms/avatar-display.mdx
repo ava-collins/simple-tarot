@@ -1,0 +1,33 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as AvatarDisplayStories from './avatar-display.stories';
+
+<Meta of={AvatarDisplayStories.default} title="AvatarDisplay" />
+
+# AvatarDisplay Component
+
+Pure presentational avatar atom for rendering an image URI with optional press and long-press callbacks.
+
+## Overview
+
+-   Accepts an `imageUri` and passes it to the RNEUI avatar image source.
+-   Does not fetch, persist, randomize, or read app environment values.
+-   Supports the shared avatar border and sizing used by legacy REST and RSC-backed avatar paths.
+
+<Canvas of={AvatarDisplayStories.DefaultAvatarImage} />
+
+## States
+
+**`CustomNumericSize`**
+
+<Canvas of={AvatarDisplayStories.CustomNumericSize} />
+
+**`PressCallbacks`**
+
+<Canvas of={AvatarDisplayStories.PressCallbacks} />
+
+## Props
+
+-   `imageUri`: Image URL to display. If omitted, the underlying avatar renders without an image source.
+-   `size`: RNEUI avatar size, default is `xlarge`.
+-   `onPress`: Optional callback for cycling or selection behavior owned by a parent.
+-   `onLongPress`: Optional callback for save behavior owned by a parent.

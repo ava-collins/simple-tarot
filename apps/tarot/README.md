@@ -1,7 +1,8 @@
 # Simple Tarot Mobile App
 
 `apps/tarot` is the Expo React Native mobile app for Simple Tarot. It uses Expo
-Router and consumes shared code from the workspace packages.
+Router, owns app-specific auth/session and navigation wiring, and composes
+shared screens, hooks, contracts, and API clients from the workspace packages.
 
 ## Expo Version
 
@@ -30,8 +31,8 @@ appropriate EAS environment.
 
 ## API Public Config
 
-Reading generation and reading history call the deployed API Gateway HTTP API
-through:
+Reading generation, reading history, and avatar discovery call the deployed API
+Gateway HTTP API through:
 
 ```sh
 EXPO_PUBLIC_TAROT_API_URL=https://<api-id>.execute-api.<region>.amazonaws.com
@@ -42,14 +43,22 @@ Use the exact `ApiUrl` CloudFormation output from
 secret. The current API is an HTTP API, so the output does not include a REST
 API stage path such as `/dev`.
 
-The app sends the Cognito access token in the `Authorization` header for
-reading requests and RSC-backed avatar discovery.
+`apps/tarot/src/config/tarot-api-config.ts` reads this value and passes it to
+the shared clients from `@simpletarot/hooks/server`. The app sends the Cognito
+access token in the `Authorization` header for reading requests and RSC-backed
+avatar discovery.
 
 ## RSC Pilot
 
 Readings and avatar thumbnail discovery use Expo Server Functions while auth,
-SecureStore, navigation, form state, and avatar display/randomization stay
-client-side. See
+SecureStore, navigation, and app route composition stay in the Expo app. The
+routes consume full mobile screens from `@simpletarot/ui`; Server Functions wrap
+the shared clients and request builders from `@simpletarot/hooks/server`; client
+adapters use React hooks from `@simpletarot/hooks/client`.
+
+The legacy REST/mock avatar path remains available through the `AvatarRollback`
+UI wrapper and `useAvatarImage` hook, and the legacy reading history hook
+remains available as a rollback path. See
 [RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md)
 for the rollout scope, beta limitations, and rollback notes.
 
@@ -64,6 +73,10 @@ The mobile app calls:
 
 Failed generation attempts are persisted by the API for support/admin use but
 are not shown in the mobile history screen.
+
+Reading routes should stay thin: gather auth/navigation/server action
+callbacks, then pass typed props to `ReadingHistoryScreen` or `NewReadingScreen`
+from `@simpletarot/ui`.
 
 ## Commands
 

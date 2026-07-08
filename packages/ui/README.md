@@ -9,27 +9,51 @@
 
 ## Overview
 
-This package provides the Storybook-driven React Native component library shared by the mobile app — screens, organisms, molecules, and atoms for account auth and tarot reading flows.
+This package provides the Storybook-driven React Native presentation layer
+shared by the mobile app: screens, organisms, molecules, and atoms for account
+auth and tarot reading flows.
 
 ## Contents
 
-`stories/atoms` provides the base building blocks: `Card`, `CardDeck`, `CardDeal`, `Background`, `StartArrow`, `AvatarImage`, `FormButton`, `FormInput`, and `FormErrorText`.
+`stories/atoms` provides visual primitives such as `Card`, `CardDeck`,
+`CardDeal`, `Background`, `StartArrow`, `AvatarDisplay`, `AvatarRollback`,
+`FormButton`, `FormInput`, and `FormErrorText`.
 
-`stories/molecules` provides `FormInputRow`, `QuickNav`, and `ShuffleCard`, composed from atoms.
+`stories/molecules` combines atoms into focused rows and cards such as
+`FormInputRow`, `QuickNav`, `ReadingListCard`, and `ShuffleCard`.
 
-`stories/organisms` provides `LoginForm`, `SignupForm`, `ForgotPasswordForm`, `UserAccount`, `Shuffle`, `DealCards`, and `NewReading`, composed from atoms and molecules.
+`stories/organisms` owns compound sections, forms, and lists such as
+`LoginForm`, `SignupForm`, `ForgotPasswordForm`, `UserAccount`, `Shuffle`,
+`DealCards`, `NewReading`, `ReadingHistoryList`, and `NewReadingForm`.
 
-`stories/screens` provides the top-level screens consumed by `apps/tarot`: `AccountScreen`, `LoginScreen`, `SignupScreen`, `ForgotPasswordScreen`, `CognitoSignInScreen`, `AuthCallbackScreen`, `SignOutScreen`, `LogoutCallbackScreen`, and `HomeScreen`.
+`stories/screens` provides the top-level mobile screens consumed by
+`apps/tarot`: `AccountScreen`, `LoginScreen`, `SignupScreen`,
+`ForgotPasswordScreen`, `CognitoSignInScreen`, `AuthCallbackScreen`,
+`SignOutScreen`, `LogoutCallbackScreen`, `ReadingHistoryScreen`,
+`NewReadingScreen`, and `HomeScreen`.
 
 `stories/templates` provides `MobileView`, the shared screen layout wrapper.
 
 ## Components
 
-Components are organized by atomic design level (atoms → molecules → organisms → screens → templates) and documented in Storybook alongside their stories (`*.stories.tsx`) and usage docs (`*.mdx`).
+Components are organized by atomic design level (atoms -> molecules ->
+organisms -> screens -> templates) and documented in Storybook alongside their
+stories (`*.stories.tsx`) and usage docs (`*.mdx`). Every changed or new
+component should keep both files beside the component.
+
+Storybook paths distinguish active mobile app components from older development
+surfaces and rollback paths. Components in the tarot app dependency chain keep
+their direct element paths, such as `Screens/AccountScreen` or
+`Atoms/AvatarDisplay`. Components kept for same-day rollback use a `Rollback`
+suffix and `Element/Rollback/ComponentRollback` path. Storybook-only components
+that are not yet implemented in the app use `Element/Dev/Component`.
 
 `index.tsx` re-exports the screens and shared atoms consumed by `apps/tarot`. Molecules, organisms, and most atoms are internal building blocks composed by screens rather than exported directly — import components from `@simpletarot/ui` rather than reaching into `stories/`.
 
-Screens compose hooks from `@simpletarot/hooks` and card components from `@simpletarot/cards` with the atoms/molecules/organisms in this package.
+Screens are mobile screens and should use the shared `MobileView` template.
+They compose typed props, hooks from `@simpletarot/hooks/client`, server-safe
+types/constants from `@simpletarot/hooks/server`, and card components from
+`@simpletarot/cards` with the atoms/molecules/organisms in this package.
 
 ## Storybook
 

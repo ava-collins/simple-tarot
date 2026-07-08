@@ -1,20 +1,24 @@
 import { Canvas, Meta } from '@storybook/addon-docs/blocks';
-import * as AvatarImageStories from './avatar-image.stories';
+import * as AvatarRollbackStories from './avatar-rollback.stories';
 
-<Meta of={AvatarImageStories.default} title='AvatarImage'/>
+<Meta of={AvatarRollbackStories.default} title='AvatarRollback'/>
 
-# AvatarImage Component
+# AvatarRollback Component
 
 Displays a randomly selected tarot-themed avatar image fetched from the REST API.
 
 ## Overview
 
 - Accepts an `apiBaseUrl` prop and calls `GET ${apiBaseUrl}/avatars` via `useAvatarImage` to load a pool of images.
-- Displays the selected image with a specified size inside a round black border.
+- Renders the selected image through `AvatarDisplay`, keeping the visual atom shared with RSC-backed avatars.
 - Press on the image to cycle to a new random image from the loaded pool.
 - Long press is stubbed for a future save-to-profile feature.
 
-<Canvas of={AvatarImageStories.Primary} />
+<Canvas of={AvatarRollbackStories.LegacyRestMockPath} />
+
+## Saved Rollback State
+
+<Canvas of={AvatarRollbackStories.SavedImageRollback} />
 
 ## Props
 
@@ -30,7 +34,7 @@ Displays a randomly selected tarot-themed avatar image fetched from the REST API
 ## Hook: useAvatarImage
 
 ```typescript
-import { useAvatarImage } from '@simpletarot/hooks';
+import { useAvatarImage } from '@simpletarot/hooks/client';
 
 const { avatarImage, error, getAvatarImage, getNewAvatarImage, saveAvatarImage } =
     useAvatarImage(apiBaseUrl);
@@ -46,7 +50,7 @@ The hook calls `GET ${apiBaseUrl}/avatars` once on mount (skipped when `apiBaseU
 - `getNewAvatarImage`: Picks a new random URL from the loaded pool and updates `avatarImage`.
 - `saveAvatarImage`: Stubbed — logs on long press; save-to-profile not yet implemented.
 
-<img src={(location.hostname === 'avacollins.github.io'? `/simple-tarot/avatar-image-display-state.png`: '/avatar-image-display-state.png')} alt="AvatarImage display state" width="600"/>
+<img src={(location.hostname === 'avacollins.github.io'? `/simple-tarot/avatar-image-display-state.png`: '/avatar-image-display-state.png')} alt="AvatarRollback display state" width="600"/>
 
 ## Future Enhancements
 

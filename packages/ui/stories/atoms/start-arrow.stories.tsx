@@ -5,7 +5,7 @@ import StartArrow from './start-arrow';
 import React from 'react';
 
 const meta = {
-    title: 'Atoms/StartArrow',
+    title: 'Atoms/Dev/StartArrow',
     component: StartArrow,
     parameters: {
         docs: {

@@ -1,14 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@/api/tarot-api', () => ({
-    createTarotApiClient: vi.fn(),
+vi.mock('@simpletarot/hooks/server', async importOriginal => {
+    const actual = await importOriginal<typeof import('@simpletarot/hooks/server')>();
+
+    return {
+        ...actual,
+        createTarotApiClient: vi.fn()
+    };
+});
+vi.mock('@/config/tarot-api-config', () => ({
     getTarotApiConfig: vi.fn(() => ({
         baseUrl: 'https://api.example.com'
     }))
 }));
 vi.mock('server-only', () => ({}));
 
-import { createTarotApiClient } from '@/api/tarot-api';
+import { createTarotApiClient } from '@simpletarot/hooks/server';
 import { createOneCardReadingOnServer, listReadingsOnServer } from './server-actions';
 
 const createClientMock = vi.mocked(createTarotApiClient);

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import LoginForm from '../organisms/login-form';
 import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
-import { useLoginForm } from '@simpletarot/hooks';
+import { useLoginForm } from '@simpletarot/hooks/client';
 
 const t = theme();
 

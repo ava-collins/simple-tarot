@@ -1,14 +1,15 @@
 'use client';
 
-import { AvatarConfig } from '@simpletarot/hooks';
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 
-import { listAvatarThumbnailsOnServer } from './server-actions';
+import { AvatarConfig } from '../account/use-avatar-image';
 import type { AvatarsResponse } from './avatar-contracts';
+import type { AvatarThumbnailsResource } from './avatar-resources';
 
-type UseRscAvatarImageOptions = {
+export type UseRscAvatarImageOptions = {
     accessToken: string | null | undefined;
-    listAvatarThumbnails?: (accessToken: string) => Promise<AvatarsResponse>;
+    initialAvatarsResource?: AvatarThumbnailsResource;
+    listAvatarThumbnails: (accessToken: string) => Promise<AvatarsResponse>;
     random?: () => number;
     saved?: string;
 };
@@ -33,14 +34,22 @@ const chooseImage = (thumbnails: string[], random: () => number): string | undef
 
 export function useRscAvatarImage({
     accessToken,
-    listAvatarThumbnails = listAvatarThumbnailsOnServer,
+    initialAvatarsResource,
+    listAvatarThumbnails,
     random = Math.random,
     saved
 }: UseRscAvatarImageOptions): UseRscAvatarImageResult {
+    const initialThumbnails = initialAvatarsResource
+        ? use(initialAvatarsResource).thumbnails
+        : [];
+    const initialAvatarImage =
+        saved ||
+        chooseImage(initialThumbnails, random) ||
+        AvatarConfig.DEFAULT_AVATAR_IMAGE;
     const [avatarImage, setAvatarImage] = useState<string>(
-        saved || AvatarConfig.DEFAULT_AVATAR_IMAGE
+        initialAvatarImage
     );
-    const [images, setImages] = useState<string[]>([]);
+    const [images, setImages] = useState<string[]>(initialThumbnails);
     const [error, setError] = useState<Error | undefined>();
 
     useEffect(() => {
@@ -53,6 +62,10 @@ export function useRscAvatarImage({
         let isMounted = true;
 
         const loadAvatars = async () => {
+            if (initialAvatarsResource) {
+                return;
+            }
+
             if (!accessToken) {
                 return;
             }
@@ -90,7 +103,7 @@ export function useRscAvatarImage({
         return () => {
             isMounted = false;
         };
-    }, [accessToken, listAvatarThumbnails, random, saved]);
+    }, [accessToken, initialAvatarsResource, listAvatarThumbnails, random, saved]);
 
     const getAvatarImage = () => avatarImage;
 

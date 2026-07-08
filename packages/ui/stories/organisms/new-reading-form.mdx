@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as NewReadingFormStories from './new-reading-form.stories';
+
+<Meta of={NewReadingFormStories.default} title='NewReadingForm'/>
+
+# NewReadingForm
+
+Presents the one-card reading form and latest result. It owns only local question input state.
+
+<Canvas of={NewReadingFormStories.EmptyForm} />
+
+## Generating
+
+<Canvas of={NewReadingFormStories.Generating} />
+
+## Latest Result
+
+<Canvas of={NewReadingFormStories.LatestResult} />
+
+## Error
+
+<Canvas of={NewReadingFormStories.WithError} />
+
+## Props
+
+- `error`: Optional generation error text.
+- `isGenerating`: Disables the submit button and changes its label.
+- `latestReading`: Optional latest reading result to display.
+- `onBackPress`: Back navigation callback.
+- `onGeneratePress`: Receives the question text.
+- `onHistoryPress`: History navigation callback.

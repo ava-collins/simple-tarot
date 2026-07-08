@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import ForgotPasswordForm from '../organisms/forgot-password-form';
 import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
-import { useForgotPasswordForm } from '@simpletarot/hooks';
+import { useForgotPasswordForm } from '@simpletarot/hooks/client';
 
 const t = theme();
 

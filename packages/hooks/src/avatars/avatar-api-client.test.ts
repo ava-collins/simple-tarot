@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import { createAvatarApiClient, getAvatarApiConfig } from './avatar-api';
+import { createAvatarApiClient } from '../../index';
 
 const jsonResponse = (body: unknown, ok = true, status = 200) => ({
     headers: {
@@ -11,36 +11,6 @@ const jsonResponse = (body: unknown, ok = true, status = 200) => ({
     ok,
     status,
     text: vi.fn().mockResolvedValue(JSON.stringify(body))
-});
-
-describe('getAvatarApiConfig', () => {
-    const originalEnv = process.env;
-
-    afterEach(() => {
-        process.env = originalEnv;
-    });
-
-    it('returns a trimmed API base URL without a trailing slash', () => {
-        process.env = {
-            ...originalEnv,
-            EXPO_PUBLIC_TAROT_API_URL: ' https://api.example.com/dev/ '
-        };
-
-        expect(getAvatarApiConfig()).toEqual({
-            baseUrl: 'https://api.example.com/dev'
-        });
-    });
-
-    it('throws a helpful error when the API URL is missing', () => {
-        process.env = {
-            ...originalEnv,
-            EXPO_PUBLIC_TAROT_API_URL: ''
-        };
-
-        expect(() => getAvatarApiConfig()).toThrow(
-            'Missing required Expo public API config: EXPO_PUBLIC_TAROT_API_URL'
-        );
-    });
 });
 
 describe('createAvatarApiClient', () => {
@@ -120,7 +90,7 @@ describe('createAvatarApiClient', () => {
         });
 
         await expect(client.listAvatarThumbnails()).rejects.toThrow(
-            'Avatar API returned text/html; charset=utf-8 for GET https://api.example.com/avatars with status 401.'
+            'API returned text/html; charset=utf-8 for GET https://api.example.com/avatars with status 401.'
         );
         expect(consoleWarn).toHaveBeenCalledWith('[avatar-api] non-json response', {
             bodyPreview: '<!DOCTYPE html><html>Unauthorized</html>',

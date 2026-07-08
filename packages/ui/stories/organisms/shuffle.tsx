@@ -5,7 +5,7 @@ import { CARD_ARRAY } from '../utils/const';
 import { Percentage } from '../utils/fonts';
 import ShuffleCard from '../molecules/shuffle-card';
 import TheSpread from '../atoms/the-spread';
-import { useInstructions } from '@simpletarot/hooks';
+import { useInstructions } from '@simpletarot/hooks/client';
 
 type ShuffleProps = {
     done: () => void;

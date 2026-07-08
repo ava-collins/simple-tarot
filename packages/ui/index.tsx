@@ -1,9 +1,17 @@
+'use client';
+
 export { default as MobileView } from './stories/templates/mobile-view';
+export { default as AvatarDisplay } from './stories/atoms/avatar-display';
+export type { AvatarDisplayProps } from './stories/atoms/avatar-display';
 export * from './stories/atoms/form-error-text';
 export { default as AccountScreen } from './stories/screens/account-screen';
 export type { AccountScreenProps } from './stories/screens/account-screen';
 export { default as CognitoSignInScreen } from './stories/screens/cognito-sign-in-screen';
 export type { CognitoSignInScreenProps } from './stories/screens/cognito-sign-in-screen';
+export { default as ReadingHistoryScreen } from './stories/screens/reading-history-screen';
+export type { ReadingHistoryScreenProps } from './stories/screens/reading-history-screen';
+export { default as NewReadingScreen } from './stories/screens/new-reading-screen';
+export type { NewReadingScreenProps } from './stories/screens/new-reading-screen';
 export { default as LoginScreen } from './stories/screens/login-screen';
 export type { LoginScreenProps } from './stories/screens/login-screen';
 export { default as SignupScreen } from './stories/screens/signup-screen';

@@ -1,22 +1,22 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { use, useCallback, useEffect, useState } from 'react';
 
-import {
-    createOneCardReadingOnServer,
-    listReadingsOnServer,
-    type CreateOneCardReadingInput
-} from './server-actions';
 import type {
     ReadingHistoryItem,
     ReadingHistoryResponse,
     ReadingResponse
 } from './reading-contracts';
+import type { ReadingHistoryResource } from './reading-resources';
+import type { CreateOneCardReadingInput } from './reading-requests';
 
-type UseRscReadingHistoryOptions = {
+export type UseRscReadingHistoryOptions = {
     accessToken: string | null | undefined;
-    createOneCardReading?: (input: CreateOneCardReadingInput) => Promise<ReadingResponse>;
-    listReadings?: (accessToken: string) => Promise<ReadingHistoryResponse>;
+    createOneCardReading: (
+        input: CreateOneCardReadingInput
+    ) => Promise<ReadingResponse>;
+    initialReadingsResource?: ReadingHistoryResource;
+    listReadings: (accessToken: string) => Promise<ReadingHistoryResponse>;
 };
 
 export type UseRscReadingHistoryResult = {
@@ -34,14 +34,18 @@ const getErrorMessage = (error: unknown, fallback: string) =>
 
 export function useRscReadingHistory({
     accessToken,
-    createOneCardReading = createOneCardReadingOnServer,
-    listReadings = listReadingsOnServer
+    createOneCardReading,
+    initialReadingsResource,
+    listReadings
 }: UseRscReadingHistoryOptions): UseRscReadingHistoryResult {
+    const initialReadings = initialReadingsResource
+        ? use(initialReadingsResource).readings
+        : [];
     const [error, setError] = useState<string | null>(null);
     const [isGenerating, setIsGenerating] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [latestReading, setLatestReading] = useState<ReadingResponse | null>(null);
-    const [readings, setReadings] = useState<ReadingHistoryItem[]>([]);
+    const [readings, setReadings] = useState<ReadingHistoryItem[]>(initialReadings);
 
     const refresh = useCallback(async () => {
         if (!accessToken) {
@@ -99,8 +103,12 @@ export function useRscReadingHistory({
     );
 
     useEffect(() => {
+        if (initialReadingsResource) {
+            return;
+        }
+
         void refresh();
-    }, [refresh]);
+    }, [initialReadingsResource, refresh]);
 
     return {
         createTestReading,

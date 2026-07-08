@@ -1,10 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
+    createOneCardReadingRequest,
     createTarotApiClient,
-    getTarotApiConfig,
     type ReadingRequest
-} from './tarot-api';
+} from '../../index';
 
 const readingRequest: ReadingRequest = {
     spread: 'single_card',
@@ -43,33 +43,25 @@ const jsonResponse = (body: unknown, ok = true, status = 200) => ({
     text: vi.fn().mockResolvedValue(JSON.stringify(body))
 });
 
-describe('getTarotApiConfig', () => {
-    const originalEnv = process.env;
-
-    afterEach(() => {
-        process.env = originalEnv;
-    });
-
-    it('returns a trimmed API base URL without a trailing slash', () => {
-        process.env = {
-            ...originalEnv,
-            EXPO_PUBLIC_TAROT_API_URL: ' https://api.example.com/dev/ '
-        };
-
-        expect(getTarotApiConfig()).toEqual({
-            baseUrl: 'https://api.example.com/dev'
-        });
-    });
-
-    it('throws a helpful error when the API URL is missing', () => {
-        process.env = {
-            ...originalEnv,
-            EXPO_PUBLIC_TAROT_API_URL: ''
-        };
-
-        expect(() => getTarotApiConfig()).toThrow(
-            'Missing required Expo public API config: EXPO_PUBLIC_TAROT_API_URL'
+describe('createOneCardReadingRequest', () => {
+    it('creates a single-card reading request with a trimmed question', () => {
+        expect(createOneCardReadingRequest('  What should I notice today?  ')).toEqual(
+            readingRequest
         );
+    });
+
+    it('omits the question when it is blank', () => {
+        expect(createOneCardReadingRequest('   ')).toEqual({
+            spread: 'single_card',
+            items: [
+                {
+                    cardIndex: 0,
+                    cardName: 'The Fool',
+                    position: 'guidance',
+                    reversed: false
+                }
+            ]
+        });
     });
 });
 
@@ -183,17 +175,14 @@ describe('createTarotApiClient', () => {
         });
 
         await expect(client.listReadings()).rejects.toThrow(
-            'Tarot API returned text/html; charset=utf-8 for GET https://api.example.com/readings with status 404.'
+            'API returned text/html; charset=utf-8 for GET https://api.example.com/readings with status 404.'
         );
-        expect(consoleWarn).toHaveBeenCalledWith(
-            '[tarot-api] non-json response',
-            {
-                bodyPreview: '<html>Not Found</html>',
-                contentType: 'text/html; charset=utf-8',
-                method: 'GET',
-                status: 404,
-                url: 'https://api.example.com/readings'
-            }
-        );
+        expect(consoleWarn).toHaveBeenCalledWith('[tarot-api] non-json response', {
+            bodyPreview: '<html>Not Found</html>',
+            contentType: 'text/html; charset=utf-8',
+            method: 'GET',
+            status: 404,
+            url: 'https://api.example.com/readings'
+        });
     });
 });

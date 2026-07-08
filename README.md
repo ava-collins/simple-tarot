@@ -39,9 +39,9 @@ validates Cognito JWT tokens to support authenticated reading persistence to
 DynamoDB and reading history retrieval. It includes a local development mode
 and can call Bedrock Knowledge Bases in Bedrock runtime mode.
 
-`apps/tarot` is a React Native mobile app uses shared components from hooks and
-ui packages and Expo framework for application configuration, building, testing
-and deployment.
+`apps/tarot` is the Expo Router React Native mobile app. It owns app routing,
+auth/session integration, navigation, Expo public config, and thin Server
+Function wrappers around shared package code.
 
 `apps/infra` is an AWS CDK v2 TypeScript app. It owns the Cognito auth
 infrastructure for Simple Tarot and the Bedrock RAG stack. The Bedrock stack
@@ -52,17 +52,16 @@ that hand off deployment values to the API and corpus operations.
 `docs` are a collection of documents that facilitate the planning and execution
 of the project as a whole, used to provide context over time.
 
-`packages/hooks` is a shared package providing account auth form hooks
-(`useLoginForm`, `useSignupForm`, `useForgotPasswordForm`), reading hooks
-(`useInstructions`), avatar image hooks (`useAvatarImage`), and shared form
-validation utilities.
+`packages/hooks` owns reusable API contracts, API clients, request builders,
+resource helpers, constants, and hooks. Its root export is server-safe; React
+hooks are exported from `@simpletarot/hooks/client`.
 
 `packages/cards` is a shared React Native package for generated tarot card SVG
 components and the `useSvgCards` hook. It generates card face components from
 raw SVG files with SVGR.
 
-`packages/ui` is a shared package written in React Native using Storybook UI for
-building, documenting, testing and exporting UI components.
+`packages/ui` owns the Storybook-driven React Native presentation layer:
+atoms, molecules, organisms, and mobile screen components consumed by the app.
 
 ## Github Actions
 
@@ -83,7 +82,7 @@ messages.
 
 |                                          |                                                                           |
 | ---------------------------------------- | ------------------------------------------------------------------------- |
-| [Tarot App](./apps/tarot/README.md)      | Expo SDK 57 mobile app — auth flow, reading screens, history              |
+| [Tarot App](./apps/tarot/README.md)      | Expo SDK 57 app — routes, auth/session, navigation, Server Functions      |
 | [REST API](./apps/api/README.md)         | Reading generation — endpoints, auth modes, Bedrock config, avatar images |
 | [Infrastructure](./apps/infra/README.md) | CDK stacks — Cognito, Bedrock RAG, DynamoDB, API Gateway Lambda           |
 
@@ -91,13 +90,13 @@ messages.
 
 |                                                  |                                                                             |
 | ------------------------------------------------ | --------------------------------------------------------------------------- |
-| [@simpletarot/hooks](./packages/hooks/README.md) | Auth form hooks, reading hooks, avatar image hook                           |
+| [@simpletarot/hooks](./packages/hooks/README.md) | Server-safe API clients/contracts/resources and client React hooks          |
 | [@simpletarot/cards](./packages/cards/README.md) | SVGR card component generation and `useSvgCards` hook                       |
 | [@simpletarot/ui](./packages/ui/README.md)       | Storybook-driven React Native component library — screens, organisms, atoms |
 
 ### Architecture
 
--   [RSC Readings and Avatars Pilot](./docs/rsc-readings-and-avatars-pilot.md) — Expo Server Functions boundary for readings and avatar thumbnail discovery; linked from [Tarot App](./apps/tarot/README.md#rsc-pilot), [REST API](./apps/api/README.md#endpoints), and [Infrastructure](./apps/infra/README.md#expo-contract)
+-   [RSC Readings and Avatars Pilot](./docs/rsc-readings-and-avatars-pilot.md) — package boundaries for Expo Server Function wrappers, shared reading/avatar clients and hooks, UI screens, and rollback; linked from [Tarot App](./apps/tarot/README.md#rsc-pilot), [REST API](./apps/api/README.md#endpoints), and [Infrastructure](./apps/infra/README.md#expo-contract)
 -   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — end-to-end flow from mobile request to Bedrock Knowledge Base retrieval, module map, and CloudFormation output wiring
 -   [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
 -   [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) — CDK output → `EXPO_PUBLIC_*` mapping and EAS delivery; used by [Infrastructure](./apps/infra/README.md#expo-contract) and [Tarot App](./apps/tarot/README.md)

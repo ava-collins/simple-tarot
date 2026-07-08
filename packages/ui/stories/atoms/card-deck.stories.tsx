@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import CardDeck from './card-deck';
 
 const meta = {
-    title: 'Atoms/CardDeck',
+    title: 'Atoms/Dev/CardDeck',
     component: CardDeck,
     parameters: {
         docs: {

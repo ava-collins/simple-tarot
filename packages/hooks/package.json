@@ -5,6 +5,20 @@
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./server": {
+            "import": "./dist/server.js",
+            "types": "./dist/server.d.ts"
+        },
+        "./client": {
+            "import": "./dist/client.js",
+            "types": "./dist/client.d.ts"
+        }
+    },
     "scripts": {
         "build-types": "rm -rf dist && tsc -b",
         "test": "vitest run --config vitetest.config.mjs --coverage",
