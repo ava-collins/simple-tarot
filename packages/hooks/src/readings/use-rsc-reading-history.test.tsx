@@ -1,8 +1,6 @@
 import TestRenderer, { act } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('server-only', () => ({}));
-
 import {
     useRscReadingHistory,
     type UseRscReadingHistoryResult

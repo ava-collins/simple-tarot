@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/auth/use-auth';
+import { listReadingsOnServer } from '@/readings/server-actions';
 import { useRscReadingHistory } from '@/readings/use-rsc-reading-history';
 
 const formatCreatedAt = (value: string) =>
@@ -21,7 +22,11 @@ export default function ReadingHistoryRoute() {
     const { isLoading: isAuthLoading, isSignedIn, tokens } = useAuth();
     const router = useRouter();
     const { error, isLoading, readings, refresh } = useRscReadingHistory({
-        accessToken: tokens?.accessToken
+        accessToken: tokens?.accessToken,
+        createOneCardReading: async () => {
+            throw new Error('Reading generation is not available on this screen.');
+        },
+        listReadings: listReadingsOnServer
     });
 
     if (isAuthLoading) {

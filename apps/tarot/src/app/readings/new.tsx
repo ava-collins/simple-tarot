@@ -10,6 +10,10 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/auth/use-auth';
+import {
+    createOneCardReadingOnServer,
+    listReadingsOnServer
+} from '@/readings/server-actions';
 import { useRscReadingHistory } from '@/readings/use-rsc-reading-history';
 
 export default function NewReadingRoute() {
@@ -22,7 +26,9 @@ export default function NewReadingRoute() {
         isGenerating,
         latestReading
     } = useRscReadingHistory({
-        accessToken: tokens?.accessToken
+        accessToken: tokens?.accessToken,
+        createOneCardReading: createOneCardReadingOnServer,
+        listReadings: listReadingsOnServer
     });
 
     const generateReading = async () => {

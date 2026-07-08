@@ -1,9 +1,7 @@
 import TestRenderer, { act } from 'react-test-renderer';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('server-only', () => ({}));
-
-import { AvatarConfig } from '@simpletarot/hooks';
+import { AvatarConfig } from '../account/use-avatar-image';
 import { useRscAvatarImage, type UseRscAvatarImageResult } from './use-rsc-avatar-image';
 
 const fixedRandom = () => 0.75;

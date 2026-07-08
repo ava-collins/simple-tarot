@@ -2,6 +2,7 @@
 
 import Avatar from '@rneui/themed/dist/Avatar';
 
+import { listAvatarThumbnailsOnServer } from './server-actions';
 import { useRscAvatarImage } from './use-rsc-avatar-image';
 
 type RscAvatarImageProps = {
@@ -17,6 +18,7 @@ export function RscAvatarImage({
 }: RscAvatarImageProps) {
     const { avatarImage, getNewAvatarImage, saveAvatarImage } = useRscAvatarImage({
         accessToken,
+        listAvatarThumbnails: listAvatarThumbnailsOnServer,
         saved
     });
 

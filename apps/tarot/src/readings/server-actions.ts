@@ -2,14 +2,14 @@
 
 import 'server-only';
 
-import { createOneCardReadingRequest } from '@simpletarot/hooks';
-import { createTarotApiClient, getTarotApiConfig } from '@/api/tarot-api';
-import type { ReadingHistoryResponse, ReadingResponse } from './reading-contracts';
-
-export type CreateOneCardReadingInput = {
-    accessToken: string;
-    question?: string;
-};
+import {
+    createOneCardReadingRequest,
+    createTarotApiClient,
+    type CreateOneCardReadingInput,
+    type ReadingHistoryResponse,
+    type ReadingResponse
+} from '@simpletarot/hooks';
+import { getTarotApiConfig } from '@/api/tarot-api';
 
 const createServerClient = (accessToken: string) =>
     createTarotApiClient({
