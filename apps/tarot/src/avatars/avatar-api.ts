@@ -3,7 +3,8 @@ import {
     type AvatarApiClient,
     type AvatarApiConfig,
     type AvatarsResponse,
-    createAvatarApiClient as createSharedAvatarApiClient
+    createAvatarApiClient as createSharedAvatarApiClient,
+    trimTrailingSlashes
 } from '@simpletarot/hooks';
 
 export type { AvatarApiClient, AvatarApiConfig, AvatarsResponse };
@@ -17,8 +18,6 @@ const readRequiredEnv = (key: typeof TAROT_API_ENV_KEYS.apiUrl) => {
 
     return value;
 };
-
-const trimTrailingSlashes = (value: string) => value.replace(/\/+$/, '');
 
 export function getAvatarApiConfig(): AvatarApiConfig {
     return {

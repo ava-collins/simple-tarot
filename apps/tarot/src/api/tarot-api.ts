@@ -9,7 +9,8 @@ import {
     type ReadingResponse,
     type TarotApiConfig,
     type TarotApiClient,
-    createTarotApiClient as createSharedTarotApiClient
+    createTarotApiClient as createSharedTarotApiClient,
+    trimTrailingSlashes
 } from '@simpletarot/hooks';
 
 export type {
@@ -33,8 +34,6 @@ const readRequiredEnv = (key: typeof TAROT_API_ENV_KEYS.apiUrl) => {
 
     return value;
 };
-
-const trimTrailingSlashes = (value: string) => value.replace(/\/+$/, '');
 
 export function getTarotApiConfig(): TarotApiConfig {
     return {

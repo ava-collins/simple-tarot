@@ -1,4 +1,5 @@
 export * from './src/constants/tarot-api';
+export { trimTrailingSlashes } from './src/common/api-response';
 export * from './src/readings/reading-contracts';
 export * from './src/readings/reading-api-client';
 export * from './src/readings/reading-requests';

@@ -2,7 +2,7 @@ import type { ReadingRequest } from './reading-contracts';
 
 export const SINGLE_CARD_SPREAD = 'single_card';
 export const GUIDANCE_POSITION = 'guidance';
-export const TEST_READING_CARD = {
+const DEFAULT_SINGLE_CARD_ITEM = {
     cardIndex: 0,
     cardName: 'The Fool',
     position: GUIDANCE_POSITION,
@@ -15,6 +15,6 @@ export function createOneCardReadingRequest(question?: string): ReadingRequest {
     return {
         spread: SINGLE_CARD_SPREAD,
         ...(trimmedQuestion ? { question: trimmedQuestion } : {}),
-        items: [TEST_READING_CARD]
+        items: [DEFAULT_SINGLE_CARD_ITEM]
     };
 }
