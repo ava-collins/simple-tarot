@@ -1,13 +1,17 @@
 # RSC Readings and Avatars Pilot
 
-The tarot mobile app uses Expo Server Functions for the authenticated readings flow and avatar thumbnail discovery.
+The tarot mobile app uses Expo Server Functions for the authenticated readings
+flow and avatar thumbnail discovery. Reusable data contracts and clients live in
+`@simpletarot/hooks`; reusable presentation lives in `@simpletarot/ui`; the Expo
+app owns only app composition and Server Function wrappers.
 
 ## Scope
 
--   `apps/tarot/src/readings/server-actions.ts` runs on the server and calls the existing readings REST API.
--   `apps/tarot/src/readings/use-rsc-reading-history.ts` remains a Client Component hook for native screens.
--   `apps/tarot/src/avatars/server-actions.ts` runs on the server and calls the existing `/avatars` REST API.
--   `apps/tarot/src/avatars/use-rsc-avatar-image.ts` remains a Client Component hook for avatar display state and random cycling.
+-   `apps/tarot/src/readings/server-actions.ts` runs on the server and wraps the shared readings client and request builders from `@simpletarot/hooks/server`.
+-   `apps/tarot/src/avatars/server-actions.ts` runs on the server and wraps the shared avatar client from `@simpletarot/hooks/server`.
+-   `packages/hooks/src/readings` owns reading contracts, clients, request builders, resource helpers, and `useRscReadingHistory`.
+-   `packages/hooks/src/avatars` owns avatar contracts, clients, resource helpers, and `useRscAvatarImage`.
+-   `packages/ui/stories/screens` owns the mobile reading screens consumed by the Expo routes.
 -   `packages/ui/stories/screens/account-screen.tsx` accepts an `avatarSlot` so the Expo app can inject an RSC-backed avatar while Storybook keeps REST/mock behavior.
 -   Cognito auth, token storage, navigation, and form state remain client-side.
 
@@ -24,7 +28,9 @@ Expo RSC support is beta, so this pilot avoids full route-level Server Component
 
 ## Related Docs
 
--   [Tarot App README](../apps/tarot/README.md#rsc-pilot) documents the mobile app boundary.
+-   [Tarot App README](../apps/tarot/README.md#rsc-pilot) documents the mobile app boundary and Server Function wrappers.
+-   [Hooks README](../packages/hooks/README.md) documents server-safe and client-only package entrypoints.
+-   [UI README](../packages/ui/README.md) documents screen and component ownership.
 -   [REST API README](../apps/api/README.md#endpoints) documents the underlying `/readings` and `/avatars` routes.
 -   [Infrastructure README](../apps/infra/README.md#expo-contract) documents the `ApiUrl` handoff used by the app.
 -   [Cognito -> Expo Config Contract](./cognito_expo_config_contract.md) documents the public Expo auth configuration that remains client-side.
@@ -32,15 +38,16 @@ Expo RSC support is beta, so this pilot avoids full route-level Server Component
 ## Rollback
 
 If Expo RSC bundling breaks native development or deployment, revert only the
-reading route imports and hook calls back to `useReadingHistory`. Leave the
-server-action files in place for a later retry.
+reading route imports and hook calls back to `useReadingHistory`, and switch the
+account avatar slot back to the legacy `AvatarImage` path. Leave the
+server-action files and shared hooks clients in place for a later retry.
 
 Keep these fallback paths available until the pilot ships successfully:
 
 -   `apps/tarot/src/readings/use-reading-history.ts`
 -   `packages/hooks/src/account/use-avatar-image.ts`
--   `apps/tarot/src/api/tarot-api.ts`
--   Shared `AvatarImage` REST fallback behavior in `packages/ui`
+-   `packages/ui/stories/atoms/avatar-image.tsx`
+-   Shared server-safe clients and contracts in `@simpletarot/hooks/server`
 
 After any rollback, run:
 

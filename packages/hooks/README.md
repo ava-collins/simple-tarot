@@ -2,19 +2,44 @@
 
 ## Overview
 
-This package provides data fetching and application state hooks shared across mobile and web UI components.
+This package owns reusable data contracts, API clients, request builders,
+resource helpers, constants, and application state hooks shared across mobile
+and web UI components.
 
 ## Contents
 
-`src/account` provides auth form hooks (`useLoginForm`, `useSignupForm`, `useForgotPasswordForm`), `useAvatarImage`, form validation, and `FormError` for account screens.
+`server.ts` is the server-safe entrypoint exported by both `@simpletarot/hooks`
+and `@simpletarot/hooks/server`. It includes tarot API constants, reading and
+avatar contracts, REST clients, request builders, resource factories, and shared
+validation helpers.
 
-`src/reading` provides hooks for tarot reading interactions, including `useInstructions`.
+`client.ts` is the client-only entrypoint exported by `@simpletarot/hooks/client`.
+It starts with `'use client'` and exports React hooks, including
+`useRscReadingHistory`, `useRscAvatarImage`, `useAvatarImage`,
+`useInstructions`, and the auth form hooks.
+
+`src/readings` provides reading contracts, the readings REST client, one-card
+request builders, resource helpers, and the RSC-backed reading history hook.
+
+`src/avatars` provides avatar contracts, the avatar REST client, avatar resource
+helpers, and the RSC-backed avatar image hook.
+
+`src/account` provides auth form hooks (`useLoginForm`, `useSignupForm`,
+`useForgotPasswordForm`), `useAvatarImage`, form validation, and `FormError` for
+account screens.
 
 ## Hooks
 
-Hooks map state to UI components by exposing an API for a single component and connecting it to application state.
+Hooks map state to UI components by exposing an API for a single component and
+connecting it to application state.
 
-Hooks are documented in the Storybook UI library alongside the component they are implemented in for specific inputs.
+Use `@simpletarot/hooks/server` for Server Functions, route loaders, and shared
+types/constants. Use `@simpletarot/hooks/client` for React hooks in client
+components. Do not import React hooks from the root barrel; the root barrel is
+kept server-safe for RSC and Metro analysis.
+
+Hooks are documented in the Storybook UI library alongside the component they
+are implemented in for specific inputs.
 
 ## Changelog
 
