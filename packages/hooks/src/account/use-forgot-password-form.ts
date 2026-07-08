@@ -1,3 +1,5 @@
+'use client';
+
 import { errorMessages, validateEmail } from './validators';
 
 import type { FormError } from './form-error';

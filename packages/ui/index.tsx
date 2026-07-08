@@ -1,3 +1,5 @@
+'use client';
+
 export { default as MobileView } from './stories/templates/mobile-view';
 export { default as AvatarDisplay } from './stories/atoms/avatar-display';
 export type { AvatarDisplayProps } from './stories/atoms/avatar-display';
