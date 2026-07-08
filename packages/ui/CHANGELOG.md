@@ -1,3 +1,10 @@
+# [@simpletarot/ui-v2.1.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.0.0...@simpletarot/ui-v2.1.0) (2026-07-08)
+
+
+### Features
+
+* **tarot:** use server functions for avatars ([849ff1d](https://github.com/ava-collins/simple-tarot/commit/849ff1d45631b1a13f3c830a1208a6e7f19b1bb1))
+
 # [@simpletarot/ui-v2.0.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v1.13.1...@simpletarot/ui-v2.0.0) (2026-07-07)
 
 
