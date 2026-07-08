@@ -153,5 +153,8 @@ storybook-static
 # Generated Bedrock corpus artifacts
 apps/api/corpus/generated/
 
+# Superpowers local workflow scratch files
+.superpowers/
+
 # Generated tarot card components
 # packages/cards/src/cards/
