@@ -1,3 +1,9 @@
+export * from './src/constants/tarot-api';
+export * from './src/readings/reading-contracts';
+export * from './src/readings/reading-api-client';
+export * from './src/readings/reading-requests';
+export * from './src/avatars/avatar-contracts';
+export * from './src/avatars/avatar-api-client';
 export { default as useAvatarImage } from './src/account/use-avatar-image';
 export { default as useForgotPasswordForm } from './src/account/use-forgot-password-form';
 export { default as useInstructions } from './src/reading/use-instructions';

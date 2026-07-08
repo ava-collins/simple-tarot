@@ -1,3 +1,1 @@
-export type AvatarsResponse = {
-    thumbnails: string[];
-};
+export type { AvatarsResponse } from '@simpletarot/hooks';
