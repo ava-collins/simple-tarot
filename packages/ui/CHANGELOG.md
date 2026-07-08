@@ -1,3 +1,15 @@
+# [@simpletarot/ui-v2.2.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.1.0...@simpletarot/ui-v2.2.0) (2026-07-08)
+
+
+### Bug Fixes
+
+* use directives on legacy components ([62f975d](https://github.com/ava-collins/simple-tarot/commit/62f975d13102aacc38fe0b4ff072a5789cbb7c27))
+
+
+### Features
+
+* reading history and new reading ui ([5d72094](https://github.com/ava-collins/simple-tarot/commit/5d72094430f82d2c4c3b5425666d2789c60507ec))
+
 # [@simpletarot/ui-v2.1.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.0.0...@simpletarot/ui-v2.1.0) (2026-07-08)
 
 
