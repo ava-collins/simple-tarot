@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import mdx from './shuffle.mdx';
 
 const meta: Meta<typeof Shuffle> = {
-    title: 'Organisms/Shuffle',
+    title: 'Organisms/Dev/Shuffle',
     component: Shuffle,
     parameters: {
         layout: 'centered',

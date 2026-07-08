@@ -5,7 +5,7 @@ import React from 'react';
 import mdx from './card-deal.mdx';
 
 const meta: Meta<DealCardProps> = {
-    title: 'Atoms/DealCard',
+    title: 'Atoms/Dev/DealCard',
     component: DealCard,
     parameters: {
         docs: {

@@ -1,7 +1,7 @@
 import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
-import AvatarImage from '../atoms/avatar-image';
+import AvatarRollback from '../atoms/avatar-rollback';
 import FormButton from '../atoms/form-button';
 import { Value } from '../utils/fonts';
 import theme from '../utils/theme';
@@ -35,7 +35,7 @@ const UserAccount: React.FC<UserAccountProps> = ({
         <ScrollView>
             <View style={styles.container}>
                 <View style={styles.avatar}>
-                    <AvatarImage apiBaseUrl={apiBaseUrl} size={254} />
+                    <AvatarRollback apiBaseUrl={apiBaseUrl} size={254} />
                     <Text style={styles.useremail}>{useremail}</Text>
                 </View>
                 <View style={styles.anonInfo}>

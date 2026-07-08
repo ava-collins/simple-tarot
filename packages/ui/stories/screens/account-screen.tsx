@@ -1,7 +1,7 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 
-import AvatarImage from '../atoms/avatar-image';
+import AvatarRollback from '../atoms/avatar-rollback';
 import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
 
@@ -66,7 +66,9 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
             <ScrollView contentContainerStyle={styles.scrollContent}>
                 <View style={styles.wrapper}>
                     <View style={styles.avatarSection}>
-                        {avatarSlot ?? <AvatarImage apiBaseUrl={apiBaseUrl} size={200} />}
+                        {avatarSlot ?? (
+                            <AvatarRollback apiBaseUrl={apiBaseUrl} size={200} />
+                        )}
                         {email ? <Text style={styles.emailText}>{email}</Text> : null}
                     </View>
                     {displayName ? (

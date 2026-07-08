@@ -6,7 +6,7 @@ import { forceReloadDecorator } from './force-reload-decorator';
 import { expect, fireEvent, screen, within, waitFor } from 'storybook/test';
 
 const meta: Meta<typeof QuickNav> = {
-    title: 'Molecules/QuickNav',
+    title: 'Molecules/Dev/QuickNav',
     component: QuickNav,
     decorators: [forceReloadDecorator]
 } satisfies Meta<typeof QuickNav>;

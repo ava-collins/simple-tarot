@@ -6,7 +6,7 @@ import { View } from 'react-native';
 import mdx from './shuffle-card.mdx';
 
 const meta: Meta = {
-    title: 'Molecules/ShuffleCard',
+    title: 'Molecules/Dev/ShuffleCard',
     component: ShuffleCard,
     parameters: {
         controls: { expanded: true },

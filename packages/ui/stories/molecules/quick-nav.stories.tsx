@@ -3,7 +3,7 @@ import QuickNav from './quick-nav';
 import mdx from './quick-nav.mdx';
 
 const meta: Meta<typeof QuickNav> = {
-    title: 'Molecules/QuickNav',
+    title: 'Molecules/Dev/QuickNav',
     component: QuickNav,
     parameters: {
         docs: {

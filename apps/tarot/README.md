@@ -56,7 +56,7 @@ routes consume full mobile screens from `@simpletarot/ui`; Server Functions wrap
 the shared clients and request builders from `@simpletarot/hooks/server`; client
 adapters use React hooks from `@simpletarot/hooks/client`.
 
-The legacy REST/mock avatar path remains available through the `AvatarImage`
+The legacy REST/mock avatar path remains available through the `AvatarRollback`
 UI wrapper and `useAvatarImage` hook, and the legacy reading history hook
 remains available as a rollback path. See
 [RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md)

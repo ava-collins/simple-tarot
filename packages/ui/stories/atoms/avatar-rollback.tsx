@@ -3,13 +3,17 @@ import React, { useEffect } from 'react';
 
 import AvatarDisplay from './avatar-display';
 
-type AvatarImageProps = {
+type AvatarRollbackProps = {
     apiBaseUrl: string;
     size: number | 'small' | 'medium' | 'large' | 'xlarge' | undefined;
     saved?: string;
 };
 
-const AvatarImage: React.FC<AvatarImageProps> = ({ apiBaseUrl, size = 'xlarge', saved }) => {
+const AvatarRollback: React.FC<AvatarRollbackProps> = ({
+    apiBaseUrl,
+    size = 'xlarge',
+    saved
+}) => {
     const { avatarImage, getNewAvatarImage, getAvatarImage, saveAvatarImage } =
         useAvatarImage(apiBaseUrl);
     const [hasSaved, setHasSaved] = React.useState<boolean>(
@@ -44,4 +48,4 @@ const AvatarImage: React.FC<AvatarImageProps> = ({ apiBaseUrl, size = 'xlarge', 
     );
 };
 
-export default AvatarImage;
+export default AvatarRollback;

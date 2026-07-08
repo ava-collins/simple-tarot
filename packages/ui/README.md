@@ -16,7 +16,7 @@ auth and tarot reading flows.
 ## Contents
 
 `stories/atoms` provides visual primitives such as `Card`, `CardDeck`,
-`CardDeal`, `Background`, `StartArrow`, `AvatarDisplay`, `AvatarImage`,
+`CardDeal`, `Background`, `StartArrow`, `AvatarDisplay`, `AvatarRollback`,
 `FormButton`, `FormInput`, and `FormErrorText`.
 
 `stories/molecules` combines atoms into focused rows and cards such as
@@ -40,6 +40,13 @@ Components are organized by atomic design level (atoms -> molecules ->
 organisms -> screens -> templates) and documented in Storybook alongside their
 stories (`*.stories.tsx`) and usage docs (`*.mdx`). Every changed or new
 component should keep both files beside the component.
+
+Storybook paths distinguish active mobile app components from older development
+surfaces and rollback paths. Components in the tarot app dependency chain keep
+their direct element paths, such as `Screens/AccountScreen` or
+`Atoms/AvatarDisplay`. Components kept for same-day rollback use a `Rollback`
+suffix and `Element/Rollback/ComponentRollback` path. Storybook-only components
+that are not yet implemented in the app use `Element/Dev/Component`.
 
 `index.tsx` re-exports the screens and shared atoms consumed by `apps/tarot`. Molecules, organisms, and most atoms are internal building blocks composed by screens rather than exported directly — import components from `@simpletarot/ui` rather than reaching into `stories/`.
 

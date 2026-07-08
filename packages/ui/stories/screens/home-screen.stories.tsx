@@ -5,7 +5,7 @@ import React from 'react';
 import mdx from './home-screen.mdx';
 
 const meta: Meta = {
-    title: 'Screens/Home',
+    title: 'Screens/Dev/Home',
     component: HomeScreen,
     parameters: {
         docs: {

@@ -1,12 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
-import mdx from './avatar-image.mdx';
-import AvatarImage from './avatar-image';
+import mdx from './avatar-rollback.mdx';
+import AvatarRollback from './avatar-rollback';
 import { avatarImagesMock } from '../tests/mocks/avatarImages';
 import { http, HttpResponse } from 'msw';
 
 const meta = {
-    title: 'Atoms/Avatar',
-    component: AvatarImage,
+    title: 'Atoms/Rollback/AvatarRollback',
+    component: AvatarRollback,
     parameters: {
         docs: {
             page: mdx
@@ -21,7 +21,7 @@ const meta = {
             ]
         }
     }
-} satisfies Meta<typeof AvatarImage>;
+} satisfies Meta<typeof AvatarRollback>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

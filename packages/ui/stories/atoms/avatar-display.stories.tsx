@@ -28,7 +28,7 @@ export const DefaultAvatarImage: Story = {
 export const CustomNumericSize: Story = {
     args: {
         imageUri: defaultImage,
-        size: 128
+        size: 350
     }
 };
 

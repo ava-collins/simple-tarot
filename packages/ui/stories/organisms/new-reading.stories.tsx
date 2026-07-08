@@ -3,7 +3,7 @@ import { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import NewReading from './new-reading';
 
 const meta = {
-    title: 'Organisms/NewReading',
+    title: 'Organisms/Dev/NewReading',
     component: NewReading,
     parameters: {
         docs: {

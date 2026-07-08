@@ -39,14 +39,14 @@ Expo RSC support is beta, so this pilot avoids full route-level Server Component
 
 If Expo RSC bundling breaks native development or deployment, revert only the
 reading route imports and hook calls back to `useReadingHistory`, and switch the
-account avatar slot back to the legacy `AvatarImage` path. Leave the
+account avatar slot back to the legacy `AvatarRollback` path. Leave the
 server-action files and shared hooks clients in place for a later retry.
 
 Keep these fallback paths available until the pilot ships successfully:
 
 -   `apps/tarot/src/readings/use-reading-history.ts`
 -   `packages/hooks/src/account/use-avatar-image.ts`
--   `packages/ui/stories/atoms/avatar-image.tsx`
+-   `packages/ui/stories/atoms/avatar-rollback.tsx`
 -   Shared server-safe clients and contracts in `@simpletarot/hooks/server`
 
 After any rollback, run:
