@@ -1,4 +1,4 @@
-import { useRscReadingHistory } from '@simpletarot/hooks';
+import { useRscReadingHistory } from '@simpletarot/hooks/client';
 import { ReadingHistoryScreen } from '@simpletarot/ui';
 import { useRouter, type Href } from 'expo-router';
 

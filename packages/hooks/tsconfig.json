@@ -15,7 +15,7 @@
         "rootDir": ".",
         "ignoreDeprecations": "6.0"
     },
-    "include": ["src/**/*", "index.tsx"],
+    "include": ["src/**/*", "index.tsx", "server.ts", "client.ts"],
     "exclude": [
         "**/*.js",
         "node_modules",

@@ -6,4 +6,4 @@ export type {
     ReadingPositionResponse,
     ReadingRequest,
     ReadingResponse
-} from '@simpletarot/hooks';
+} from '@simpletarot/hooks/server';

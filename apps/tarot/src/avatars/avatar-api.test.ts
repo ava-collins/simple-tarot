@@ -1,4 +1,4 @@
-import { createAvatarApiClient as createSharedAvatarApiClient } from '@simpletarot/hooks';
+import { createAvatarApiClient as createSharedAvatarApiClient } from '@simpletarot/hooks/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { createAvatarApiClient, getAvatarApiConfig } from './avatar-api';

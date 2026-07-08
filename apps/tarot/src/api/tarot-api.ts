@@ -11,7 +11,7 @@ import {
     type TarotApiClient,
     createTarotApiClient as createSharedTarotApiClient,
     trimTrailingSlashes
-} from '@simpletarot/hooks';
+} from '@simpletarot/hooks/server';
 
 export type {
     ReadingCitation,

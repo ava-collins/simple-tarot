@@ -1,6 +1,6 @@
 'use client';
 
-import { useRscAvatarImage } from '@simpletarot/hooks';
+import { useRscAvatarImage } from '@simpletarot/hooks/client';
 import { AvatarDisplay } from '@simpletarot/ui';
 
 import { listAvatarThumbnailsOnServer } from './server-actions';

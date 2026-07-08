@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@simpletarot/hooks', async importOriginal => {
-    const actual = await importOriginal<typeof import('@simpletarot/hooks')>();
+vi.mock('@simpletarot/hooks/server', async importOriginal => {
+    const actual = await importOriginal<typeof import('@simpletarot/hooks/server')>();
 
     return {
         ...actual,
@@ -15,7 +15,7 @@ vi.mock('./avatar-api', () => ({
 }));
 vi.mock('server-only', () => ({}));
 
-import { createAvatarApiClient } from '@simpletarot/hooks';
+import { createAvatarApiClient } from '@simpletarot/hooks/server';
 import { listAvatarThumbnailsOnServer } from './server-actions';
 
 const createClientMock = vi.mocked(createAvatarApiClient);

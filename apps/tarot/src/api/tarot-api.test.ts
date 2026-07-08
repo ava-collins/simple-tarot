@@ -1,4 +1,4 @@
-import { createTarotApiClient as createSharedTarotApiClient } from '@simpletarot/hooks';
+import { createTarotApiClient as createSharedTarotApiClient } from '@simpletarot/hooks/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { createTarotApiClient, getTarotApiConfig } from './tarot-api';

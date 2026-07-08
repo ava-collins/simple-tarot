@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import { expect } from 'storybook/test';
-import { errorMessages } from '@simpletarot/hooks';
+import { errorMessages } from '@simpletarot/hooks/server';
 
 import React from 'react';
 import SignupScreen from '../screens/signup-screen';

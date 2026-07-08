@@ -1,6 +1,6 @@
 import { StyleSheet, Text } from 'react-native';
 
-import type { FormError } from '@simpletarot/hooks';
+import type { FormError } from '@simpletarot/hooks/server';
 import React from 'react';
 
 export interface ErrorProp {

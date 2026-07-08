@@ -1,4 +1,4 @@
 export {
     useRscReadingHistory,
     type UseRscReadingHistoryResult
-} from '@simpletarot/hooks';
+} from '@simpletarot/hooks/client';

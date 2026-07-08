@@ -1,1 +1,1 @@
-export { useRscAvatarImage, type UseRscAvatarImageResult } from '@simpletarot/hooks';
+export { useRscAvatarImage, type UseRscAvatarImageResult } from '@simpletarot/hooks/client';

@@ -1,1 +1,1 @@
-export type { AvatarsResponse } from '@simpletarot/hooks';
+export type { AvatarsResponse } from '@simpletarot/hooks/server';

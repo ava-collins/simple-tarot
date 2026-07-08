@@ -1,5 +1,10 @@
 import type { ReadingRequest } from './reading-contracts';
 
+export type CreateOneCardReadingInput = {
+    accessToken: string;
+    question?: string;
+};
+
 export const SINGLE_CARD_SPREAD = 'single_card';
 export const GUIDANCE_POSITION = 'guidance';
 const DEFAULT_SINGLE_CARD_ITEM = {

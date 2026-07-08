@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import FormButton from '../atoms/form-button';
 import FormInputRow from '../molecules/form-input-row';
 import { KeyboardType } from 'react-native';
-import type { FormError } from '@simpletarot/hooks';
+import type { FormError } from '@simpletarot/hooks/server';
 import theme from '../utils/theme';
 
 const t = theme();

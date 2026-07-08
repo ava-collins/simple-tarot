@@ -3,29 +3,12 @@ import * as HooksIndex from './index';
 import { describe, expect, it } from 'vitest';
 
 describe('hooks package exports', () => {
-    it('should export useAvatarImage', () => {
-        expect(HooksIndex.useAvatarImage).toBeDefined();
-        expect(typeof HooksIndex.useAvatarImage).toBe('function');
-    });
-
-    it('should export useForgotPasswordForm', () => {
-        expect(HooksIndex.useForgotPasswordForm).toBeDefined();
-        expect(typeof HooksIndex.useForgotPasswordForm).toBe('function');
-    });
-
-    it('should export useInstructions', () => {
-        expect(HooksIndex.useInstructions).toBeDefined();
-        expect(typeof HooksIndex.useInstructions).toBe('function');
-    });
-
-    it('should export useLoginForm', () => {
-        expect(HooksIndex.useLoginForm).toBeDefined();
-        expect(typeof HooksIndex.useLoginForm).toBe('function');
-    });
-
-    it('should export useSignupForm', () => {
-        expect(HooksIndex.useSignupForm).toBeDefined();
-        expect(typeof HooksIndex.useSignupForm).toBe('function');
+    it('should not export client hooks from the root barrel', () => {
+        expect(HooksIndex).not.toHaveProperty('useAvatarImage');
+        expect(HooksIndex).not.toHaveProperty('useForgotPasswordForm');
+        expect(HooksIndex).not.toHaveProperty('useInstructions');
+        expect(HooksIndex).not.toHaveProperty('useLoginForm');
+        expect(HooksIndex).not.toHaveProperty('useSignupForm');
     });
 
     it('should not export useSvgCards', () => {
@@ -36,10 +19,8 @@ describe('hooks package exports', () => {
         expect(HooksIndex).not.toHaveProperty('typePolicies');
     });
 
-    it('should export AvatarConfig enum', () => {
-        expect(HooksIndex.AvatarConfig).toBeDefined();
-        expect(HooksIndex.AvatarConfig.DEFAULT_AVATAR_IMAGE).toBeDefined();
-        expect(typeof HooksIndex.AvatarConfig.DEFAULT_AVATAR_IMAGE).toBe('string');
+    it('should not export AvatarConfig from the root barrel', () => {
+        expect(HooksIndex).not.toHaveProperty('AvatarConfig');
     });
 
     it('should export validator functions', () => {
@@ -59,11 +40,9 @@ describe('hooks package exports', () => {
 
     it('should have all expected exports', () => {
         const expectedExports = [
-            'useSignupForm',
-            'useLoginForm',
-            'useAvatarImage',
-            'useForgotPasswordForm',
-            'AvatarConfig',
+            'createTarotApiClient',
+            'createAvatarApiClient',
+            'createOneCardReadingRequest',
             'validateEmail',
             'validatePassword',
             'errorMessages'

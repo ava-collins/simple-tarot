@@ -1,4 +1,4 @@
-import { AvatarConfig, useAvatarImage } from '@simpletarot/hooks';
+import { AvatarConfig, useAvatarImage } from '@simpletarot/hooks/client';
 import React, { useEffect } from 'react';
 
 import AvatarDisplay from './avatar-display';

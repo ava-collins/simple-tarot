@@ -1,4 +1,6 @@
 import TestRenderer, { act } from 'react-test-renderer';
+import type { ReactNode } from 'react';
+import { Component, Suspense } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -40,6 +42,7 @@ const readingResponse: ReadingResponse = {
 function HookProbe({
     accessToken,
     createOneCardReading,
+    initialReadingsResource,
     listReadings,
     onRender
 }: {
@@ -48,6 +51,7 @@ function HookProbe({
         accessToken: string;
         question?: string;
     }) => Promise<ReadingResponse>;
+    initialReadingsResource?: Promise<ReadingHistoryResponse>;
     listReadings: (accessToken: string) => Promise<ReadingHistoryResponse>;
     onRender: (result: UseRscReadingHistoryResult) => void;
 }) {
@@ -55,11 +59,31 @@ function HookProbe({
         useRscReadingHistory({
             accessToken,
             createOneCardReading,
+            initialReadingsResource,
             listReadings
         })
     );
 
     return null;
+}
+
+class ErrorBoundary extends Component<
+    { children: ReactNode; onError: (error: Error) => void },
+    { hasError: boolean }
+> {
+    state = { hasError: false };
+
+    static getDerivedStateFromError() {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error: Error) {
+        this.props.onError(error);
+    }
+
+    render() {
+        return this.state.hasError ? null : this.props.children;
+    }
 }
 
 describe('useRscReadingHistory', () => {
@@ -72,9 +96,19 @@ describe('useRscReadingHistory', () => {
         const consoleError = console.error;
 
         vi.spyOn(console, 'error').mockImplementation((message?: unknown, ...args) => {
-            const text = typeof message === 'string' ? message : '';
+            const text = [message, ...args]
+                .map(item =>
+                    item instanceof Error
+                        ? item.message
+                        : typeof item === 'string'
+                          ? item
+                          : ''
+                )
+                .join(' ');
 
             if (
+                text.includes('Initial readings failed.') ||
+                text.includes('The above error occurred') ||
                 text.includes('react-test-renderer is deprecated') ||
                 text.includes(
                     'The current testing environment is not configured to support act'
@@ -161,5 +195,132 @@ describe('useRscReadingHistory', () => {
 
         expect(listReadings).not.toHaveBeenCalled();
         expect(createOneCardReading).not.toHaveBeenCalled();
+    });
+
+    it('seeds readings from a fulfilled initial resource without loading first', async () => {
+        const listReadings = vi.fn().mockResolvedValue({ readings: [] });
+        const createOneCardReading = vi.fn().mockResolvedValue(readingResponse);
+        let result: UseRscReadingHistoryResult | undefined;
+
+        await act(async () => {
+            TestRenderer.create(
+                <Suspense fallback={null}>
+                    <HookProbe
+                        accessToken="access-token"
+                        createOneCardReading={createOneCardReading}
+                        initialReadingsResource={Promise.resolve(historyResponse)}
+                        listReadings={listReadings}
+                        onRender={nextResult => {
+                            result = nextResult;
+                        }}
+                    />
+                </Suspense>
+            );
+        });
+
+        expect(result?.readings).toEqual(historyResponse.readings);
+        expect(result?.isLoading).toBe(false);
+    });
+
+    it('suspends while the initial readings resource is pending', async () => {
+        const listReadings = vi.fn().mockResolvedValue(historyResponse);
+        const createOneCardReading = vi.fn().mockResolvedValue(readingResponse);
+        let result: UseRscReadingHistoryResult | undefined;
+
+        let resolveResource: (value: ReadingHistoryResponse) => void = () => undefined;
+        const initialReadingsResource = new Promise<ReadingHistoryResponse>(resolve => {
+            resolveResource = resolve;
+        });
+
+        let renderer: TestRenderer.ReactTestRenderer | undefined;
+
+        await act(async () => {
+            renderer = TestRenderer.create(
+                <Suspense fallback="Loading readings">
+                    <HookProbe
+                        accessToken="access-token"
+                        createOneCardReading={createOneCardReading}
+                        initialReadingsResource={initialReadingsResource}
+                        listReadings={listReadings}
+                        onRender={nextResult => {
+                            result = nextResult;
+                        }}
+                    />
+                </Suspense>
+            );
+        });
+
+        expect(renderer?.toJSON()).toBe('Loading readings');
+        expect(result).toBeUndefined();
+
+        await act(async () => {
+            resolveResource(historyResponse);
+            await initialReadingsResource;
+        });
+
+        expect(result?.readings).toEqual(historyResponse.readings);
+    });
+
+    it('bubbles rejected initial readings resources to an error boundary', async () => {
+        const listReadings = vi.fn().mockResolvedValue(historyResponse);
+        const createOneCardReading = vi.fn().mockResolvedValue(readingResponse);
+        const resourceError = new Error('Initial readings failed.');
+        const onError = vi.fn();
+
+        await act(async () => {
+            TestRenderer.create(
+                <ErrorBoundary onError={onError}>
+                    <Suspense fallback={null}>
+                        <HookProbe
+                            accessToken="access-token"
+                            createOneCardReading={createOneCardReading}
+                            initialReadingsResource={Promise.reject(resourceError)}
+                            listReadings={listReadings}
+                            onRender={() => undefined}
+                        />
+                    </Suspense>
+                </ErrorBoundary>
+            );
+        });
+
+        expect(onError).toHaveBeenCalledWith(resourceError);
+    });
+
+    it('manual refresh still works after the initial readings resource resolves', async () => {
+        const refreshedResponse: ReadingHistoryResponse = {
+            readings: [
+                {
+                    ...historyResponse.readings[0],
+                    readingId: 'refreshed-reading',
+                    summary: 'A refreshed reading summary.'
+                }
+            ]
+        };
+        const listReadings = vi.fn().mockResolvedValue(refreshedResponse);
+        const createOneCardReading = vi.fn().mockResolvedValue(readingResponse);
+        let result: UseRscReadingHistoryResult | undefined;
+
+        await act(async () => {
+            TestRenderer.create(
+                <Suspense fallback={null}>
+                    <HookProbe
+                        accessToken="access-token"
+                        createOneCardReading={createOneCardReading}
+                        initialReadingsResource={Promise.resolve(historyResponse)}
+                        listReadings={listReadings}
+                        onRender={nextResult => {
+                            result = nextResult;
+                        }}
+                    />
+                </Suspense>
+            );
+        });
+
+        await act(async () => {
+            await result?.refresh();
+        });
+
+        expect(result?.readings).toEqual(refreshedResponse.readings);
+        expect(listReadings).toHaveBeenCalledWith('access-token');
     });
 });

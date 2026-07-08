@@ -8,7 +8,7 @@ import {
     type CreateOneCardReadingInput,
     type ReadingHistoryResponse,
     type ReadingResponse
-} from '@simpletarot/hooks';
+} from '@simpletarot/hooks/server';
 import { getTarotApiConfig } from '@/api/tarot-api';
 
 const createServerClient = (accessToken: string) =>

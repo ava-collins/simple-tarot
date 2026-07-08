@@ -5,7 +5,7 @@ import {
     type AvatarsResponse,
     createAvatarApiClient as createSharedAvatarApiClient,
     trimTrailingSlashes
-} from '@simpletarot/hooks';
+} from '@simpletarot/hooks/server';
 
 export type { AvatarApiClient, AvatarApiConfig, AvatarsResponse };
 

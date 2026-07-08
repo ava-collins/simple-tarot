@@ -2,7 +2,7 @@
 
 import 'server-only';
 
-import { createAvatarApiClient, type AvatarsResponse } from '@simpletarot/hooks';
+import { createAvatarApiClient, type AvatarsResponse } from '@simpletarot/hooks/server';
 
 import { getAvatarApiConfig } from './avatar-api';
 

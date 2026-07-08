@@ -4,7 +4,7 @@ import React from 'react';
 import MobileView from '../templates/mobile-view';
 import SignupForm from '../organisms/signup-form';
 import theme from '../utils/theme';
-import { useSignupForm } from '@simpletarot/hooks';
+import { useSignupForm } from '@simpletarot/hooks/client';
 
 export interface SignupScreenProps {
     error?: string | null;
