@@ -8,7 +8,7 @@ vi.mock('@simpletarot/hooks/server', async importOriginal => {
         createTarotApiClient: vi.fn()
     };
 });
-vi.mock('@/api/tarot-api', () => ({
+vi.mock('@/config/tarot-api-config', () => ({
     getTarotApiConfig: vi.fn(() => ({
         baseUrl: 'https://api.example.com'
     }))

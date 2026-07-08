@@ -1,9 +1,8 @@
-import { createAvatarApiClient as createSharedAvatarApiClient } from '@simpletarot/hooks/server';
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { createAvatarApiClient, getAvatarApiConfig } from './avatar-api';
+import { getAvatarApiConfig, getTarotApiConfig } from './tarot-api-config';
 
-describe('getAvatarApiConfig', () => {
+describe('tarot API config', () => {
     const originalEnv = process.env;
 
     afterEach(() => {
@@ -16,6 +15,9 @@ describe('getAvatarApiConfig', () => {
             EXPO_PUBLIC_TAROT_API_URL: ' https://api.example.com/dev/ '
         };
 
+        expect(getTarotApiConfig()).toEqual({
+            baseUrl: 'https://api.example.com/dev'
+        });
         expect(getAvatarApiConfig()).toEqual({
             baseUrl: 'https://api.example.com/dev'
         });
@@ -27,14 +29,11 @@ describe('getAvatarApiConfig', () => {
             EXPO_PUBLIC_TAROT_API_URL: ''
         };
 
+        expect(() => getTarotApiConfig()).toThrow(
+            'Missing required Expo public API config: EXPO_PUBLIC_TAROT_API_URL'
+        );
         expect(() => getAvatarApiConfig()).toThrow(
             'Missing required Expo public API config: EXPO_PUBLIC_TAROT_API_URL'
         );
-    });
-});
-
-describe('createAvatarApiClient', () => {
-    it('re-exports the shared avatar API client factory', () => {
-        expect(createAvatarApiClient).toBe(createSharedAvatarApiClient);
     });
 });

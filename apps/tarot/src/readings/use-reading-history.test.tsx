@@ -5,7 +5,11 @@ import {
     useReadingHistory,
     type UseReadingHistoryResult
 } from './use-reading-history';
-import type { ReadingHistoryResponse, ReadingResponse, TarotApiClient } from '@/api/tarot-api';
+import type {
+    ReadingHistoryResponse,
+    ReadingResponse,
+    TarotApiClient
+} from '@simpletarot/hooks/server';
 
 const historyResponse: ReadingHistoryResponse = {
     readings: [

@@ -4,7 +4,7 @@ import 'server-only';
 
 import { createAvatarApiClient, type AvatarsResponse } from '@simpletarot/hooks/server';
 
-import { getAvatarApiConfig } from './avatar-api';
+import { getAvatarApiConfig } from '@/config/tarot-api-config';
 
 export async function listAvatarThumbnailsOnServer(
     accessToken: string

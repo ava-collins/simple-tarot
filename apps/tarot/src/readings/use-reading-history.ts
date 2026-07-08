@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
+    createOneCardReadingRequest,
     createTarotApiClient,
-    getTarotApiConfig,
     type ReadingHistoryItem,
     type ReadingResponse,
     type TarotApiClient
-} from '@/api/tarot-api';
+} from '@simpletarot/hooks/server';
+
+import { getTarotApiConfig } from '@/config/tarot-api-config';
 
 type UseReadingHistoryOptions = {
     accessToken: string | null | undefined;
@@ -80,18 +82,9 @@ export function useReadingHistory({
             setError(null);
 
             try {
-                const reading = await client.createReading({
-                    spread: 'single_card',
-                    ...(question?.trim() ? { question: question.trim() } : {}),
-                    items: [
-                        {
-                            cardIndex: 0,
-                            cardName: 'The Fool',
-                            position: 'guidance',
-                            reversed: false
-                        }
-                    ]
-                });
+                const reading = await client.createReading(
+                    createOneCardReadingRequest(question)
+                );
 
                 setLatestReading(reading);
                 await refresh();

@@ -9,7 +9,7 @@ import {
     type ReadingHistoryResponse,
     type ReadingResponse
 } from '@simpletarot/hooks/server';
-import { getTarotApiConfig } from '@/api/tarot-api';
+import { getTarotApiConfig } from '@/config/tarot-api-config';
 
 const createServerClient = (accessToken: string) =>
     createTarotApiClient({
