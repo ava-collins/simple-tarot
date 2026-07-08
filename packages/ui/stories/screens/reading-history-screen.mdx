@@ -1,0 +1,30 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as ReadingHistoryScreenStories from './reading-history-screen.stories';
+
+<Meta of={ReadingHistoryScreenStories.default} title='ReadingHistoryScreen'/>
+
+# ReadingHistoryScreen
+
+Mobile reading history screen wrapped in `MobileView`. It receives signed-in state, display-ready readings, and navigation callbacks from the route layer.
+
+<Canvas of={ReadingHistoryScreenStories.PopulatedHistory} />
+
+## Empty History
+
+<Canvas of={ReadingHistoryScreenStories.EmptyHistory} />
+
+## Error
+
+<Canvas of={ReadingHistoryScreenStories.HistoryError} />
+
+## Auth States
+
+<Canvas of={ReadingHistoryScreenStories.AuthLoading} />
+
+<Canvas of={ReadingHistoryScreenStories.SignedOut} />
+
+## Responsibilities
+
+- Shows auth loading and signed-out states.
+- Renders the saved-reading header and create action.
+- Delegates list, empty, and refresh presentation to `ReadingHistoryList`.

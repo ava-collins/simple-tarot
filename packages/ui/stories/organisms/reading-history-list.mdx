@@ -1,0 +1,26 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as ReadingHistoryListStories from './reading-history-list.stories';
+
+<Meta of={ReadingHistoryListStories.default} title='ReadingHistoryList'/>
+
+# ReadingHistoryList
+
+Owns the refreshable scroll presentation for saved readings. It receives display-ready rows and does not format dates or fetch data.
+
+<Canvas of={ReadingHistoryListStories.Populated} />
+
+## Empty State
+
+<Canvas of={ReadingHistoryListStories.Empty} />
+
+## Loading State
+
+<Canvas of={ReadingHistoryListStories.LoadingEmpty} />
+
+## Props
+
+- `emptyMessage`: Text shown when there are no rows and loading is false.
+- `isLoading`: Drives the refresh control state.
+- `onCreateReadingPress`: Called from the empty-state action.
+- `onRefresh`: Called by pull-to-refresh.
+- `readings`: Display-ready reading rows.
