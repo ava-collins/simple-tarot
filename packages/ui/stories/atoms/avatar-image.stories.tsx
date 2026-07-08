@@ -1,7 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
 import mdx from './avatar-image.mdx';
 import AvatarImage from './avatar-image';
-import React from 'react';
 import { avatarImagesMock } from '../tests/mocks/avatarImages';
 import { http, HttpResponse } from 'msw';
 
@@ -27,17 +26,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {
+export const LegacyRestMockPath: Story = {
     args: {
         apiBaseUrl: 'http://localhost:4100',
         size: 200
     }
 };
 
-export const Saved: Story = {
+export const SavedImageRollback: Story = {
     args: {
         apiBaseUrl: 'http://localhost:4100',
         size: 200,
-        saved: 'https://serpapi.com/searches/6843526b69819df7ebec89f8/images/0a5f0bc6c789c9f1378c8240989ad89fa4198ddb662d316731ef3f377ba16ae0.jpeg'
+        saved: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT6O28sJnpWVa7ONm0YzlatnXK8T_jfJg3HTgKykcn7wQ&s'
     }
 };

@@ -1,4 +1,6 @@
 export { default as MobileView } from './stories/templates/mobile-view';
+export { default as AvatarDisplay } from './stories/atoms/avatar-display';
+export type { AvatarDisplayProps } from './stories/atoms/avatar-display';
 export * from './stories/atoms/form-error-text';
 export { default as AccountScreen } from './stories/screens/account-screen';
 export type { AccountScreenProps } from './stories/screens/account-screen';

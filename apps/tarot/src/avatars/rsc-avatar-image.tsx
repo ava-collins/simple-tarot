@@ -1,9 +1,9 @@
 'use client';
 
-import Avatar from '@rneui/themed/dist/Avatar';
+import { useRscAvatarImage } from '@simpletarot/hooks';
+import { AvatarDisplay } from '@simpletarot/ui';
 
 import { listAvatarThumbnailsOnServer } from './server-actions';
-import { useRscAvatarImage } from './use-rsc-avatar-image';
 
 type RscAvatarImageProps = {
     accessToken: string | null | undefined;
@@ -23,11 +23,9 @@ export function RscAvatarImage({
     });
 
     return (
-        <Avatar
+        <AvatarDisplay
             size={size}
-            rounded
-            source={{ uri: avatarImage }}
-            containerStyle={{ margin: 10, borderColor: 'black', borderWidth: 1 }}
+            imageUri={avatarImage}
             onPress={getNewAvatarImage}
             onLongPress={saveAvatarImage}
         />

@@ -10,11 +10,15 @@ Displays a randomly selected tarot-themed avatar image fetched from the REST API
 ## Overview
 
 - Accepts an `apiBaseUrl` prop and calls `GET ${apiBaseUrl}/avatars` via `useAvatarImage` to load a pool of images.
-- Displays the selected image with a specified size inside a round black border.
+- Renders the selected image through `AvatarDisplay`, keeping the visual atom shared with RSC-backed avatars.
 - Press on the image to cycle to a new random image from the loaded pool.
 - Long press is stubbed for a future save-to-profile feature.
 
-<Canvas of={AvatarImageStories.Primary} />
+<Canvas of={AvatarImageStories.LegacyRestMockPath} />
+
+## Saved Rollback State
+
+<Canvas of={AvatarImageStories.SavedImageRollback} />
 
 ## Props
 

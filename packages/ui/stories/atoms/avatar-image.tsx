@@ -1,7 +1,7 @@
 import { AvatarConfig, useAvatarImage } from '@simpletarot/hooks';
 import React, { useEffect } from 'react';
 
-import Avatar from '@rneui/themed/dist/Avatar';
+import AvatarDisplay from './avatar-display';
 
 type AvatarImageProps = {
     apiBaseUrl: string;
@@ -35,11 +35,9 @@ const AvatarImage: React.FC<AvatarImageProps> = ({ apiBaseUrl, size = 'xlarge', 
     };
 
     return (
-        <Avatar
+        <AvatarDisplay
             size={size}
-            rounded
-            source={{ uri: displayImage }}
-            containerStyle={{ margin: 10, borderColor: 'black', borderWidth: 1 }}
+            imageUri={displayImage}
             onPress={onPressAvatar}
             onLongPress={saveAvatarImage}
         />
