@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/auth/use-auth';
-import { useReadingHistory } from '@/readings/use-reading-history';
+import { useRscReadingHistory } from '@/readings/use-rsc-reading-history';
 
 export default function NewReadingRoute() {
     const { isLoading: isAuthLoading, isSignedIn, tokens } = useAuth();
@@ -21,7 +21,7 @@ export default function NewReadingRoute() {
         error,
         isGenerating,
         latestReading
-    } = useReadingHistory({
+    } = useRscReadingHistory({
         accessToken: tokens?.accessToken
     });
 

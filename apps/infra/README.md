@@ -202,7 +202,7 @@ Cognito outputs:
 ## Expo Contract
 
 The Expo-facing public output contract is documented in
-`docs/cognito_expo_config_contract.md`.
+[Cognito -> Expo Config Contract](../../docs/cognito_expo_config_contract.md).
 
 After deployment, sync the CDK outputs into:
 
@@ -211,6 +211,11 @@ After deployment, sync the CDK outputs into:
 
 Use `apps/tarot/.env.local.example` as the local template. The real
 `.env.local` file is ignored by git.
+
+The Expo RSC pilot still consumes the existing `ApiUrl` through Server
+Functions rather than replacing the API Gateway/Lambda deployment. See
+[RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md)
+for the current boundary and release limitations.
 
 ## Commands
 

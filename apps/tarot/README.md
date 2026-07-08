@@ -5,8 +5,8 @@ Router and consumes shared code from the workspace packages.
 
 ## Expo Version
 
-This app targets Expo SDK 56. Before changing Expo-specific APIs or config,
-read the SDK 56 docs linked from `apps/tarot/AGENTS.md`.
+This app targets Expo SDK 57. Before changing Expo-specific APIs or config,
+read the SDK 57 docs linked from [AGENTS.md](./AGENTS.md).
 
 ## Cognito Public Config
 
@@ -23,7 +23,7 @@ cp apps/tarot/.env.local.example apps/tarot/.env.local
 
 Then copy values from the deployed CDK stack outputs into `apps/tarot/.env.local`.
 The full mapping is documented in
-`docs/cognito_expo_config_contract.md`.
+[Cognito -> Expo Config Contract](../../docs/cognito_expo_config_contract.md).
 
 For preview and testing builds, create the same `EXPO_PUBLIC_*` values in the
 appropriate EAS environment.
@@ -43,7 +43,15 @@ secret. The current API is an HTTP API, so the output does not include a REST
 API stage path such as `/dev`.
 
 The app sends the Cognito access token in the `Authorization` header for
-reading requests.
+reading requests and RSC-backed avatar discovery.
+
+## RSC Pilot
+
+Readings and avatar thumbnail discovery use Expo Server Functions while auth,
+SecureStore, navigation, form state, and avatar display/randomization stay
+client-side. See
+[RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md)
+for the rollout scope, beta limitations, and rollback notes.
 
 ## Reading History
 

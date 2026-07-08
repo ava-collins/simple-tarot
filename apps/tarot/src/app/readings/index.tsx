@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/auth/use-auth';
-import { useReadingHistory } from '@/readings/use-reading-history';
+import { useRscReadingHistory } from '@/readings/use-rsc-reading-history';
 
 const formatCreatedAt = (value: string) =>
     new Intl.DateTimeFormat(undefined, {
@@ -20,7 +20,7 @@ const formatCreatedAt = (value: string) =>
 export default function ReadingHistoryRoute() {
     const { isLoading: isAuthLoading, isSignedIn, tokens } = useAuth();
     const router = useRouter();
-    const { error, isLoading, readings, refresh } = useReadingHistory({
+    const { error, isLoading, readings, refresh } = useRscReadingHistory({
         accessToken: tokens?.accessToken
     });
 

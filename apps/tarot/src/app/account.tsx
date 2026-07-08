@@ -1,6 +1,7 @@
 import { AccountScreen } from '@simpletarot/ui';
 import { useRouter, type Href } from 'expo-router';
 
+import { RscAvatarImage } from '@/avatars/rsc-avatar-image';
 import { useAuth } from '@/auth/use-auth';
 
 function claimText(value: unknown): string | undefined {
@@ -8,12 +9,13 @@ function claimText(value: unknown): string | undefined {
 }
 
 export default function AccountRoute() {
-    const { error, idTokenClaims, isLoading, isSignedIn } = useAuth();
+    const { error, idTokenClaims, isLoading, isSignedIn, tokens } = useAuth();
     const router = useRouter();
 
     return (
         <AccountScreen
             apiBaseUrl={process.env.EXPO_PUBLIC_TAROT_API_URL ?? ''}
+            avatarSlot={<RscAvatarImage accessToken={tokens?.accessToken} size={200} />}
             isLoading={isLoading}
             isSignedIn={isSignedIn}
             email={claimText(idTokenClaims?.email)}

@@ -1,35 +1,12 @@
-export type {
-    ReadingCitation,
-    ReadingHistoryItem,
-    ReadingHistoryResponse,
-    ReadingItem,
-    ReadingPositionResponse,
-    ReadingRequest,
-    ReadingResponse
-} from '@/readings/reading-contracts';
+import type { AvatarsResponse } from './avatar-contracts';
 
-import type {
-    ReadingHistoryResponse,
-    ReadingRequest,
-    ReadingResponse
-} from '@/readings/reading-contracts';
-
-export type TarotApiConfig = {
+export type AvatarApiConfig = {
+    accessToken?: string;
     baseUrl: string;
 };
 
-export type TarotApiClient = {
-    createReading: (request: ReadingRequest) => Promise<ReadingResponse>;
-    listReadings: () => Promise<ReadingHistoryResponse>;
-};
-
-type CreateTarotApiClientOptions = TarotApiConfig & {
-    accessToken: string;
-};
-
-type RequestMetadata = {
-    method: 'GET' | 'POST';
-    url: string;
+export type AvatarApiClient = {
+    listAvatarThumbnails: () => Promise<AvatarsResponse>;
 };
 
 const readRequiredEnv = (key: 'EXPO_PUBLIC_TAROT_API_URL') => {
@@ -44,6 +21,11 @@ const readRequiredEnv = (key: 'EXPO_PUBLIC_TAROT_API_URL') => {
 
 const trimTrailingSlashes = (value: string) => value.replace(/\/+$/, '');
 
+type RequestMetadata = {
+    method: 'GET';
+    url: string;
+};
+
 const previewBody = (body: string) => body.slice(0, 240);
 
 const contentTypeFor = (response: Response) => response.headers.get('content-type') ?? '';
@@ -56,7 +38,7 @@ async function parseJsonResponse<T>(
     const textBody = await response.text();
 
     if (!contentType.toLowerCase().includes('application/json')) {
-        console.warn('[tarot-api] non-json response', {
+        console.warn('[avatar-api] non-json response', {
             bodyPreview: previewBody(textBody),
             contentType,
             method: request.method,
@@ -65,7 +47,7 @@ async function parseJsonResponse<T>(
         });
 
         throw new Error(
-            `Tarot API returned ${contentType || 'non-JSON content'} for ${request.method} ${request.url} with status ${response.status}.`
+            `Avatar API returned ${contentType || 'non-JSON content'} for ${request.method} ${request.url} with status ${response.status}.`
         );
     }
 
@@ -74,7 +56,7 @@ async function parseJsonResponse<T>(
     try {
         body = textBody ? JSON.parse(textBody) : null;
     } catch (error) {
-        console.warn('[tarot-api] invalid-json response', {
+        console.warn('[avatar-api] invalid-json response', {
             bodyPreview: previewBody(textBody),
             contentType,
             method: request.method,
@@ -100,45 +82,33 @@ async function parseJsonResponse<T>(
     return body as T;
 }
 
-export function getTarotApiConfig(): TarotApiConfig {
+export function getAvatarApiConfig(): AvatarApiConfig {
     return {
         baseUrl: trimTrailingSlashes(readRequiredEnv('EXPO_PUBLIC_TAROT_API_URL'))
     };
 }
 
-export function createTarotApiClient({
+export function createAvatarApiClient({
     accessToken,
     baseUrl
-}: CreateTarotApiClientOptions): TarotApiClient {
+}: AvatarApiConfig): AvatarApiClient {
     const apiBaseUrl = trimTrailingSlashes(baseUrl);
-    const authHeaders = {
-        Authorization: `Bearer ${accessToken}`
-    };
+    const authHeaders = accessToken
+        ? {
+              Authorization: `Bearer ${accessToken}`
+          }
+        : undefined;
 
     return {
-        async createReading(request) {
-            const url = `${apiBaseUrl}/readings`;
-            const method = 'POST';
-            const response = await fetch(url, {
-                body: JSON.stringify(request),
-                headers: {
-                    ...authHeaders,
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST'
-            });
-
-            return parseJsonResponse<ReadingResponse>(response, { method, url });
-        },
-        async listReadings() {
-            const url = `${apiBaseUrl}/readings`;
+        async listAvatarThumbnails() {
+            const url = `${apiBaseUrl}/avatars`;
             const method = 'GET';
             const response = await fetch(url, {
-                headers: authHeaders,
+                ...(authHeaders ? { headers: authHeaders } : {}),
                 method
             });
 
-            return parseJsonResponse<ReadingHistoryResponse>(response, { method, url });
+            return parseJsonResponse<AvatarsResponse>(response, { method, url });
         }
     };
 }

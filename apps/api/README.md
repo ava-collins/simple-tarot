@@ -17,7 +17,9 @@
 `GET /avatars` returns `{ thumbnails: string[] }` — a list of image URLs sourced
 from Google Images via SerpAPI. Requires `SERPAPI_API_KEY` in the environment;
 returns an empty array when the key is absent so the app degrades gracefully to
-the default placeholder image.
+the default placeholder image. The Expo app currently reaches this route through
+an RSC Server Function; see
+[RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md).
 
 `POST /readings` accepts a spread, ordered card items, reversed flags, and an
 optional question. The route validates input, builds a deterministic retrieval
@@ -33,8 +35,10 @@ with sanitized failure fields and are excluded from user-facing history.
 first.
 
 The API also maintains a minimal user profile item when successful readings are
-saved. See `docs/user_reading_persistence.md` for table keys, profile fields,
-and AWS CLI inspection commands.
+saved. See [User Reading Persistence](../../docs/user_reading_persistence.md)
+for table keys, profile fields, and AWS CLI inspection commands. See
+[RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md)
+for the mobile Server Function boundary around readings and avatar discovery.
 
 ## Local Mode
 

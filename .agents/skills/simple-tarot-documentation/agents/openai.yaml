@@ -1,0 +1,4 @@
+interface:
+  display_name: "Simple Tarot Documentation"
+  short_description: "Keep Simple Tarot docs linked from root to apps."
+  default_prompt: "Use $simple-tarot-documentation to add or review Simple Tarot documentation links and README structure."

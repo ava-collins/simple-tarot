@@ -106,6 +106,7 @@ CloudFormation outputs from infra stacks feed directly into `apps/api` env vars.
 
 - Expo SDK 57, expo-router for file-based navigation
 - Auth via `AuthProvider` in `src/app/_layout.tsx` wrapping a Cognito OAuth flow (`expo-auth-session`, `expo-web-browser`)
+- RSC pilot: readings and avatars use Expo Server Functions; keep auth, SecureStore, navigation, form state, and avatar display/randomization client-side.
 - **Always check versioned Expo docs at `https://docs.expo.dev/versions/v57.0.0/` before writing Expo-specific code** (APIs change significantly between SDK versions)
 
 ## Commit conventions
