@@ -97,6 +97,7 @@ messages.
 
 ### Architecture
 
+-   [RSC Readings and Avatars Pilot](./docs/rsc-readings-and-avatars-pilot.md) — Expo Server Functions boundary for readings and avatar thumbnail discovery; linked from [Tarot App](./apps/tarot/README.md#rsc-pilot), [REST API](./apps/api/README.md#endpoints), and [Infrastructure](./apps/infra/README.md#expo-contract)
 -   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — end-to-end flow from mobile request to Bedrock Knowledge Base retrieval, module map, and CloudFormation output wiring
 -   [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
 -   [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) — CDK output → `EXPO_PUBLIC_*` mapping and EAS delivery; used by [Infrastructure](./apps/infra/README.md#expo-contract) and [Tarot App](./apps/tarot/README.md)
