@@ -110,10 +110,6 @@ messages.
 -   [Monorepository Orientation](./docs/yarn_workspace_dependency_goals.md) — workspace dependency rules, `workspace:*` protocol, peer/dev/runtime split
 -   [Commit Messages & Releases](./docs/semantic_release_commit_messages.md) — conventional commit format, type → semver mapping, valid scopes
 
-### Planning
-
--   [Bedrock RAG API MVP Stages](./docs/superpowers/plans/2026-06-26-bedrock-rag-api-mvp-stages.md)
--   [User Reading Persistence Stages](./docs/superpowers/plans/2026-07-02-user-reading-persistence.md)
 
 # Copyright
 
