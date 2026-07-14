@@ -39,7 +39,6 @@ export class SimpleTarotStage extends cdk.Stage {
     this.apiStack = new ApiStack(this, props.config.apiStackName, {
       ...common,
       apiLogBucket: this.userDataStack.apiLogBucket,
-      knowledgeBase: this.bedrockStack.knowledgeBase,
       stackName: props.config.apiStackName,
       userDataTable: this.userDataStack.userDataTable,
       userPool: this.cognitoStack.userPool,

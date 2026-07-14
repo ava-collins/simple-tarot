@@ -57,16 +57,14 @@ describe('SimpleTarotStage', () => {
     }
   );
 
-  it('wires API values only from its stage', () => {
+  it('wires local API data values without a Bedrock import', () => {
     const template = Template.fromStack(synthesize('dev').apiStack);
     const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
     const variables = fn.Properties.Environment.Variables;
     expect(JSON.stringify(variables.API_LOG_BUCKET_NAME)).toContain(
       'SimpleTarotUserData-dev'
     );
-    expect(JSON.stringify(variables.BEDROCK_KNOWLEDGE_BASE_ID)).toContain(
-      'SimpleTarotBedrockRag-dev'
-    );
+    expect(variables).not.toHaveProperty('BEDROCK_KNOWLEDGE_BASE_ID');
     expect(variables.USER_DATA_TABLE_NAME).toBe('simple-tarot-dev-user-data');
   });
 
