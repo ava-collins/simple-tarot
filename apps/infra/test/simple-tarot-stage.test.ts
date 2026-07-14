@@ -1,0 +1,84 @@
+import * as cdk from 'aws-cdk-lib/core';
+import { Template } from 'aws-cdk-lib/assertions';
+import { getInfraConfig, type SimpleTarotEnvironment } from '../lib/config';
+import { SimpleTarotStage } from '../lib/simple-tarot-stage';
+
+const account = '123456789012';
+const region = 'us-east-1';
+
+function synthesize(environmentName: SimpleTarotEnvironment) {
+  const app = new cdk.App();
+  const config = getInfraConfig({
+    app,
+    environmentName,
+    env: {
+      SIMPLE_TAROT_ENV: environmentName,
+      SIMPLE_TAROT_AWS_REGION: region,
+      SIMPLE_TAROT_MOBILE_CALLBACK_URL: 'simpletarot://auth/callback',
+      SIMPLE_TAROT_MOBILE_LOGOUT_URL: 'simpletarot://auth/logout',
+      SIMPLE_TAROT_WEB_CALLBACK_URL: 'https://example.com/auth/callback',
+      SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
+      SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: `simple-tarot-${environmentName}`,
+      SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
+        `arn:aws:iam::${account}:role/cdk-hnb659fds-cfn-exec-role-${account}-${region}`,
+    },
+  });
+  const suffix = environmentName === 'dev' ? 'Dev' : 'Prod';
+  return new SimpleTarotStage(app, `SimpleTarot${suffix}`, {
+    config,
+    env: { account, region },
+  });
+}
+
+describe('SimpleTarotStage', () => {
+  it.each([
+    [
+      'dev',
+      'SimpleTarotCognito-dev',
+      'SimpleTarotUserData-dev',
+      'SimpleTarotBedrockRag-dev',
+      'SimpleTarotApi-dev',
+    ],
+    [
+      'prod',
+      'SimpleTarotCognito-prod',
+      'SimpleTarotUserData-prod',
+      'SimpleTarotBedrockRag-prod',
+      'SimpleTarotApi-prod',
+    ],
+  ] as const)(
+    'keeps stable %s stack names',
+    (environment, cognito, data, bedrock, api) => {
+      const stage = synthesize(environment);
+      expect(stage.cognitoStack.stackName).toBe(cognito);
+      expect(stage.userDataStack.stackName).toBe(data);
+      expect(stage.bedrockStack.stackName).toBe(bedrock);
+      expect(stage.apiStack.stackName).toBe(api);
+    }
+  );
+
+  it('wires API values only from its stage', () => {
+    const template = Template.fromStack(synthesize('dev').apiStack);
+    const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
+    const variables = fn.Properties.Environment.Variables;
+    expect(JSON.stringify(variables.API_LOG_BUCKET_NAME)).toContain(
+      'SimpleTarotUserData-dev'
+    );
+    expect(JSON.stringify(variables.BEDROCK_KNOWLEDGE_BASE_ID)).toContain(
+      'SimpleTarotBedrockRag-dev'
+    );
+    expect(variables.USER_DATA_TABLE_NAME).toBe('simple-tarot-dev-user-data');
+  });
+
+  it('tags owned resources', () => {
+    const template = Template.fromStack(synthesize('prod').cognitoStack);
+    template.hasResourceProperties('AWS::Cognito::UserPool', {
+      UserPoolName: 'simple-tarot-prod-users',
+      UserPoolTags: {
+        Application: 'SimpleTarot',
+        Environment: 'prod',
+        ManagedBy: 'CDK',
+      },
+    });
+  });
+});
