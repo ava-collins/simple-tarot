@@ -157,7 +157,7 @@ apps/api/corpus/generated/
 
 # Superpowers local workflow scratch files
 .superpowers/
-docs/superpowers/
+docs/superpowers/**
 
 # Generated tarot card components
 # packages/cards/src/cards/
