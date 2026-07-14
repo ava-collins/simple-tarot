@@ -60,7 +60,7 @@ describe('SimpleTarotStage', () => {
   );
 
   it.each(['dev', 'prod'] as const)(
-    'routes every %s stack artifact through its environment roles',
+    'routes every %s artifact through its deploy role and bootstrap execution role',
     (environment) => {
       const { assembly, stage } = synthesize(environment);
       const suffix = environment === 'dev' ? 'Dev' : 'Prod';
@@ -76,7 +76,8 @@ describe('SimpleTarotStage', () => {
           `arn:\${AWS::Partition}:iam::${account}:role/SimpleTarot${suffix}DeployRole`
         );
         expect(artifact.cloudFormationExecutionRoleArn).toBe(
-          `arn:\${AWS::Partition}:iam::${account}:role/SimpleTarot${suffix}CloudFormationRole`
+          `arn:\${AWS::Partition}:iam::${account}:role/` +
+          `cdk-hnb659fds-cfn-exec-role-${account}-${region}`
         );
       }
     }

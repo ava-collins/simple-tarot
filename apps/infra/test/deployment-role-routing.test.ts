@@ -1,29 +1,20 @@
 import {
-  getDeploymentRoleArns,
-  getDeploymentRoleNames,
+  getDeploymentRoleArn,
+  getDeploymentRoleName,
 } from '../lib/deployment-role-routing';
 
 describe('environment deployment role routing', () => {
-  it('names the dev roles explicitly', () => {
-    expect(getDeploymentRoleNames('dev')).toEqual({
-      deployRoleName: 'SimpleTarotDevDeployRole',
-      cloudFormationRoleName: 'SimpleTarotDevCloudFormationRole',
-    });
+  it('names the dev deployment role explicitly', () => {
+    expect(getDeploymentRoleName('dev')).toBe('SimpleTarotDevDeployRole');
   });
 
-  it('names the prod roles explicitly', () => {
-    expect(getDeploymentRoleNames('prod')).toEqual({
-      deployRoleName: 'SimpleTarotProdDeployRole',
-      cloudFormationRoleName: 'SimpleTarotProdCloudFormationRole',
-    });
+  it('names the prod deployment role explicitly', () => {
+    expect(getDeploymentRoleName('prod')).toBe('SimpleTarotProdDeployRole');
   });
 
-  it('uses deploy-time account and partition placeholders in role ARNs', () => {
-    expect(getDeploymentRoleArns('dev')).toEqual({
-      deployRoleArn:
-        'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/SimpleTarotDevDeployRole',
-      cloudFormationRoleArn:
-        'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/SimpleTarotDevCloudFormationRole',
-    });
+  it('uses deploy-time account and partition placeholders in the role ARN', () => {
+    expect(getDeploymentRoleArn('dev')).toBe(
+      'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/SimpleTarotDevDeployRole'
+    );
   });
 });

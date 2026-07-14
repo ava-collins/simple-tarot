@@ -5,7 +5,7 @@ import type { SimpleTarotEnvironment } from './config';
 import type { DeploymentAccessConfig } from './deployment-access-config';
 import {
   APPLICATION_STACK_NAMES,
-  getDeploymentRoleNames,
+  getDeploymentRoleName,
 } from './deployment-role-routing';
 
 export interface DeploymentAccessStackProps extends cdk.StackProps {
@@ -112,19 +112,18 @@ export class DeploymentAccessStack extends cdk.Stack {
     config: DeploymentAccessConfig
   ): void {
     const suffix = environmentName === 'dev' ? 'Dev' : 'Prod';
-    const names = getDeploymentRoleNames(environmentName);
     const trustedOperator = new iam.AccountPrincipal(config.account).withConditions({
       ArnLike: { 'aws:PrincipalArn': config.trustedPrincipalArnPattern },
     });
     const deployRole = new iam.Role(this, `${suffix}DeployRole`, {
       assumedBy: trustedOperator,
       description: `Deploy Simple Tarot ${environmentName} application stacks`,
-      roleName: names.deployRoleName,
+      roleName: getDeploymentRoleName(environmentName),
     });
     const cloudFormationRole = new iam.Role(this, `${suffix}CloudFormationRole`, {
       assumedBy: new iam.ServicePrincipal('cloudformation.amazonaws.com'),
       description: `Execute Simple Tarot ${environmentName} CloudFormation stacks`,
-      roleName: names.cloudFormationRoleName,
+      roleName: `SimpleTarot${suffix}CloudFormationRole`,
     });
 
     for (const role of [deployRole, cloudFormationRole]) {
