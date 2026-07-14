@@ -2,7 +2,7 @@
 import * as cdk from 'aws-cdk-lib/core';
 import {
   getDeploymentAccessConfig,
-  loadDeploymentAccessEnv,
+  loadDeploymentAccessEnv
 } from '../lib/deployment-access-config';
 import { DeploymentAccessStack } from '../lib/deployment-access-stack';
 
@@ -13,5 +13,5 @@ new DeploymentAccessStack(app, 'SimpleTarotDeploymentAccess', {
   config,
   env: { account: config.account, region: config.region },
   stackName: 'SimpleTarotDeploymentAccess',
-  terminationProtection: true,
+  terminationProtection: true
 });

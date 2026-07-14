@@ -5,7 +5,7 @@ import type { SimpleTarotEnvironment } from './config';
 import type { DeploymentAccessConfig } from './deployment-access-config';
 import {
   APPLICATION_STACK_NAMES,
-  getDeploymentRoleName,
+  getDeploymentRoleName
 } from './deployment-role-routing';
 
 export interface DeploymentAccessStackProps extends cdk.StackProps {
@@ -20,7 +20,7 @@ const MUTATION_ACTIONS = [
   'cloudformation:DeleteChangeSet',
   'cloudformation:ContinueUpdateRollback',
   'cloudformation:RollbackStack',
-  'cloudformation:UpdateTerminationProtection',
+  'cloudformation:UpdateTerminationProtection'
 ];
 
 const READ_ACTIONS = [
@@ -32,7 +32,7 @@ const READ_ACTIONS = [
   'cloudformation:GetTemplateSummary',
   'cloudformation:GetStackPolicy',
   'cloudformation:ListChangeSets',
-  'cloudformation:DescribeChangeSet',
+  'cloudformation:DescribeChangeSet'
 ];
 
 export class DeploymentAccessStack extends cdk.Stack {
@@ -51,10 +51,10 @@ export class DeploymentAccessStack extends cdk.Stack {
     const suffix = environmentName === 'dev' ? 'Dev' : 'Prod';
     const deployRole = new iam.Role(this, `${suffix}DeployRole`, {
       assumedBy: new iam.AccountPrincipal(config.account).withConditions({
-        ArnLike: { 'aws:PrincipalArn': config.trustedPrincipalArnPattern },
+        ArnLike: { 'aws:PrincipalArn': config.trustedPrincipalArnPattern }
       }),
       description: `Deploy Simple Tarot ${environmentName} application stacks`,
-      roleName: getDeploymentRoleName(environmentName),
+      roleName: getDeploymentRoleName(environmentName)
     });
 
     cdk.Tags.of(deployRole).add('Application', 'SimpleTarot');
@@ -70,17 +70,17 @@ export class DeploymentAccessStack extends cdk.Stack {
     config: DeploymentAccessConfig,
     deployRole: iam.Role
   ): void {
-    const stackArns = APPLICATION_STACK_NAMES[environmentName].map((stackName) =>
+    const stackArns = APPLICATION_STACK_NAMES[environmentName].map(stackName =>
       this.formatArn({
         service: 'cloudformation',
         resource: 'stack',
-        resourceName: `${stackName}/*`,
+        resourceName: `${stackName}/*`
       })
     );
     const changeSetArn = this.formatArn({
       service: 'cloudformation',
       resource: 'changeSet',
-      resourceName: '*/*',
+      resourceName: '*/*'
     });
     const resources = [...stackArns, changeSetArn];
     const mutationActions = environmentName === 'dev'
@@ -89,15 +89,15 @@ export class DeploymentAccessStack extends cdk.Stack {
 
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: mutationActions,
-      resources,
+      resources
     }));
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: READ_ACTIONS,
-      resources,
+      resources
     }));
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: ['cloudformation:ValidateTemplate'],
-      resources: ['*'],
+      resources: ['*']
     }));
 
     const bootstrapExecutionRoleArn = this.formatArn({
@@ -105,33 +105,33 @@ export class DeploymentAccessStack extends cdk.Stack {
       region: '',
       resource: 'role',
       resourceName:
-        `cdk-hnb659fds-cfn-exec-role-${config.account}-${config.region}`,
+        `cdk-hnb659fds-cfn-exec-role-${config.account}-${config.region}`
     });
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: ['iam:PassRole'],
       resources: [bootstrapExecutionRoleArn],
       conditions: {
-        StringEquals: { 'iam:PassedToService': 'cloudformation.amazonaws.com' },
-      },
+        StringEquals: { 'iam:PassedToService': 'cloudformation.amazonaws.com' }
+      }
     }));
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: ['ssm:GetParameter'],
       resources: [this.formatArn({
         service: 'ssm',
         resource: 'parameter',
-        resourceName: 'cdk-bootstrap/hnb659fds/version',
-      })],
+        resourceName: 'cdk-bootstrap/hnb659fds/version'
+      })]
     }));
 
     const assetBucketArn =
       `arn:${cdk.Aws.PARTITION}:s3:::cdk-hnb659fds-assets-${config.account}-${config.region}`;
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: ['s3:GetBucketLocation', 's3:ListBucket'],
-      resources: [assetBucketArn],
+      resources: [assetBucketArn]
     }));
     deployRole.addToPolicy(new iam.PolicyStatement({
       actions: ['s3:GetObject'],
-      resources: [`${assetBucketArn}/*`],
+      resources: [`${assetBucketArn}/*`]
     }));
   }
 }

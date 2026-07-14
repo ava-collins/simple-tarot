@@ -22,23 +22,23 @@ export class SimpleTarotStage extends cdk.Stage {
 
     const common = {
       config: props.config,
-      env: props.env,
+      env: props.env
     };
 
     this.cognitoStack = new CognitoStack(this, props.config.stackName, {
       ...common,
       stackName: props.config.stackName,
-      synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName),
+      synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName)
     });
     this.userDataStack = new UserDataStack(this, props.config.userDataStackName, {
       ...common,
       stackName: props.config.userDataStackName,
-      synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName),
+      synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName)
     });
     this.bedrockStack = new BedrockRagStack(this, props.config.bedrockStackName, {
       ...common,
       stackName: props.config.bedrockStackName,
-      synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName),
+      synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName)
     });
     this.apiStack = new ApiStack(this, props.config.apiStackName, {
       ...common,
@@ -47,7 +47,7 @@ export class SimpleTarotStage extends cdk.Stage {
       synthesizer: createEnvironmentStackSynthesizer(props.config.environmentName),
       userDataTable: this.userDataStack.userDataTable,
       userPool: this.cognitoStack.userPool,
-      userPoolClient: this.cognitoStack.userPoolClient,
+      userPoolClient: this.cognitoStack.userPoolClient
     });
 
     cdk.Tags.of(this).add('Application', 'SimpleTarot');

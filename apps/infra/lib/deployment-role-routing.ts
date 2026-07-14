@@ -6,30 +6,31 @@ export const APPLICATION_STACK_NAMES = {
     'SimpleTarotCognito-dev',
     'SimpleTarotUserData-dev',
     'SimpleTarotBedrockRag-dev',
-    'SimpleTarotApi-dev',
+    'SimpleTarotApi-dev'
   ],
   prod: [
     'SimpleTarotCognito-prod',
     'SimpleTarotUserData-prod',
     'SimpleTarotBedrockRag-prod',
-    'SimpleTarotApi-prod',
-  ],
+    'SimpleTarotApi-prod'
+  ]
 } as const;
 
 export function getDeploymentRoleName(environmentName: SimpleTarotEnvironment) {
   const suffix = environmentName === 'dev' ? 'Dev' : 'Prod';
-  return `SimpleTarot${suffix}DeployRole`;
+
+return `SimpleTarot${suffix}DeployRole`;
 }
 
 export function getDeploymentRoleArn(environmentName: SimpleTarotEnvironment) {
-  return 'arn:${AWS::Partition}:iam::${AWS::AccountId}:role/' +
-    getDeploymentRoleName(environmentName);
+  return `arn:\${AWS::Partition}:iam::\${AWS::AccountId}:role/${
+    getDeploymentRoleName(environmentName)}`;
 }
 
 export function createEnvironmentStackSynthesizer(
   environmentName: SimpleTarotEnvironment
 ) {
   return new DefaultStackSynthesizer({
-    deployRoleArn: getDeploymentRoleArn(environmentName),
+    deployRoleArn: getDeploymentRoleArn(environmentName)
   });
 }
