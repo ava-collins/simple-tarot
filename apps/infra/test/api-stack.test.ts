@@ -107,9 +107,17 @@ describe('ApiStack', () => {
       },
       Name: 'CognitoJwtAuthorizer',
     });
+    template.resourceCountIs('AWS::ApiGatewayV2::Route', 2);
+    template.allResourcesProperties('AWS::ApiGatewayV2::Route', {
+      AuthorizationType: 'JWT',
+    });
     template.hasResourceProperties('AWS::ApiGatewayV2::Route', {
       AuthorizationType: 'JWT',
       RouteKey: 'ANY /{proxy+}',
+    });
+    template.hasResourceProperties('AWS::ApiGatewayV2::Route', {
+      AuthorizationType: 'JWT',
+      RouteKey: 'ANY /',
     });
   });
 

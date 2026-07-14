@@ -58,6 +58,19 @@ const createResponse = () => {
     return response;
 };
 
+const createResponseForUser = (userId: string) => {
+    const response = createResponse();
+
+    response.locals.authenticatedUser = {
+        claims: {
+            sub: userId
+        },
+        userId
+    };
+
+    return response;
+};
+
 const createRequest = (body: unknown = requestBody) =>
     ({
         body,
@@ -255,6 +268,91 @@ describe('createListReadingsHandler', () => {
                 }
             ]
         });
+        expect(next).not.toHaveBeenCalled();
+    });
+
+    it('keeps two authenticated users reading histories isolated by Cognito subject', async () => {
+        const recordFor = (userId: string): ReadingHistoryRecord => ({
+            createdAt: '2026-07-14T18:00:00.000Z',
+            entityType: 'reading',
+            generatedReading,
+            generationMetadata: {
+                itemCount: 1,
+                mode: 'local'
+            },
+            pk: `USER#${userId}`,
+            question: `private-question-${userId}`,
+            readingId: `reading-${userId}`,
+            readingResponse: {
+                citations: [],
+                metadata: {
+                    itemCount: 1,
+                    mode: 'local'
+                },
+                positions: [],
+                readingId: `reading-${userId}`,
+                spread: 'single_card',
+                summary: `private-summary-${userId}`
+            },
+            request: {
+                ...requestBody,
+                question: `private-question-${userId}`
+            },
+            schemaVersion: 1,
+            sk: `READING#2026-07-14T18:00:00.000Z#reading-${userId}`,
+            spread: 'single_card',
+            updatedAt: '2026-07-14T18:00:00.000Z',
+            userId
+        });
+        const store = createStore();
+        vi.mocked(store.listSuccessfulReadingsByUser).mockImplementation(
+            async ({ userId }) => [recordFor(userId)]
+        );
+        const handler = createListReadingsHandler({
+            readingHistoryStore: store
+        });
+        const userAResponse = createResponseForUser('user-a');
+        const userBResponse = createResponseForUser('user-b');
+        const next = vi.fn();
+        const request = {
+            method: 'GET',
+            originalUrl: '/readings',
+            query: {}
+        } as never;
+
+        await handler(request, userAResponse as never, next);
+        await handler(request, userBResponse as never, next);
+
+        expect(store.listSuccessfulReadingsByUser).toHaveBeenNthCalledWith(1, {
+            limit: undefined,
+            userId: 'user-a'
+        });
+        expect(store.listSuccessfulReadingsByUser).toHaveBeenNthCalledWith(2, {
+            limit: undefined,
+            userId: 'user-b'
+        });
+        expect(userAResponse.json).toHaveBeenCalledWith({
+            readings: [
+                expect.objectContaining({
+                    question: 'private-question-user-a',
+                    readingId: 'reading-user-a'
+                })
+            ]
+        });
+        expect(userBResponse.json).toHaveBeenCalledWith({
+            readings: [
+                expect.objectContaining({
+                    question: 'private-question-user-b',
+                    readingId: 'reading-user-b'
+                })
+            ]
+        });
+        expect(JSON.stringify(userAResponse.json.mock.calls)).not.toContain(
+            'private-question-user-b'
+        );
+        expect(JSON.stringify(userBResponse.json.mock.calls)).not.toContain(
+            'private-question-user-a'
+        );
         expect(next).not.toHaveBeenCalled();
     });
 });

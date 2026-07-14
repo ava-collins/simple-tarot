@@ -115,4 +115,22 @@ describe('createCognitoJwtVerifier', () => {
             status: 401
         });
     });
+
+    it.each([
+        ['expired tokens', new Error('JWTExpired')],
+        ['tokens with invalid signatures', new Error('JWSSignatureVerificationFailed')]
+    ])('normalizes verification failures for %s', async (_caseName, verificationError) => {
+        const verifier = createCognitoJwtVerifier(config, {
+            createRemoteJWKSet: vi.fn().mockReturnValue('jwks'),
+            jwtVerify: vi.fn().mockRejectedValue(verificationError)
+        });
+
+        await expect(
+            verifier.verifyAuthorizationHeader('Bearer signed-token')
+        ).rejects.toMatchObject({
+            code: 'UNAUTHORIZED',
+            message: 'Authentication is required.',
+            status: 401
+        });
+    });
 });

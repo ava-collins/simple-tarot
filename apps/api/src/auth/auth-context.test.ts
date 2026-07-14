@@ -80,6 +80,31 @@ describe('authenticatedUserFromGatewayRequest', () => {
             userId: 'user-sub-123'
         });
     });
+
+    it('characterizes the ID-token purpose gap that Stage 2 will reject', () => {
+        expect(
+            authenticatedUserFromGatewayRequest({
+                apiGateway: {
+                    event: {
+                        requestContext: {
+                            authorizer: {
+                                jwt: {
+                                    claims: {
+                                        aud: 'public-client-id',
+                                        sub: 'user-sub-123',
+                                        token_use: 'id'
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            })
+        ).toMatchObject({
+            tokenUse: 'id',
+            userId: 'user-sub-123'
+        });
+    });
 });
 
 describe('requireAuthentication', () => {
