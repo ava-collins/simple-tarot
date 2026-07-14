@@ -10,14 +10,15 @@ const account = '123456789012';
 const trustedPattern =
   `arn:aws:iam::${account}:role/aws-reserved/sso.amazonaws.com/` +
   'AWSReservedSSO_AdministratorAccess_*';
+const accessEnv = {
+  SIMPLE_TAROT_AWS_ACCOUNT: account,
+  SIMPLE_TAROT_AWS_REGION: 'us-east-1',
+  SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: trustedPattern,
+};
 
 describe('deployment access configuration', () => {
-  it('returns a validated access configuration', () => {
-    expect(getDeploymentAccessConfig({
-      account,
-      region: 'us-east-1',
-      env: { SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: trustedPattern },
-    })).toEqual({
+  it('returns an explicit validated access configuration', () => {
+    expect(getDeploymentAccessConfig(accessEnv)).toEqual({
       account,
       region: 'us-east-1',
       trustedPrincipalArnPattern: trustedPattern,
@@ -26,12 +27,18 @@ describe('deployment access configuration', () => {
 
   it('loads only .env.access', () => {
     const directory = mkdtempSync(join(tmpdir(), 'simple-tarot-access-'));
-    writeFileSync(join(directory, '.env.access'), `SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN=${trustedPattern}\n`);
+    writeFileSync(
+      join(directory, '.env.access'),
+      [
+        `SIMPLE_TAROT_AWS_ACCOUNT=${account}`,
+        'SIMPLE_TAROT_AWS_REGION=us-east-1',
+        `SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN=${trustedPattern}`,
+        '',
+      ].join('\n')
+    );
     writeFileSync(join(directory, '.env.dev'), 'SHOULD_NOT_LOAD=true\n');
     try {
-      expect(loadDeploymentAccessEnv(directory)).toEqual({
-        SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: trustedPattern,
-      });
+      expect(loadDeploymentAccessEnv(directory)).toEqual(accessEnv);
     } finally {
       rmSync(directory, { recursive: true, force: true });
     }
@@ -48,19 +55,34 @@ describe('deployment access configuration', () => {
     }
   });
 
-  it('requires the trusted principal pattern', () => {
-    expect(() => getDeploymentAccessConfig({ account, region: 'us-east-1', env: {} })).toThrow(
-      'Missing required deployment access environment variable SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN.'
+  it.each([
+    ['SIMPLE_TAROT_AWS_ACCOUNT', { ...accessEnv, SIMPLE_TAROT_AWS_ACCOUNT: undefined }],
+    ['SIMPLE_TAROT_AWS_REGION', { ...accessEnv, SIMPLE_TAROT_AWS_REGION: undefined }],
+    [
+      'SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN',
+      { ...accessEnv, SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: undefined },
+    ],
+  ])('requires %s', (key, env) => {
+    expect(() => getDeploymentAccessConfig(env)).toThrow(
+      `Missing required deployment access environment variable ${key}.`
     );
+  });
+
+  it.each(['123', 'abcdefghijkl'])('rejects invalid account %s', (invalidAccount) => {
+    expect(() => getDeploymentAccessConfig({
+      ...accessEnv,
+      SIMPLE_TAROT_AWS_ACCOUNT: invalidAccount,
+    })).toThrow('Invalid deployment access AWS account. Expected a 12-digit account ID.');
   });
 
   it('rejects a trusted principal from another account', () => {
     const otherAccountPattern = trustedPattern.replace(account, '210987654321');
     expect(() => getDeploymentAccessConfig({
-      account,
-      region: 'us-east-1',
-      env: { SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: otherAccountPattern },
-    })).toThrow('Deployment access trusted principal account must match CDK_DEFAULT_ACCOUNT.');
+      ...accessEnv,
+      SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: otherAccountPattern,
+    })).toThrow(
+      'Deployment access trusted principal account must match SIMPLE_TAROT_AWS_ACCOUNT.'
+    );
   });
 
   it.each([
@@ -72,9 +94,8 @@ describe('deployment access configuration', () => {
     ),
   ])('rejects an invalid trusted principal pattern: %s', (pattern) => {
     expect(() => getDeploymentAccessConfig({
-      account,
-      region: 'us-east-1',
-      env: { SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: pattern },
+      ...accessEnv,
+      SIMPLE_TAROT_DEPLOY_TRUSTED_PRINCIPAL_ARN_PATTERN: pattern,
     })).toThrow('Invalid deployment access trusted principal ARN pattern.');
   });
 });

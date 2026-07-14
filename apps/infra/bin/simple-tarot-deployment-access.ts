@@ -7,7 +7,7 @@ import {
 import { DeploymentAccessStack } from '../lib/deployment-access-stack';
 
 const app = new cdk.App();
-const config = getDeploymentAccessConfig({ env: loadDeploymentAccessEnv() });
+const config = getDeploymentAccessConfig(loadDeploymentAccessEnv());
 
 new DeploymentAccessStack(app, 'SimpleTarotDeploymentAccess', {
   config,
