@@ -48,44 +48,23 @@ function policyStatements(template: any, roleName: string): any[] {
 }
 
 describe('DeploymentAccessStack', () => {
-  it('creates exactly four semantically tagged roles', () => {
+  it('creates exactly two trusted and semantically tagged deployment roles', () => {
     const { roles } = synthesize();
-    expect(roles).toHaveLength(4);
+    expect(roles).toHaveLength(2);
 
     for (const environment of ['Dev', 'Prod'] as const) {
-      for (const kind of ['DeployRole', 'CloudFormationRole'] as const) {
-        const role = roleNamed(roles, `SimpleTarot${environment}${kind}`);
-        expect(role).toBeDefined();
-        expect(role.Properties.Tags).toEqual(expect.arrayContaining([
-          { Key: 'Application', Value: 'SimpleTarot' },
-          { Key: 'Environment', Value: environment.toLowerCase() },
-          { Key: 'ManagedBy', Value: 'CDK' },
-        ]));
-      }
-    }
-  });
-
-  it('limits operator and CloudFormation trust independently', () => {
-    const { roles } = synthesize();
-    for (const environment of ['Dev', 'Prod'] as const) {
-      const deployTrust = roleNamed(
-        roles,
-        `SimpleTarot${environment}DeployRole`
-      ).Properties.AssumeRolePolicyDocument;
-      expect(JSON.stringify(deployTrust)).toContain(`:iam::${account}:root`);
-      expect(deployTrust.Statement[0].Condition).toEqual({
+      const role = roleNamed(roles, `SimpleTarot${environment}DeployRole`);
+      expect(role).toBeDefined();
+      expect(role.Properties.Tags).toEqual(expect.arrayContaining([
+        { Key: 'Application', Value: 'SimpleTarot' },
+        { Key: 'Environment', Value: environment.toLowerCase() },
+        { Key: 'ManagedBy', Value: 'CDK' },
+      ]));
+      const trust = role.Properties.AssumeRolePolicyDocument;
+      expect(JSON.stringify(trust)).toContain(`:iam::${account}:root`);
+      expect(trust.Statement[0].Condition).toEqual({
         ArnLike: { 'aws:PrincipalArn': trustedPrincipalArnPattern },
       });
-
-      const executionTrust = roleNamed(
-        roles,
-        `SimpleTarot${environment}CloudFormationRole`
-      ).Properties.AssumeRolePolicyDocument;
-      expect(executionTrust.Statement).toHaveLength(1);
-      expect(executionTrust.Statement[0].Principal).toEqual({
-        Service: 'cloudformation.amazonaws.com',
-      });
-      expect(JSON.stringify(executionTrust)).not.toContain(account);
     }
   });
 
@@ -100,47 +79,30 @@ describe('DeploymentAccessStack', () => {
   });
 
   it.each(['Dev', 'Prod'] as const)(
-    'scopes the %s deploy role to its execution role and four application stacks',
+    'scopes the %s deploy role to its four stacks and bootstrap execution role',
     (environment) => {
-      const { roles, template } = synthesize();
-      const opposite = environment === 'Dev' ? 'Prod' : 'Dev';
-      const policies = policyStatements(
-        template,
-        `SimpleTarot${environment}DeployRole`
-      );
+      const { template } = synthesize();
+      const policies = policyStatements(template, `SimpleTarot${environment}DeployRole`);
       const passRole = policies.find((statement: any) =>
         ([] as string[]).concat(statement.Action).includes('iam:PassRole')
       );
-      expect(passRole.Resource).toEqual({
-        'Fn::GetAtt': [expect.stringContaining(`${environment}CloudFormationRole`), 'Arn'],
-      });
+      expect(JSON.stringify(passRole.Resource)).toContain(
+        `cdk-hnb659fds-cfn-exec-role-${account}-${region}`
+      );
       expect(passRole.Condition).toEqual({
         StringEquals: { 'iam:PassedToService': 'cloudformation.amazonaws.com' },
       });
 
       const text = JSON.stringify(policies);
-      const envName = environment.toLowerCase();
+      const environmentName = environment.toLowerCase();
+      const oppositeName = environment === 'Dev' ? 'prod' : 'dev';
       for (const component of ['Cognito', 'UserData', 'BedrockRag', 'Api']) {
-        expect(text).toContain(`SimpleTarot${component}-${envName}`);
+        expect(text).toContain(`SimpleTarot${component}-${environmentName}`);
+        expect(text).not.toContain(`SimpleTarot${component}-${oppositeName}`);
       }
-      expect(text).not.toContain(`SimpleTarot${opposite}CloudFormationRole`);
-      expect(text).not.toContain(`SimpleTarotDeploymentAccess`);
-      expect(text).toContain('cloudformation:RoleArn');
-
-      const mutations = policies.filter((statement: any) =>
-        ([] as string[]).concat(statement.Action).includes('cloudformation:CreateStack')
-      );
-      expect(mutations).toHaveLength(3);
-      expect(mutations.map((statement: any) => statement.Effect)).toEqual([
-        'Allow',
-        'Deny',
-        'Deny',
-      ]);
-      expect(mutations.map((statement: any) => statement.Condition)).toEqual([
-        { StringEquals: { 'cloudformation:RoleArn': expect.anything() } },
-        { StringNotEquals: { 'cloudformation:RoleArn': expect.anything() } },
-        { Null: { 'cloudformation:RoleArn': 'true' } },
-      ]);
+      expect(text).not.toContain('SimpleTarotDeploymentAccess');
+      expect(text).not.toContain('cloudformation:RoleArn');
+      expect(policies.every((statement: any) => statement.Effect !== 'Deny')).toBe(true);
 
       const iamActions = policies.flatMap((statement: any) =>
         ([] as string[]).concat(statement.Action).filter((action) => action.startsWith('iam:'))
@@ -149,8 +111,10 @@ describe('DeploymentAccessStack', () => {
     }
   );
 
-  it('contains no administrative or wildcard actions', () => {
-    const { template } = synthesize();
+  it('contains no custom execution roles or broad actions', () => {
+    const { roles, template } = synthesize();
+    expect(JSON.stringify(roles)).not.toContain('CloudFormationRole');
+
     const policies = Object.values(template.Resources).filter(
       (resource: any) => resource.Type === 'AWS::IAM::Policy'
     );
@@ -158,6 +122,9 @@ describe('DeploymentAccessStack', () => {
     expect(text).not.toContain('AdministratorAccess');
     expect(text).not.toContain('"iam:*"');
     expect(text).not.toContain('"Action":"*"');
+    for (const service of ['apigateway:', 'aoss:', 'bedrock:', 'cognito-idp:', 'dynamodb:', 'lambda:', 'logs:']) {
+      expect(text).not.toContain(service);
+    }
   });
 
   it('enables termination protection on the access artifact', () => {

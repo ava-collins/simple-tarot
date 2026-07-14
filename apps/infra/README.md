@@ -72,25 +72,25 @@ copied across environment boundaries.
 
 ## Deployment Access
 
-Application stacks use separate deploy and CloudFormation execution roles:
+Application stacks use separate environment deployment roles:
 
 ```text
 SimpleTarotDevDeployRole
-SimpleTarotDevCloudFormationRole
 SimpleTarotProdDeployRole
-SimpleTarotProdCloudFormationRole
 ```
 
-`SimpleTarotDeploymentAccess` creates only these roles. The two deploy roles
+`SimpleTarotDeploymentAccess` creates only these two roles. They
 trust the configured IAM Identity Center `AdministratorAccess` permission-set
 role pattern. Each can operate only its four environment application stacks
-and pass only its matching CloudFormation role. The CloudFormation roles trust
-only `cloudformation.amazonaws.com`; prod deployment access does not include
+and pass only the account's existing standard CDK bootstrap CloudFormation
+execution role. No custom CloudFormation service roles or application-service
+permission allowlists are maintained. Prod deployment access does not include
 `cloudformation:DeleteStack`.
 
-Copy `apps/infra/.env.access.example` to `apps/infra/.env.access`, replace the
-example account with the target account, and keep the real file uncommitted.
-The trusted pattern must use the account's IAM role ARN—not an STS session ARN.
+Copy `apps/infra/.env.access.example` to `apps/infra/.env.access`, set the
+explicit account, region, and trusted-principal pattern, and keep the real file
+uncommitted. The trusted pattern must use the account's IAM role ARN—not an STS
+session ARN.
 
 Validate the isolated access app with the administrator identity:
 
@@ -106,7 +106,7 @@ Deployment is a separate approval-gated operation:
 yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" deploy SimpleTarotDeploymentAccess
 ```
 
-The access stack retains the existing CDK bootstrap and is deployed with the
+The access stack reuses the existing CDK bootstrap and is deployed with the
 administrator identity. Application role wildcards never include the access
 stack, and dev/prod role sessions must not be reused across environments. To
 roll back access, use the administrator identity to redeploy the last
@@ -270,9 +270,8 @@ arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
 ```
 
 Set `SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN` when deploying with a custom
-CloudFormation execution role. Environment-role deployments use
-`arn:aws:iam::<account-id>:role/SimpleTarotDevCloudFormationRole` or
-`arn:aws:iam::<account-id>:role/SimpleTarotProdCloudFormationRole`.
+CloudFormation execution role. The environment deployment roles retain the
+standard bootstrap execution role above, so they do not require this override.
 
 ## API Contract
 
