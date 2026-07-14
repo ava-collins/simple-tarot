@@ -104,6 +104,7 @@ messages.
 ### Operations
 
 -   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
+-   [Infrastructure Deployment Access](./apps/infra/README.md#deployment-access) — separate dev/prod deploy and CloudFormation execution roles, administrator bootstrap commands, and rollback boundary
 
 ### Developer Workflow
 

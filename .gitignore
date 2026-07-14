@@ -85,6 +85,7 @@ web_modules/
 .env
 .env.dev
 .env.prod
+apps/infra/.env.access
 .env.development.local
 .env.test.local
 .env.production.local

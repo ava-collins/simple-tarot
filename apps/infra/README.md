@@ -4,6 +4,7 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
 - [App Structure](#app-structure)
 - [Environment Stages](#environment-stages)
+- [Deployment Access](#deployment-access)
 - [Cognito Stack](#cognito-stack)
 - [Bedrock RAG Stack](#bedrock-rag-stack)
 - [User Data Stack](#user-data-stack)
@@ -16,6 +17,8 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 ## App Structure
 
 - `bin/simple-tarot-infra.ts` is the CDK entrypoint.
+- `bin/simple-tarot-deployment-access.ts` is the separate, administrator-run
+  entrypoint for deployment roles. It never composes application stacks.
 - `lib/config.ts` selects `dev` or `prod` explicitly and loads deployment
   configuration from `apps/infra/.env.<environment>`.
 - `lib/simple-tarot-stage.ts` composes Cognito, user data, Bedrock RAG, and API
@@ -66,6 +69,49 @@ SimpleTarotProd/SimpleTarotApi-prod
 The explicit CloudFormation stack names after the slash preserve the existing
 dev deployment names. Dev and prod configuration and outputs must not be
 copied across environment boundaries.
+
+## Deployment Access
+
+Application stacks use separate deploy and CloudFormation execution roles:
+
+```text
+SimpleTarotDevDeployRole
+SimpleTarotDevCloudFormationRole
+SimpleTarotProdDeployRole
+SimpleTarotProdCloudFormationRole
+```
+
+`SimpleTarotDeploymentAccess` creates only these roles. The two deploy roles
+trust the configured IAM Identity Center `AdministratorAccess` permission-set
+role pattern. Each can operate only its four environment application stacks
+and pass only its matching CloudFormation role. The CloudFormation roles trust
+only `cloudformation.amazonaws.com`; prod deployment access does not include
+`cloudformation:DeleteStack`.
+
+Copy `apps/infra/.env.access.example` to `apps/infra/.env.access`, replace the
+example account with the target account, and keep the real file uncommitted.
+The trusted pattern must use the account's IAM role ARN—not an STS session ARN.
+
+Validate the isolated access app with the administrator identity:
+
+```sh
+yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" list
+yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" synth SimpleTarotDeploymentAccess
+yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" diff --method=template SimpleTarotDeploymentAccess
+```
+
+Deployment is a separate approval-gated operation:
+
+```sh
+yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" deploy SimpleTarotDeploymentAccess
+```
+
+The access stack retains the existing CDK bootstrap and is deployed with the
+administrator identity. Application role wildcards never include the access
+stack, and dev/prod role sessions must not be reused across environments. To
+roll back access, use the administrator identity to redeploy the last
+known-good access revision; termination protection prevents accidental stack
+deletion.
 
 ## Cognito Stack
 
@@ -171,6 +217,7 @@ are loaded from the file matching the explicit CDK environment:
 
 - `apps/infra/.env.dev`
 - `apps/infra/.env.prod`
+- `apps/infra/.env.access` for the separate deployment-access app
 
 For an existing checkout, preserve the current dev values with a one-time
 non-destructive copy:
@@ -223,7 +270,9 @@ arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
 ```
 
 Set `SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN` when deploying with a custom
-CloudFormation execution role or CI deployment role.
+CloudFormation execution role. Environment-role deployments use
+`arn:aws:iam::<account-id>:role/SimpleTarotDevCloudFormationRole` or
+`arn:aws:iam::<account-id>:role/SimpleTarotProdCloudFormationRole`.
 
 ## API Contract
 
