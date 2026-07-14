@@ -146,20 +146,23 @@ The stack creates:
 - a Node.js 22 Lambda for `apps/api`
 - an API Gateway HTTP API protected by the Cognito JWT authorizer
 - `ANY /{proxy+}` and `ANY /` routes to the Lambda integration
-- Lambda environment variables for Bedrock, user-data table, and API log bucket
-- least-privilege grants for DynamoDB read/write, S3 API log writes, and
-  Bedrock `RetrieveAndGenerate`
+- Lambda environment variables for local runtime mode, user-data table, and API
+  log bucket
+- least-privilege grants for DynamoDB read/write and S3 API log writes
 - `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
 
 `ApiUrl` is the mobile app's `EXPO_PUBLIC_TAROT_API_URL`. The current API uses
 API Gateway HTTP API, so this output does not include a REST API stage path such
 as `/dev`.
 
-The API stack currently deploys `BEDROCK_RUNTIME_MODE=local` so the mobile
-reading-history persistence flow works while Bedrock model access is pending.
-When Bedrock access is approved, change the Lambda environment to
-`BEDROCK_RUNTIME_MODE=bedrock`, confirm corpus ingestion, and redeploy
-`SimpleTarotApi-<environment>`.
+The API stack currently deploys `BEDROCK_RUNTIME_MODE=local` without Bedrock
+resource identifiers, model settings, or IAM permissions. This lets the
+Bedrock stack be replaced or managed independently while the mobile
+reading-history persistence flow remains available. Enabling Bedrock is a
+deliberate infrastructure change: confirm corpus ingestion, restore the
+Knowledge Base/region/model environment handoff and scoped
+`bedrock:RetrieveAndGenerate` permission, set `BEDROCK_RUNTIME_MODE=bedrock`,
+and redeploy `SimpleTarotApi-<environment>`.
 
 ## Environment Configuration
 
@@ -224,10 +227,11 @@ CloudFormation execution role or CI deployment role.
 
 ## API Contract
 
-The deployed API stack wires Bedrock, Cognito, user-data, and log-bucket
-outputs directly into Lambda environment variables. For local API runs, copy
-the dev CloudFormation outputs into `apps/api/.env`. Production outputs belong
-only in production API configuration; never mix outputs between environments.
+The deployed local-mode API stack wires Cognito, user-data, and log-bucket
+values into the Lambda but intentionally does not import Bedrock outputs. For
+direct local API runs in Bedrock mode, copy the dev CloudFormation outputs into
+`apps/api/.env`. Production outputs belong only in production API
+configuration; never mix outputs between environments.
 
 Bedrock outputs:
 

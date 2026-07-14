@@ -127,17 +127,19 @@ aws dynamodb query \
 
 ## Bedrock Availability Follow-Ups
 
-The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` so the full
-authenticated persistence flow can be exercised while Bedrock model access is
-pending AWS Support review.
+The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` without
+Bedrock identifiers/model settings or IAM permission. The full authenticated
+persistence flow remains available while the Bedrock stack is managed
+independently.
 
 When Bedrock access is approved:
 
 1. Upload and sync the corpus as described in
    `docs/bedrock_corpus_operations.md`.
-2. Change the API Lambda environment to `BEDROCK_RUNTIME_MODE=bedrock`.
-3. Ensure the Lambda has `BEDROCK_KNOWLEDGE_BASE_ID`, `BEDROCK_REGION`, and a
-   usable model or inference profile env value.
+2. Restore the API stack handoff for `BEDROCK_KNOWLEDGE_BASE_ID`,
+   `BEDROCK_REGION`, and a usable model or inference profile value.
+3. Restore a scoped `bedrock:RetrieveAndGenerate` permission for the Lambda and
+   change `BEDROCK_RUNTIME_MODE` to `bedrock`.
 4. Update `apps/api/src/readings/response-mapper.ts` so persisted
    `ReadingResponse.metadata.mode` records `bedrock` for Bedrock-generated
    readings.
