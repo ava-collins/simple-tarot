@@ -44,10 +44,12 @@ auth/session integration, navigation, Expo public config, and thin Server
 Function wrappers around shared package code.
 
 `apps/infra` is an AWS CDK v2 TypeScript app. It owns the Cognito auth
-infrastructure for Simple Tarot and the Bedrock RAG stack. The Bedrock stack
-creates the S3 corpus bucket, OpenSearch Serverless vector search resources,
-Bedrock Knowledge Base, S3 data source, IAM role, and CloudFormation outputs
-that hand off deployment values to the API and corpus operations.
+infrastructure for Simple Tarot and the Bedrock RAG stack. Dev and prod are
+isolated by explicit CDK environment selection and separate deployment roles.
+The Bedrock stack creates the S3 corpus bucket, OpenSearch Serverless vector
+search resources, Bedrock Knowledge Base, S3 data source, IAM role, and
+CloudFormation outputs that hand off deployment values to the API and corpus
+operations.
 
 `docs` are a collection of documents that facilitate the planning and execution
 of the project as a whole, used to provide context over time.
@@ -84,7 +86,7 @@ messages.
 | ---------------------------------------- | ------------------------------------------------------------------------- |
 | [Tarot App](./apps/tarot/README.md)      | Expo SDK 57 app — routes, auth/session, navigation, Server Functions      |
 | [REST API](./apps/api/README.md)         | Reading generation — endpoints, auth modes, Bedrock config, avatar images |
-| [Infrastructure](./apps/infra/README.md) | CDK stacks — Cognito, Bedrock RAG, DynamoDB, API Gateway Lambda           |
+| [Infrastructure](./apps/infra/README.md) | CDK stacks — explicit dev/prod selection and separate deployment roles   |
 
 ### Shared Packages
 
@@ -104,7 +106,7 @@ messages.
 ### Operations
 
 -   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
--   [Infrastructure Deployment Access](./apps/infra/README.md#deployment-access) — separate dev/prod deployment roles using shared bootstrap execution tooling, administrator commands, and rollback boundary
+-   [Infrastructure Deployment Access](./apps/infra/README.md#deployment-access) — explicit CDK dev/prod environment selection, separate deployment roles, shared bootstrap execution tooling, validation, and rollback
 
 ### Developer Workflow
 
