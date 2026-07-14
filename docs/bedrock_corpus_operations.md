@@ -96,14 +96,15 @@ The Bedrock RAG stack is part of the CDK app in `apps/infra`.
 Required before synth or deploy:
 
 ```sh
-cp apps/infra/.env.example apps/infra/.env
+cp apps/infra/.env.dev.example apps/infra/.env.dev
 ```
 
-Populate `apps/infra/.env`, then run CDK commands from the workspace:
+Populate `apps/infra/.env.dev`, then run CDK commands from the workspace. Diff
+and deploy remain approval-gated operations:
 
 ```sh
-yarn workspace infra cdk synth
-yarn workspace infra cdk deploy SimpleTarotBedrockRag-dev
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/SimpleTarotBedrockRag-dev'
+yarn workspace infra cdk deploy -c environment=dev 'SimpleTarotDev/SimpleTarotBedrockRag-dev'
 ```
 
 The stack outputs:

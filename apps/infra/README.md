@@ -3,6 +3,7 @@
 This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
 - [App Structure](#app-structure)
+- [Environment Stages](#environment-stages)
 - [Cognito Stack](#cognito-stack)
 - [Bedrock RAG Stack](#bedrock-rag-stack)
 - [User Data Stack](#user-data-stack)
@@ -15,7 +16,10 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 ## App Structure
 
 - `bin/simple-tarot-infra.ts` is the CDK entrypoint.
-- `lib/config.ts` loads deployment configuration from `apps/infra/.env`.
+- `lib/config.ts` selects `dev` or `prod` explicitly and loads deployment
+  configuration from `apps/infra/.env.<environment>`.
+- `lib/simple-tarot-stage.ts` composes Cognito, user data, Bedrock RAG, and API
+  stacks into one environment boundary.
 - `lib/cognito-stack.ts` defines the Cognito user pool, public OAuth app
   client, hosted domain, and Expo-facing CloudFormation outputs.
 - `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, OpenSearch
@@ -34,6 +38,34 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
   user-data table and S3 API log bucket.
 - `test/api-stack.test.ts` contains CDK assertion tests for the HTTP API,
   Lambda runtime, Cognito authorizer, and runtime permissions.
+- `test/config.test.ts` covers fail-closed environment selection and config
+  loading.
+- `test/simple-tarot-stage.test.ts` covers stage names, tags, and same-stage
+  resource wiring.
+
+## Environment Stages
+
+`dev` is the pre-production/test environment. `prod` is production. The CDK
+entrypoint creates only the environment selected with
+`-c environment=dev|prod`; omitting the context fails closed.
+
+The stage-qualified selectors are:
+
+```text
+SimpleTarotDev/SimpleTarotCognito-dev
+SimpleTarotDev/SimpleTarotUserData-dev
+SimpleTarotDev/SimpleTarotBedrockRag-dev
+SimpleTarotDev/SimpleTarotApi-dev
+
+SimpleTarotProd/SimpleTarotCognito-prod
+SimpleTarotProd/SimpleTarotUserData-prod
+SimpleTarotProd/SimpleTarotBedrockRag-prod
+SimpleTarotProd/SimpleTarotApi-prod
+```
+
+The explicit CloudFormation stack names after the slash preserve the existing
+dev deployment names. Dev and prod configuration and outputs must not be
+copied across environment boundaries.
 
 ## Cognito Stack
 
@@ -132,16 +164,31 @@ When Bedrock access is approved, change the Lambda environment to
 ## Environment Configuration
 
 Deployment-specific values are intentionally kept out of committed source and
-are loaded from `apps/infra/.env`.
+are loaded from the file matching the explicit CDK environment:
 
-Create the local env file from the example:
+- `apps/infra/.env.dev`
+- `apps/infra/.env.prod`
+
+For an existing checkout, preserve the current dev values with a one-time
+non-destructive copy:
 
 ```sh
-cp apps/infra/.env.example apps/infra/.env
+cp apps/infra/.env apps/infra/.env.dev
 ```
 
-Then fill in every value in `apps/infra/.env` before running CDK commands. The
-real `.env` file is ignored by git.
+Add or update `SIMPLE_TAROT_ENV=dev` in `.env.dev`, verify the copied values,
+and only then remove the obsolete `.env` manually. Do not print or commit the
+real file. Both real environment files are ignored by git.
+
+For a new environment file, copy the matching template:
+
+```sh
+cp apps/infra/.env.dev.example apps/infra/.env.dev
+cp apps/infra/.env.prod.example apps/infra/.env.prod
+```
+
+Fill in every required value before running a command for that environment.
+The declared `SIMPLE_TAROT_ENV` must match the CDK context selection.
 
 The example file lists required variable names only:
 
@@ -160,7 +207,7 @@ The example file lists required variable names only:
 
 Do not commit real environment values.
 
-The Bedrock values have safe development defaults in `.env.example`. Override
+The Bedrock values have safe defaults in both example files. Override
 them only when changing model choices, embedding dimensions, or the S3 object
 prefix used for corpus ingestion.
 
@@ -178,8 +225,9 @@ CloudFormation execution role or CI deployment role.
 ## API Contract
 
 The deployed API stack wires Bedrock, Cognito, user-data, and log-bucket
-outputs directly into Lambda environment variables. For local API runs, copy the
-same CloudFormation outputs into `apps/api/.env`.
+outputs directly into Lambda environment variables. For local API runs, copy
+the dev CloudFormation outputs into `apps/api/.env`. Production outputs belong
+only in production API configuration; never mix outputs between environments.
 
 Bedrock outputs:
 
@@ -204,10 +252,12 @@ Cognito outputs:
 The Expo-facing public output contract is documented in
 [Cognito -> Expo Config Contract](../../docs/cognito_expo_config_contract.md).
 
-After deployment, sync the CDK outputs into:
+After a dev deployment, sync only dev CDK outputs into:
 
 - `apps/tarot/.env.local` for local development
 - EAS environment variables for preview/testing builds
+
+Sync prod outputs only into the production EAS environment.
 
 Use `apps/tarot/.env.local.example` as the local template. The real
 `.env.local` file is ignored by git.
@@ -221,8 +271,28 @@ for the current boundary and release limitations.
 
 ```sh
 yarn workspace infra build-types
-yarn workspace infra test
-yarn workspace infra cdk synth
+yarn workspace infra test --runInBand
+yarn workspace infra cdk list -c environment=dev
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
+yarn workspace infra cdk list -c environment=prod
+yarn workspace infra cdk synth -c environment=prod 'SimpleTarotProd/*'
 ```
 
-`yarn workspace infra cdk synth` requires a populated `apps/infra/.env`.
+List and synth are local validation commands. Each requires the matching
+populated `.env.<environment>` file.
+
+The following commands are deployment operations and are intentionally gated:
+
+```sh
+yarn workspace infra cdk diff -c environment=dev 'SimpleTarotDev/*'
+yarn workspace infra cdk deploy -c environment=dev 'SimpleTarotDev/*'
+```
+
+Stage 2 begins with review of the dev diff. Do not deploy until every change is
+explained and approved. A replacement of Cognito, DynamoDB, or S3 resources
+blocks deployment.
+
+For rollback, redeploy the last known-good revision or use CloudFormation
+rollback for a failed update. Never delete a production stack as a rollback
+mechanism, and do not treat DynamoDB point-in-time recovery as routine
+deployment rollback.

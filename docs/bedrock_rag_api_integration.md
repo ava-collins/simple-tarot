@@ -172,7 +172,7 @@ in `apps/infra/lib/user-data-stack.ts` and `apps/infra/lib/api-stack.ts`.
 
 ```mermaid
 flowchart TB
-    Config["apps/infra/.env<br/>lib/config.ts"]
+    Config["apps/infra/.env.dev or .env.prod<br/>lib/config.ts"]
     Stack["BedrockRagStack"]
     Bucket["S3 CorpusBucket<br/>versioned, SSL-only, private"]
     Policies["OpenSearch Serverless<br/>security and data policies"]
@@ -329,4 +329,9 @@ yarn workspace infra test
 yarn workspace infra build-types
 ```
 
-`yarn workspace infra cdk synth` requires a populated `apps/infra/.env`.
+Infrastructure synth requires an explicit environment and its populated
+matching config file. For dev:
+
+```sh
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
+```

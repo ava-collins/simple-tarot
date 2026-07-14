@@ -256,4 +256,11 @@ yarn workspace tarot test
 yarn workspace tarot build-types
 ```
 
-`yarn workspace infra cdk synth` requires a real `apps/infra/.env`.
+Infrastructure synth requires an explicit environment and its matching real
+config file, for example:
+
+```sh
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
+```
+
+The command above loads the ignored `apps/infra/.env.dev` file.
