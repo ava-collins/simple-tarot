@@ -3,7 +3,7 @@ import dotenv from 'dotenv';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-type SimpleTarotEnvironment = 'dev' | 'prod';
+export type SimpleTarotEnvironment = 'dev' | 'prod';
 type InfraEnvironment = Record<string, string | undefined>;
 
 export interface InfraConfigInput {
@@ -39,26 +39,29 @@ export interface InfraConfig {
     aossIndexPrincipalArn?: string;
 }
 
-const DEFAULT_ENVIRONMENT: SimpleTarotEnvironment = 'dev';
-const DEFAULT_ENV_FILE_PATH = join(__dirname, '..', '.env');
+const DEFAULT_ENV_DIRECTORY = join(__dirname, '..');
 
-export function loadInfraEnv(envFilePath = DEFAULT_ENV_FILE_PATH): InfraEnvironment {
+export function loadInfraEnv(
+    environmentName: SimpleTarotEnvironment,
+    envDirectory = DEFAULT_ENV_DIRECTORY
+): InfraEnvironment {
+    const envFilePath = join(envDirectory, `.env.${environmentName}`);
     if (!existsSync(envFilePath)) {
         throw new Error(
-            `Missing infra environment file at ${envFilePath}. Create it from apps/infra/.env.example.`
+            `Missing infra environment file at ${envFilePath}. Create it from apps/infra/.env.${environmentName}.example.`
         );
     }
 
     return dotenv.parse(readFileSync(envFilePath));
 }
 
-function parseEnvironment(value: string): SimpleTarotEnvironment {
+export function parseSimpleTarotEnvironment(value: unknown): SimpleTarotEnvironment {
     if (value === 'dev' || value === 'prod') {
         return value;
     }
 
     throw new Error(
-        `Unsupported Simple Tarot environment "${value}". Expected "dev" or "prod".`
+        `Unsupported Simple Tarot environment "${String(value)}". Expected "dev" or "prod".`
     );
 }
 
@@ -66,6 +69,17 @@ function contextValue(app: cdk.App, key: string): string | undefined {
     const value = app.node.tryGetContext(key);
 
     return typeof value === 'string' && value.length > 0 ? value : undefined;
+}
+
+export function getSelectedEnvironment(app: cdk.App): SimpleTarotEnvironment {
+    const value = contextValue(app, 'environment');
+    if (value === undefined) {
+        throw new Error(
+            'Missing CDK context environment. Pass -c environment=dev or -c environment=prod.'
+        );
+    }
+
+    return parseSimpleTarotEnvironment(value);
 }
 
 function requiredEnvValue(env: InfraEnvironment, key: string): string {
@@ -101,25 +115,21 @@ function optionalIntegerEnvValue(
     return parsed;
 }
 
-function firstDefined<T>(...values: Array<T | undefined>): T {
-    const value = values.find((candidate): candidate is T => candidate !== undefined);
-    if (value === undefined) {
-        throw new Error('Expected at least one defined configuration value.');
-    }
-
-    return value;
-}
-
 export function getInfraConfig(input: InfraConfigInput): InfraConfig {
     const env = input.env ?? process.env;
-    const environmentName = parseEnvironment(
-        firstDefined(
-            input.environmentName,
-            contextValue(input.app, 'environment'),
-            env.SIMPLE_TAROT_ENV,
-            DEFAULT_ENVIRONMENT
-        )
+    if (input.environmentName === undefined) {
+        throw new Error('InfraConfig requires an explicit environmentName.');
+    }
+
+    const environmentName = parseSimpleTarotEnvironment(input.environmentName);
+    const declaredEnvironment = parseSimpleTarotEnvironment(
+        requiredEnvValue(env, 'SIMPLE_TAROT_ENV')
     );
+    if (environmentName !== declaredEnvironment) {
+        throw new Error(
+            `Infra environment mismatch: selected "${environmentName}" but SIMPLE_TAROT_ENV is "${declaredEnvironment}".`
+        );
+    }
     const awsRegion = requiredEnvValue(env, 'SIMPLE_TAROT_AWS_REGION');
 
     return {

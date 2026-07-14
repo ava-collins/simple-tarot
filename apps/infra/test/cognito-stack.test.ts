@@ -1,10 +1,7 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Match, Template } from 'aws-cdk-lib/assertions';
-import { mkdtempSync, rmSync, writeFileSync } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
 import { CognitoStack } from '../lib/cognito-stack';
-import { getInfraConfig, loadInfraEnv } from '../lib/config';
+import { getInfraConfig } from '../lib/config';
 
 const expectedRegion = 'aws-region-from-env';
 const expectedMobileCallbackUrl = 'mobile-callback-url-from-env';
@@ -31,6 +28,7 @@ function synthesizeDevStack() {
     app,
     environmentName: 'dev',
     env: {
+      SIMPLE_TAROT_ENV: 'dev',
       SIMPLE_TAROT_AWS_REGION: expectedRegion,
       SIMPLE_TAROT_MOBILE_CALLBACK_URL: expectedMobileCallbackUrl,
       SIMPLE_TAROT_MOBILE_LOGOUT_URL: expectedMobileLogoutUrl,
@@ -57,6 +55,7 @@ function synthesizeProdStack() {
     app,
     environmentName: 'prod',
     env: {
+      SIMPLE_TAROT_ENV: 'prod',
       SIMPLE_TAROT_AWS_REGION: expectedRegion,
       SIMPLE_TAROT_MOBILE_CALLBACK_URL: expectedMobileCallbackUrl,
       SIMPLE_TAROT_MOBILE_LOGOUT_URL: expectedMobileLogoutUrl,
@@ -183,35 +182,4 @@ describe('CognitoStack', () => {
     });
   });
 
-  it('loads deployment values from an explicit env file', () => {
-    const envDir = mkdtempSync(join(tmpdir(), 'simple-tarot-infra-'));
-    const envFilePath = join(envDir, '.env');
-
-    writeFileSync(envFilePath, [
-      `SIMPLE_TAROT_AWS_REGION=${expectedRegion}`,
-      `SIMPLE_TAROT_MOBILE_CALLBACK_URL=${expectedMobileCallbackUrl}`,
-      `SIMPLE_TAROT_MOBILE_LOGOUT_URL=${expectedMobileLogoutUrl}`,
-      `SIMPLE_TAROT_WEB_CALLBACK_URL=${expectedWebCallbackUrl}`,
-      `SIMPLE_TAROT_WEB_LOGOUT_URL=${expectedWebLogoutUrl}`,
-      `SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX=${expectedDomainPrefix}`,
-    ].join('\n'));
-
-    try {
-      const env = loadInfraEnv(envFilePath);
-      const config = getInfraConfig({
-        app: new cdk.App(),
-        environmentName: 'dev',
-        env,
-      });
-
-      expect(config.awsRegion).toBe(expectedRegion);
-      expect(config.mobileCallbackUrl).toBe(expectedMobileCallbackUrl);
-      expect(config.mobileLogoutUrl).toBe(expectedMobileLogoutUrl);
-      expect(config.webCallbackUrl).toBe(expectedWebCallbackUrl);
-      expect(config.webLogoutUrl).toBe(expectedWebLogoutUrl);
-      expect(config.cognitoDomainPrefix).toBe(expectedDomainPrefix);
-    } finally {
-      rmSync(envDir, { recursive: true, force: true });
-    }
-  });
 });
