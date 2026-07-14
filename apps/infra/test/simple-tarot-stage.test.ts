@@ -24,10 +24,12 @@ function synthesize(environmentName: SimpleTarotEnvironment) {
     },
   });
   const suffix = environmentName === 'dev' ? 'Dev' : 'Prod';
-  return new SimpleTarotStage(app, `SimpleTarot${suffix}`, {
+  const stage = new SimpleTarotStage(app, `SimpleTarot${suffix}`, {
     config,
     env: { account, region },
   });
+
+  return { assembly: app.synth(), stage };
 }
 
 describe('SimpleTarotStage', () => {
@@ -49,7 +51,7 @@ describe('SimpleTarotStage', () => {
   ] as const)(
     'keeps stable %s stack names',
     (environment, cognito, data, bedrock, api) => {
-      const stage = synthesize(environment);
+      const { stage } = synthesize(environment);
       expect(stage.cognitoStack.stackName).toBe(cognito);
       expect(stage.userDataStack.stackName).toBe(data);
       expect(stage.bedrockStack.stackName).toBe(bedrock);
@@ -57,8 +59,31 @@ describe('SimpleTarotStage', () => {
     }
   );
 
+  it.each(['dev', 'prod'] as const)(
+    'routes every %s stack artifact through its environment roles',
+    (environment) => {
+      const { assembly, stage } = synthesize(environment);
+      const suffix = environment === 'dev' ? 'Dev' : 'Prod';
+
+      for (const stack of [
+        stage.cognitoStack,
+        stage.userDataStack,
+        stage.bedrockStack,
+        stage.apiStack,
+      ]) {
+        const artifact = assembly.getStackArtifact(stack.artifactId);
+        expect(artifact.assumeRoleArn).toBe(
+          `arn:\${AWS::Partition}:iam::${account}:role/SimpleTarot${suffix}DeployRole`
+        );
+        expect(artifact.cloudFormationExecutionRoleArn).toBe(
+          `arn:\${AWS::Partition}:iam::${account}:role/SimpleTarot${suffix}CloudFormationRole`
+        );
+      }
+    }
+  );
+
   it('wires local API data values without a Bedrock import', () => {
-    const template = Template.fromStack(synthesize('dev').apiStack);
+    const template = Template.fromStack(synthesize('dev').stage.apiStack);
     const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
     const variables = fn.Properties.Environment.Variables;
     expect(JSON.stringify(variables.API_LOG_BUCKET_NAME)).toContain(
@@ -69,7 +94,7 @@ describe('SimpleTarotStage', () => {
   });
 
   it('tags owned resources', () => {
-    const template = Template.fromStack(synthesize('prod').cognitoStack);
+    const template = Template.fromStack(synthesize('prod').stage.cognitoStack);
     template.hasResourceProperties('AWS::Cognito::UserPool', {
       UserPoolName: 'simple-tarot-prod-users',
       UserPoolTags: {
