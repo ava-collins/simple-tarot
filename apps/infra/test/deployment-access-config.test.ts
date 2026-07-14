@@ -9,7 +9,7 @@ import {
 const account = '123456789012';
 const trustedPattern =
   `arn:aws:iam::${account}:role/aws-reserved/sso.amazonaws.com/` +
-  'AWSReservedSSO_AdministratorAccess_*';
+  'AWSReservedSSO_SimpleTarotDeploymentAccess_*';
 const accessEnv = {
   SIMPLE_TAROT_AWS_ACCOUNT: account,
   SIMPLE_TAROT_AWS_REGION: 'us-east-1',
@@ -87,10 +87,10 @@ describe('deployment access configuration', () => {
 
   it.each([
     trustedPattern.replace('_*', '_abc123'),
-    trustedPattern.replace('AdministratorAccess', 'PowerUserAccess'),
+    trustedPattern.replace('SimpleTarotDeploymentAccess', 'Simple Tarot'),
     trustedPattern.replace(':iam:', ':sts:').replace(
-      'role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_AdministratorAccess_*',
-      'assumed-role/AWSReservedSSO_AdministratorAccess_abc123/operator'
+      'role/aws-reserved/sso.amazonaws.com/AWSReservedSSO_SimpleTarotDeploymentAccess_*',
+      'assumed-role/AWSReservedSSO_SimpleTarotDeploymentAccess_abc123/operator'
     ),
   ])('rejects an invalid trusted principal pattern: %s', (pattern) => {
     expect(() => getDeploymentAccessConfig({

@@ -6,7 +6,7 @@ const account = '123456789012';
 const region = 'us-east-1';
 const trustedPrincipalArnPattern =
   `arn:aws:iam::${account}:role/aws-reserved/sso.amazonaws.com/` +
-  'AWSReservedSSO_AdministratorAccess_*';
+  'AWSReservedSSO_SimpleTarotDeploymentAccess_*';
 
 function synthesize() {
   const app = new cdk.App();
@@ -119,7 +119,7 @@ describe('DeploymentAccessStack', () => {
       (resource: any) => resource.Type === 'AWS::IAM::Policy'
     );
     const text = JSON.stringify(policies);
-    expect(text).not.toContain('AdministratorAccess');
+    expect(text).not.toContain('arn:aws:iam::aws:policy/');
     expect(text).not.toContain('"iam:*"');
     expect(text).not.toContain('"Action":"*"');
     for (const service of ['apigateway:', 'aoss:', 'bedrock:', 'cognito-idp:', 'dynamodb:', 'lambda:', 'logs:']) {

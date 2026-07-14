@@ -11,7 +11,7 @@ export interface DeploymentAccessConfig {
 }
 
 const TRUSTED_PRINCIPAL_PATTERN =
-  /^arn:(aws(?:-[a-z]+)*):iam::(\d{12}):role\/aws-reserved\/sso\.amazonaws\.com\/(?:[a-z0-9-]+\/)?AWSReservedSSO_AdministratorAccess_\*$/;
+  /^arn:(aws(?:-[a-z]+)*):iam::(\d{12}):role\/aws-reserved\/sso\.amazonaws\.com\/(?:[a-z0-9-]+\/)?AWSReservedSSO_[A-Za-z0-9+=,.@_-]+_\*$/;
 
 export function loadDeploymentAccessEnv(
   directory = join(__dirname, '..')

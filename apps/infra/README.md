@@ -101,8 +101,8 @@ SimpleTarotProdDeployRole
 ```
 
 The deployed `SimpleTarotDeploymentAccess` stack creates only these two roles.
-They trust the configured IAM Identity Center `AdministratorAccess`
-permission-set role pattern. Each can operate only its four environment
+They trust the IAM Identity Center permission-set role pattern configured in
+the ignored access environment file. Each can operate only its four environment
 application stacks and pass only the account's existing standard CDK bootstrap
 CloudFormation execution role. No custom CloudFormation service roles or
 application-service permission allowlists are maintained. Prod deployment
