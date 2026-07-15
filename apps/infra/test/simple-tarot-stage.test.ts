@@ -60,10 +60,9 @@ describe('SimpleTarotStage', () => {
   );
 
   it.each(['dev', 'prod'] as const)(
-    'routes every %s artifact through its deploy role and bootstrap execution role',
+    'uses the standard CDK bootstrap roles for every %s artifact',
     (environment) => {
       const { assembly, stage } = synthesize(environment);
-      const suffix = environment === 'dev' ? 'Dev' : 'Prod';
 
       for (const stack of [
         stage.cognitoStack,
@@ -73,7 +72,8 @@ describe('SimpleTarotStage', () => {
       ]) {
         const artifact = assembly.getStackArtifact(stack.artifactId);
         expect(artifact.assumeRoleArn).toBe(
-          `arn:\${AWS::Partition}:iam::${account}:role/SimpleTarot${suffix}DeployRole`
+          `arn:\${AWS::Partition}:iam::${account}:role/` +
+          `cdk-hnb659fds-deploy-role-${account}-${region}`
         );
         expect(artifact.cloudFormationExecutionRoleArn).toBe(
           `arn:\${AWS::Partition}:iam::${account}:role/` +

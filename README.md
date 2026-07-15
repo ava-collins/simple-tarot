@@ -45,7 +45,7 @@ Function wrappers around shared package code.
 
 `apps/infra` is an AWS CDK v2 TypeScript app. It owns the Cognito auth
 infrastructure for Simple Tarot and the Bedrock RAG stack. Dev and prod are
-isolated by explicit CDK environment selection and separate deployment roles.
+isolated by explicit CDK environment selection and distinct resources.
 Dev is deployed as the pre-production/test environment with a zero CDK diff;
 prod is defined but not deployed. The deployed API remains in local mode and
 does not currently use the Bedrock resources.
@@ -89,7 +89,7 @@ messages.
 | ---------------------------------------- | ------------------------------------------------------------------------- |
 | [Tarot App](./apps/tarot/README.md)      | Expo SDK 57 app — routes, auth/session, navigation, Server Functions      |
 | [REST API](./apps/api/README.md)         | Reading generation — endpoints, auth modes, Bedrock config, avatar images |
-| [Infrastructure](./apps/infra/README.md) | CDK stacks — explicit dev/prod selection and separate deployment roles   |
+| [Infrastructure](./apps/infra/README.md) | CDK stacks — explicit dev/prod selection and distinct resources          |
 
 ### Shared Packages
 
@@ -109,7 +109,7 @@ messages.
 ### Operations
 
 -   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
--   [Infrastructure Deployment Access](./apps/infra/README.md#deployment-access) — explicit CDK dev/prod environment selection, separate deployment roles, shared bootstrap execution tooling, validation, and rollback
+-   [Infrastructure Operations](./apps/infra/README.md#commands) — explicit CDK dev/prod environment selection, deployment, validation, and rollback
 
 ### Developer Workflow
 

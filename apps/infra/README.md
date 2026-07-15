@@ -5,7 +5,6 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 - [App Structure](#app-structure)
 - [Current State](#current-state)
 - [Environment Selection](#environment-selection)
-- [Deployment Access](#deployment-access)
 - [Cognito Stack](#cognito-stack)
 - [Bedrock RAG Stack](#bedrock-rag-stack)
 - [User Data Stack](#user-data-stack)
@@ -20,26 +19,15 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 ## Current State
 
 `dev` is the deployed pre-production/test environment. `prod` is defined in
-the CDK app but intentionally is not deployed. The deployment-access stack and
-both environment roles are deployed:
-
-```text
-SimpleTarotDeploymentAccess
-SimpleTarotDevDeployRole
-SimpleTarotProdDeployRole
-```
-
-Both deployment roles reuse the standard `hnb659fds` CDK bootstrap
-CloudFormation execution role. The deployed dev application has a zero CDK
-diff after deployment through `SimpleTarotDevDeployRole`. The API Bedrock
+the CDK app but intentionally is not deployed. Application deployments use
+the standard `hnb659fds` CDK bootstrap roles. The deployed dev application has
+a zero CDK diff. The API Bedrock
 runtime remains disabled: the deployed API uses `BEDROCK_RUNTIME_MODE=local`
 and does not receive Bedrock resource identifiers or Bedrock IAM permissions.
 
 ## App Structure
 
 - `bin/simple-tarot-infra.ts` is the CDK entrypoint.
-- `bin/simple-tarot-deployment-access.ts` is the separate, administrator-run
-  entrypoint for deployment roles. It never composes application stacks.
 - `lib/config.ts` selects `dev` or `prod` explicitly and loads deployment
   configuration from `apps/infra/.env.<environment>`.
 - `lib/simple-tarot-stage.ts` composes Cognito, user data, Bedrock RAG, and API
@@ -90,50 +78,6 @@ SimpleTarotProd/SimpleTarotApi-prod
 The explicit CloudFormation stack names after the slash preserve the existing
 dev deployment names. Dev and prod configuration and outputs must not be
 copied across environment boundaries.
-
-## Deployment Access
-
-Application stacks use separate environment deployment roles:
-
-```text
-SimpleTarotDevDeployRole
-SimpleTarotProdDeployRole
-```
-
-The deployed `SimpleTarotDeploymentAccess` stack creates only these two roles.
-They trust the IAM Identity Center permission-set role pattern configured in
-the ignored access environment file. Each can operate only its four environment
-application stacks and pass only the account's existing standard CDK bootstrap
-CloudFormation execution role. No custom CloudFormation service roles or
-application-service permission allowlists are maintained. Prod deployment
-access does not include `cloudformation:DeleteStack`.
-
-Copy `apps/infra/.env.access.example` to `apps/infra/.env.access`, set the
-explicit account, region, and trusted-principal pattern, and keep the real file
-uncommitted. The trusted pattern must use the account's IAM role ARN—not an STS
-session ARN.
-
-Validate the deployed access stack with the administrator identity:
-
-```sh
-env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" list
-env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" synth SimpleTarotDeploymentAccess
-env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" diff --method=template SimpleTarotDeploymentAccess
-```
-
-If the access stack must be recovered, deploy it with the administrator
-identity:
-
-```sh
-env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk --app "yarn ts-node --prefer-ts-exts bin/simple-tarot-deployment-access.ts" deploy SimpleTarotDeploymentAccess
-```
-
-The access stack reuses the existing CDK bootstrap and is deployed with the
-administrator identity. Application role wildcards never include the access
-stack, and dev/prod role sessions must not be reused across environments. To
-roll back access, use the administrator identity to redeploy the last
-known-good access revision; termination protection prevents accidental stack
-deletion.
 
 ## Cognito Stack
 
@@ -239,7 +183,6 @@ are loaded from the file matching the explicit CDK environment:
 
 - `apps/infra/.env.dev`
 - `apps/infra/.env.prod`
-- `apps/infra/.env.access` for the separate deployment-access app
 
 For an existing checkout, preserve the current dev values with a one-time
 non-destructive copy:
@@ -283,7 +226,7 @@ them only when changing model choices, embedding dimensions, or the S3 object
 prefix used for corpus ingestion.
 
 The stack grants OpenSearch Serverless index creation to the standard modern
-CDK CloudFormation execution role reused by both environment deployment roles:
+CDK CloudFormation execution role:
 
 ```text
 arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
@@ -347,7 +290,7 @@ env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk list -c envi
 env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
 ```
 
-Diff and deploy the dev application through the dev deployment role:
+Diff and deploy the dev application:
 
 ```sh
 env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk diff --method=template --exclusively -c environment=dev 'SimpleTarotDev/*'
@@ -372,10 +315,9 @@ approval.
 
 ## Validation
 
-Confirm the deployment-access stack and the dev API health endpoint:
+Confirm the dev API health endpoint:
 
 ```sh
-aws cloudformation describe-stacks --profile your-administrator-profile --region us-east-1 --stack-name SimpleTarotDeploymentAccess
 DEV_API_URL=https://your-dev-api-id.execute-api.us-east-1.amazonaws.com
 curl -s -o /dev/null -w '%{http_code}\n' "${DEV_API_URL}/health"
 ```
@@ -385,17 +327,14 @@ deployed API authorizer is active.
 
 ## Rollback
 
-Redeploy the last known-good revision through the deployment role matching the
-target environment. From a checkout of that reviewed revision, run the matching
-application command:
+Redeploy the last known-good revision for the target environment. From a
+checkout of that reviewed revision, run the matching application command:
 
 ```sh
 env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk deploy --exclusively -c environment=dev 'SimpleTarotDev/*'
 env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk deploy --exclusively -c environment=prod 'SimpleTarotProd/*'
 ```
 
-Use the administrator identity only for `SimpleTarotDeploymentAccess`
-recovery, using the access-stack deploy command in
-[Deployment Access](#deployment-access). Allow CloudFormation to roll back a
-failed update. Never delete a prod stack as routine rollback, and do not treat
-DynamoDB point-in-time recovery as routine deployment rollback.
+Allow CloudFormation to roll back a failed update. Never delete a prod stack as
+routine rollback, and do not treat DynamoDB point-in-time recovery as routine
+deployment rollback.
