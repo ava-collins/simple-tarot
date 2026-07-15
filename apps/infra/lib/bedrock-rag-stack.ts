@@ -231,9 +231,7 @@ export class BedrockRagStack extends cdk.Stack {
         description: 'Simple Tarot single-region reading generation profile',
         inferenceProfileName: props.config.bedrockGenerationInferenceProfileName,
         modelSource: {
-          copyFrom:
-            `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/` +
-            props.config.bedrockGenerationModelId
+          copyFrom: `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/${props.config.bedrockGenerationModelId}`
         }
       }
     );
