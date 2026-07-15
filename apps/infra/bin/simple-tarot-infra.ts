@@ -1,54 +1,25 @@
 #!/usr/bin/env node
 import * as cdk from 'aws-cdk-lib/core';
-import { ApiStack } from '../lib/api-stack';
-import { BedrockRagStack } from '../lib/bedrock-rag-stack';
-import { CognitoStack } from '../lib/cognito-stack';
-import { getInfraConfig, loadInfraEnv } from '../lib/config';
-import { UserDataStack } from '../lib/user-data-stack';
+import {
+  getInfraConfig,
+  getSelectedEnvironment,
+  loadInfraEnv
+} from '../lib/config';
+import { SimpleTarotStage } from '../lib/simple-tarot-stage';
 
 const app = new cdk.App();
+const environmentName = getSelectedEnvironment(app);
 const config = getInfraConfig({
   app,
-  env: loadInfraEnv()
+  environmentName,
+  env: loadInfraEnv(environmentName)
 });
+const stageId = environmentName === 'dev' ? 'SimpleTarotDev' : 'SimpleTarotProd';
 
-const cognitoStack = new CognitoStack(app, config.stackName, {
+new SimpleTarotStage(app, stageId, {
   config,
   env: {
     account: process.env.CDK_DEFAULT_ACCOUNT,
     region: config.awsRegion
-  },
-  stackName: config.stackName
-});
-
-const userDataStack = new UserDataStack(app, config.userDataStackName, {
-  config,
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: config.awsRegion
-  },
-  stackName: config.userDataStackName
-});
-
-const bedrockStack = new BedrockRagStack(app, config.bedrockStackName, {
-  config,
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: config.awsRegion
-  },
-  stackName: config.bedrockStackName
-});
-
-new ApiStack(app, config.apiStackName, {
-  apiLogBucket: userDataStack.apiLogBucket,
-  config,
-  env: {
-    account: process.env.CDK_DEFAULT_ACCOUNT,
-    region: config.awsRegion
-  },
-  knowledgeBase: bedrockStack.knowledgeBase,
-  stackName: config.apiStackName,
-  userDataTable: userDataStack.userDataTable,
-  userPool: cognitoStack.userPool,
-  userPoolClient: cognitoStack.userPoolClient
+  }
 });

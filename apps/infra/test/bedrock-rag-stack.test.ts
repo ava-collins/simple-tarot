@@ -6,6 +6,7 @@ import { getInfraConfig } from '../lib/config';
 const expectedRegion = 'us-east-1';
 
 const baseEnv = {
+  SIMPLE_TAROT_ENV: 'dev',
   SIMPLE_TAROT_AWS_REGION: expectedRegion,
   SIMPLE_TAROT_MOBILE_CALLBACK_URL: 'simpletarot://auth/callback',
   SIMPLE_TAROT_MOBILE_LOGOUT_URL: 'simpletarot://auth/logout',

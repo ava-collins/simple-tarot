@@ -84,8 +84,9 @@ When changing Bedrock runtime behavior:
 - Preserve inference profile precedence unless intentionally changing API env
   semantics.
 - Remember that the deployed API stack currently sets
-  `BEDROCK_RUNTIME_MODE=local`; enabling Bedrock requires an API stack/Lambda
-  environment update and deployment.
+  `BEDROCK_RUNTIME_MODE=local` without Bedrock identifiers/model settings or
+  IAM permission; enabling Bedrock requires restoring that handoff and scoped
+  permission in the API stack, then deploying it.
 
 When changing reading persistence behavior:
 

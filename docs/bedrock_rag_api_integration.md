@@ -158,10 +158,12 @@ Model selection precedence:
 When `BEDROCK_MODEL_ID` is set, the API expands it into a regional foundation
 model ARN. Inference profile IDs and ARNs are passed through as provided.
 
-The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` while
-Bedrock model access is pending AWS Support review. When access is approved,
-change the API Lambda environment to `BEDROCK_RUNTIME_MODE=bedrock`, confirm
-Knowledge Base ingestion is complete, and redeploy the API stack.
+The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` without
+Bedrock resource identifiers, model settings, or IAM permission. This keeps the
+Bedrock stack independently manageable. When activating Bedrock, confirm
+Knowledge Base ingestion, restore the Knowledge Base/region/model environment
+handoff and scoped `bedrock:RetrieveAndGenerate` permission, change the mode to
+`bedrock`, and redeploy the API stack.
 
 ## Infrastructure Flow
 
@@ -172,7 +174,7 @@ in `apps/infra/lib/user-data-stack.ts` and `apps/infra/lib/api-stack.ts`.
 
 ```mermaid
 flowchart TB
-    Config["apps/infra/.env<br/>lib/config.ts"]
+    Config["apps/infra/.env.dev or .env.prod<br/>lib/config.ts"]
     Stack["BedrockRagStack"]
     Bucket["S3 CorpusBucket<br/>versioned, SSL-only, private"]
     Policies["OpenSearch Serverless<br/>security and data policies"]
@@ -281,8 +283,9 @@ when that value is changed.
 
 ## Integration Outputs
 
-After deploying the Bedrock RAG stack, copy CloudFormation outputs into the API
-runtime environment:
+After deploying the Bedrock RAG stack, copy CloudFormation outputs into a
+direct local API runtime when testing Bedrock mode. The deployed local-mode
+Lambda intentionally does not consume these outputs until Bedrock activation:
 
 | CloudFormation output | API env var |
 | --- | --- |
@@ -329,4 +332,9 @@ yarn workspace infra test
 yarn workspace infra build-types
 ```
 
-`yarn workspace infra cdk synth` requires a populated `apps/infra/.env`.
+Infrastructure synth requires an explicit environment and its populated
+matching config file. For dev:
+
+```sh
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
+```

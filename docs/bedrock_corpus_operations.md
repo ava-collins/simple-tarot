@@ -96,14 +96,15 @@ The Bedrock RAG stack is part of the CDK app in `apps/infra`.
 Required before synth or deploy:
 
 ```sh
-cp apps/infra/.env.example apps/infra/.env
+cp apps/infra/.env.dev.example apps/infra/.env.dev
 ```
 
-Populate `apps/infra/.env`, then run CDK commands from the workspace:
+Populate `apps/infra/.env.dev`, then run CDK commands from the workspace. Diff
+and deploy remain approval-gated operations:
 
 ```sh
-yarn workspace infra cdk synth
-yarn workspace infra cdk deploy SimpleTarotBedrockRag-dev
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/SimpleTarotBedrockRag-dev'
+yarn workspace infra cdk deploy -c environment=dev 'SimpleTarotDev/SimpleTarotBedrockRag-dev'
 ```
 
 The stack outputs:
@@ -164,10 +165,12 @@ Then start the API:
 yarn api:dev
 ```
 
-The deployed `SimpleTarotApi-<environment>` stack currently sets the Lambda
-environment to `BEDROCK_RUNTIME_MODE=local` so the mobile persistence flow can
-run while Bedrock access is pending. When Bedrock access is approved, update the
-API stack/Lambda environment to `BEDROCK_RUNTIME_MODE=bedrock` and redeploy.
+The deployed `SimpleTarotApi-<environment>` stack currently sets the Lambda to
+`BEDROCK_RUNTIME_MODE=local` without Bedrock identifiers/model settings or IAM
+permission, so the Bedrock stack can be managed independently. When activating
+Bedrock, restore the Knowledge Base/region/model environment handoff and scoped
+`bedrock:RetrieveAndGenerate` permission in the API stack, set the mode to
+`bedrock`, and redeploy.
 
 Before enabling Bedrock mode in production, also update
 `apps/api/src/readings/response-mapper.ts` so `ReadingResponse.metadata.mode`

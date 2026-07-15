@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { ApiStack } from '../lib/api-stack';
-import { BedrockRagStack } from '../lib/bedrock-rag-stack';
 import { CognitoStack } from '../lib/cognito-stack';
 import { getInfraConfig } from '../lib/config';
 import { UserDataStack } from '../lib/user-data-stack';
@@ -9,6 +8,7 @@ import { UserDataStack } from '../lib/user-data-stack';
 const expectedRegion = 'us-east-1';
 
 const baseEnv = {
+  SIMPLE_TAROT_ENV: 'dev',
   SIMPLE_TAROT_AWS_REGION: expectedRegion,
   SIMPLE_TAROT_MOBILE_CALLBACK_URL: 'simpletarot://auth/callback',
   SIMPLE_TAROT_MOBILE_LOGOUT_URL: 'simpletarot://auth/logout',
@@ -41,13 +41,6 @@ function synthesizeApiStack() {
       region: config.awsRegion,
     },
   });
-  const bedrockStack = new BedrockRagStack(app, 'TestBedrockRagStack', {
-    config,
-    env: {
-      account: '123456789012',
-      region: config.awsRegion,
-    },
-  });
   const apiStack = new ApiStack(app, 'TestApiStack', {
     apiLogBucket: userDataStack.apiLogBucket,
     config,
@@ -55,7 +48,6 @@ function synthesizeApiStack() {
       account: '123456789012',
       region: config.awsRegion,
     },
-    knowledgeBase: bedrockStack.knowledgeBase,
     userDataTable: userDataStack.userDataTable,
     userPool: cognitoStack.userPool,
     userPoolClient: cognitoStack.userPoolClient,
@@ -75,10 +67,6 @@ describe('ApiStack', () => {
       Environment: {
         Variables: Match.objectLike({
           API_LOG_BUCKET_NAME: Match.anyValue(),
-          BEDROCK_INFERENCE_PROFILE_ID:
-            'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
-          BEDROCK_KNOWLEDGE_BASE_ID: Match.anyValue(),
-          BEDROCK_REGION: expectedRegion,
           BEDROCK_RUNTIME_MODE: 'local',
           USER_DATA_TABLE_NAME: Match.anyValue(),
         }),
@@ -121,7 +109,7 @@ describe('ApiStack', () => {
     });
   });
 
-  it('grants the Lambda least-privilege data and Bedrock access', () => {
+  it('grants the Lambda least-privilege user-data and log access', () => {
     const template = synthesizeApiStack();
     const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
 
@@ -129,7 +117,18 @@ describe('ApiStack', () => {
     expect(policies).toContain('dynamodb:Query');
     expect(policies).toContain('s3:PutObject');
     expect(policies).toContain('/api-logs/*');
-    expect(policies).toContain('bedrock:RetrieveAndGenerate');
+  });
+
+  it('keeps local mode independent of Bedrock resources and permissions', () => {
+    const template = synthesizeApiStack();
+    const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
+    const variables = fn.Properties.Environment.Variables;
+    const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
+
+    expect(variables).not.toHaveProperty('BEDROCK_INFERENCE_PROFILE_ID');
+    expect(variables).not.toHaveProperty('BEDROCK_KNOWLEDGE_BASE_ID');
+    expect(variables).not.toHaveProperty('BEDROCK_REGION');
+    expect(policies).not.toContain('bedrock:RetrieveAndGenerate');
   });
 
   it('emits API handoff outputs for the mobile client and later stages', () => {

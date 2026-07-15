@@ -3,6 +3,8 @@
 This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
 - [App Structure](#app-structure)
+- [Current State](#current-state)
+- [Environment Selection](#environment-selection)
 - [Cognito Stack](#cognito-stack)
 - [Bedrock RAG Stack](#bedrock-rag-stack)
 - [User Data Stack](#user-data-stack)
@@ -11,11 +13,25 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 - [API Contract](#api-contract)
 - [Expo Contract](#expo-contract)
 - [Commands](#commands)
+- [Validation](#validation)
+- [Rollback](#rollback)
+
+## Current State
+
+`dev` is the deployed pre-production/test environment. `prod` is defined in
+the CDK app but intentionally is not deployed. Application deployments use
+the standard `hnb659fds` CDK bootstrap roles. The deployed dev application has
+a zero CDK diff. The API Bedrock
+runtime remains disabled: the deployed API uses `BEDROCK_RUNTIME_MODE=local`
+and does not receive Bedrock resource identifiers or Bedrock IAM permissions.
 
 ## App Structure
 
 - `bin/simple-tarot-infra.ts` is the CDK entrypoint.
-- `lib/config.ts` loads deployment configuration from `apps/infra/.env`.
+- `lib/config.ts` selects `dev` or `prod` explicitly and loads deployment
+  configuration from `apps/infra/.env.<environment>`.
+- `lib/simple-tarot-stage.ts` composes Cognito, user data, Bedrock RAG, and API
+  stacks into one environment boundary.
 - `lib/cognito-stack.ts` defines the Cognito user pool, public OAuth app
   client, hosted domain, and Expo-facing CloudFormation outputs.
 - `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, OpenSearch
@@ -24,8 +40,8 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 - `lib/user-data-stack.ts` defines the DynamoDB user-data table and S3 API log
   bucket used by authenticated reading persistence.
 - `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
-  JWT authorizer, and Lambda permissions for DynamoDB, S3 API logs, and
-  Bedrock.
+  JWT authorizer, and Lambda permissions for DynamoDB and S3 API logs. The
+  deployed Lambda does not have Bedrock permissions.
 - `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
   contract.
 - `test/bedrock-rag-stack.test.ts` contains CDK assertion tests for the
@@ -34,6 +50,34 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
   user-data table and S3 API log bucket.
 - `test/api-stack.test.ts` contains CDK assertion tests for the HTTP API,
   Lambda runtime, Cognito authorizer, and runtime permissions.
+- `test/config.test.ts` covers fail-closed environment selection and config
+  loading.
+- `test/simple-tarot-stage.test.ts` covers stage names, tags, and same-stage
+  resource wiring.
+
+## Environment Selection
+
+`dev` is the pre-production/test environment. `prod` is production. The CDK
+entrypoint creates only the environment selected with
+`-c environment=dev|prod`; omitting the context fails closed.
+
+The stage-qualified selectors are:
+
+```text
+SimpleTarotDev/SimpleTarotCognito-dev
+SimpleTarotDev/SimpleTarotUserData-dev
+SimpleTarotDev/SimpleTarotBedrockRag-dev
+SimpleTarotDev/SimpleTarotApi-dev
+
+SimpleTarotProd/SimpleTarotCognito-prod
+SimpleTarotProd/SimpleTarotUserData-prod
+SimpleTarotProd/SimpleTarotBedrockRag-prod
+SimpleTarotProd/SimpleTarotApi-prod
+```
+
+The explicit CloudFormation stack names after the slash preserve the existing
+dev deployment names. Dev and prod configuration and outputs must not be
+copied across environment boundaries.
 
 ## Cognito Stack
 
@@ -55,8 +99,8 @@ The app client does not create a client secret. Expo receives public
 identifiers and URLs only.
 
 `dev` uses destroy removal policy for iteration. `prod` uses retain removal
-policy plus Cognito deletion protection, but production deployment settings
-should be reviewed before first deployment.
+policy plus Cognito deletion protection. Create and review real `.env.prod`
+values before evaluating or deploying production.
 
 ## Bedrock RAG Stack
 
@@ -114,34 +158,52 @@ The stack creates:
 - a Node.js 22 Lambda for `apps/api`
 - an API Gateway HTTP API protected by the Cognito JWT authorizer
 - `ANY /{proxy+}` and `ANY /` routes to the Lambda integration
-- Lambda environment variables for Bedrock, user-data table, and API log bucket
-- least-privilege grants for DynamoDB read/write, S3 API log writes, and
-  Bedrock `RetrieveAndGenerate`
+- Lambda environment variables for local runtime mode, user-data table, and API
+  log bucket
+- least-privilege grants for DynamoDB read/write and S3 API log writes
 - `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
 
 `ApiUrl` is the mobile app's `EXPO_PUBLIC_TAROT_API_URL`. The current API uses
 API Gateway HTTP API, so this output does not include a REST API stage path such
 as `/dev`.
 
-The API stack currently deploys `BEDROCK_RUNTIME_MODE=local` so the mobile
-reading-history persistence flow works while Bedrock model access is pending.
-When Bedrock access is approved, change the Lambda environment to
-`BEDROCK_RUNTIME_MODE=bedrock`, confirm corpus ingestion, and redeploy
-`SimpleTarotApi-<environment>`.
+The API stack currently deploys `BEDROCK_RUNTIME_MODE=local` without Bedrock
+resource identifiers, model settings, or IAM permissions. This lets the
+Bedrock stack be replaced or managed independently while the mobile
+reading-history persistence flow remains available. Enabling Bedrock is a
+deliberate infrastructure change: confirm corpus ingestion, restore the
+Knowledge Base/region/model environment handoff and scoped
+`bedrock:RetrieveAndGenerate` permission, set `BEDROCK_RUNTIME_MODE=bedrock`,
+and redeploy `SimpleTarotApi-<environment>`.
 
 ## Environment Configuration
 
 Deployment-specific values are intentionally kept out of committed source and
-are loaded from `apps/infra/.env`.
+are loaded from the file matching the explicit CDK environment:
 
-Create the local env file from the example:
+- `apps/infra/.env.dev`
+- `apps/infra/.env.prod`
+
+For an existing checkout, preserve the current dev values with a one-time
+non-destructive copy:
 
 ```sh
-cp apps/infra/.env.example apps/infra/.env
+cp apps/infra/.env apps/infra/.env.dev
 ```
 
-Then fill in every value in `apps/infra/.env` before running CDK commands. The
-real `.env` file is ignored by git.
+Add or update `SIMPLE_TAROT_ENV=dev` in `.env.dev`, verify the copied values,
+and only then remove the obsolete `.env` manually. Do not print or commit the
+real file. Both real environment files are ignored by git.
+
+For a new environment file, copy the matching template:
+
+```sh
+cp apps/infra/.env.dev.example apps/infra/.env.dev
+cp apps/infra/.env.prod.example apps/infra/.env.prod
+```
+
+Fill in every required value before running a command for that environment.
+The declared `SIMPLE_TAROT_ENV` must match the CDK context selection.
 
 The example file lists required variable names only:
 
@@ -156,30 +218,27 @@ The example file lists required variable names only:
 - `SIMPLE_TAROT_BEDROCK_EMBEDDING_MODEL_ID`
 - `SIMPLE_TAROT_BEDROCK_EMBEDDING_DIMENSIONS`
 - `SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID`
-- `SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN`
 
 Do not commit real environment values.
 
-The Bedrock values have safe development defaults in `.env.example`. Override
+The Bedrock values have safe defaults in both example files. Override
 them only when changing model choices, embedding dimensions, or the S3 object
 prefix used for corpus ingestion.
 
-`SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN` is optional. By default the stack grants
-OpenSearch Serverless index creation to the standard modern CDK CloudFormation
-execution role:
+The stack grants OpenSearch Serverless index creation to the standard modern
+CDK CloudFormation execution role:
 
 ```text
 arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
 ```
 
-Set `SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN` when deploying with a custom
-CloudFormation execution role or CI deployment role.
-
 ## API Contract
 
-The deployed API stack wires Bedrock, Cognito, user-data, and log-bucket
-outputs directly into Lambda environment variables. For local API runs, copy the
-same CloudFormation outputs into `apps/api/.env`.
+The deployed local-mode API stack wires Cognito, user-data, and log-bucket
+values into the Lambda but intentionally does not import Bedrock outputs. For
+direct local API runs in Bedrock mode, copy the dev CloudFormation outputs into
+`apps/api/.env`. Production outputs belong only in production API
+configuration; never mix outputs between environments.
 
 Bedrock outputs:
 
@@ -204,10 +263,12 @@ Cognito outputs:
 The Expo-facing public output contract is documented in
 [Cognito -> Expo Config Contract](../../docs/cognito_expo_config_contract.md).
 
-After deployment, sync the CDK outputs into:
+After a dev deployment, sync only dev CDK outputs into:
 
 - `apps/tarot/.env.local` for local development
 - EAS environment variables for preview/testing builds
+
+Sync prod outputs only into the production EAS environment.
 
 Use `apps/tarot/.env.local.example` as the local template. The real
 `.env.local` file is ignored by git.
@@ -219,10 +280,61 @@ for the current boundary and release limitations.
 
 ## Commands
 
+Run local tests, type validation, stack listing, and synthesis with the
+administrator profile and the populated dev configuration:
+
 ```sh
+yarn workspace infra test --runInBand
 yarn workspace infra build-types
-yarn workspace infra test
-yarn workspace infra cdk synth
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk list -c environment=dev
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
 ```
 
-`yarn workspace infra cdk synth` requires a populated `apps/infra/.env`.
+Diff and deploy the dev application:
+
+```sh
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk diff --method=template --exclusively -c environment=dev 'SimpleTarotDev/*'
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk deploy --exclusively -c environment=dev 'SimpleTarotDev/*'
+```
+
+Production uses the equivalent explicit selector. Because prod is intentionally
+not deployed, first create and review real `apps/infra/.env.prod` values, then
+run:
+
+```sh
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk list -c environment=prod
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk synth -c environment=prod 'SimpleTarotProd/*'
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk diff --method=template --exclusively -c environment=prod 'SimpleTarotProd/*'
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk deploy --exclusively -c environment=prod 'SimpleTarotProd/*'
+```
+
+Every list, synth, diff, or deploy command requires the matching populated
+`.env.<environment>` file. Review diffs before deployment; replacement of
+Cognito, DynamoDB, or S3 resources requires explicit investigation and
+approval.
+
+## Validation
+
+Confirm the dev API health endpoint:
+
+```sh
+DEV_API_URL=https://your-dev-api-id.execute-api.us-east-1.amazonaws.com
+curl -s -o /dev/null -w '%{http_code}\n' "${DEV_API_URL}/health"
+```
+
+The unauthenticated health request should return `401`, confirming that the
+deployed API authorizer is active.
+
+## Rollback
+
+Redeploy the last known-good revision for the target environment. From a
+checkout of that reviewed revision, run the matching application command:
+
+```sh
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk deploy --exclusively -c environment=dev 'SimpleTarotDev/*'
+env AWS_PROFILE=your-administrator-profile yarn workspace infra cdk deploy --exclusively -c environment=prod 'SimpleTarotProd/*'
+```
+
+Allow CloudFormation to roll back a failed update. Never delete a prod stack as
+routine rollback, and do not treat DynamoDB point-in-time recovery as routine
+deployment rollback.

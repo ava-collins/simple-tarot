@@ -28,11 +28,12 @@ The Bedrock path spans:
 Do not assume the S3 corpus upload or Bedrock ingestion sync is automated.
 Only normalization is currently automated in this repo.
 
-The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` so the
-authenticated persistence flow can run while Bedrock model access is pending.
-When Bedrock access is approved, update the API Lambda environment to
-`BEDROCK_RUNTIME_MODE=bedrock`, confirm corpus ingestion, and update response
-metadata so Bedrock-generated readings persist `metadata.mode = bedrock`.
+The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` and does not
+receive Bedrock identifiers/model settings or Bedrock IAM permission. This
+keeps the Bedrock stack independently manageable. Activation must deliberately
+restore that environment handoff and scoped permission, confirm corpus
+ingestion, set `BEDROCK_RUNTIME_MODE=bedrock`, and update response metadata so
+Bedrock-generated readings persist `metadata.mode = bedrock`.
 
 ## Runtime Decision
 
@@ -256,4 +257,11 @@ yarn workspace tarot test
 yarn workspace tarot build-types
 ```
 
-`yarn workspace infra cdk synth` requires a real `apps/infra/.env`.
+Infrastructure synth requires an explicit environment and its matching real
+config file, for example:
+
+```sh
+yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/*'
+```
+
+The command above loads the ignored `apps/infra/.env.dev` file.

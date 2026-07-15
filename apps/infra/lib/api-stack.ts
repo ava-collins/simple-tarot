@@ -1,10 +1,8 @@
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
 import * as integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
-import * as bedrock from 'aws-cdk-lib/aws-bedrock';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as nodejs from 'aws-cdk-lib/aws-lambda-nodejs';
 import * as s3 from 'aws-cdk-lib/aws-s3';
@@ -16,7 +14,6 @@ import { InfraConfig } from './config';
 export interface ApiStackProps extends cdk.StackProps {
   apiLogBucket: s3.Bucket;
   config: InfraConfig;
-  knowledgeBase: bedrock.CfnKnowledgeBase;
   userDataTable: dynamodb.Table;
   userPool: cognito.UserPool;
   userPoolClient: cognito.UserPoolClient;
@@ -33,9 +30,6 @@ export class ApiStack extends cdk.Stack {
       runtime: lambda.Runtime.NODEJS_22_X,
       environment: {
         API_LOG_BUCKET_NAME: props.apiLogBucket.bucketName,
-        BEDROCK_INFERENCE_PROFILE_ID: props.config.bedrockGenerationModelId,
-        BEDROCK_KNOWLEDGE_BASE_ID: props.knowledgeBase.attrKnowledgeBaseId,
-        BEDROCK_REGION: props.config.awsRegion,
         BEDROCK_RUNTIME_MODE: 'local',
         USER_DATA_TABLE_NAME: props.config.userDataTableName
       },
@@ -46,11 +40,6 @@ export class ApiStack extends cdk.Stack {
 
     props.userDataTable.grantReadWriteData(apiFunction);
     props.apiLogBucket.grantPut(apiFunction, 'api-logs/*');
-    apiFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['bedrock:RetrieveAndGenerate'],
-      resources: [props.knowledgeBase.attrKnowledgeBaseArn]
-    }));
-
     const httpApi = new apigatewayv2.HttpApi(this, 'HttpApi', {
       apiName: props.config.apiName,
       corsPreflight: {

@@ -19,7 +19,10 @@ function synthesizeUserDataStack(environmentName: 'dev' | 'prod' = 'dev') {
   const config = getInfraConfig({
     app,
     environmentName,
-    env: baseEnv,
+    env: {
+      ...baseEnv,
+      SIMPLE_TAROT_ENV: environmentName,
+    },
   });
 
   const stack = new UserDataStack(app, 'TestUserDataStack', {
