@@ -42,11 +42,12 @@ for the mobile Server Function boundary around readings and avatar discovery.
 
 ## Local Mode
 
-Local mode is the default for generation and does not require Bedrock access:
+Local mode remains available for offline generation and does not require
+Bedrock access. Set it explicitly after copying the Bedrock-first example:
 
 ```sh
 cp apps/api/.env.example apps/api/.env
-yarn api:dev
+BEDROCK_RUNTIME_MODE=local yarn api:dev
 ```
 
 To exercise authenticated persistence locally, configure Cognito auth and the
@@ -66,11 +67,11 @@ Set these values to call Bedrock Agent Runtime `RetrieveAndGenerate`:
 
 ```sh
 BEDROCK_RUNTIME_MODE=bedrock
-BEDROCK_REGION=us-east-1
+BEDROCK_REGION=us-east-2
 BEDROCK_KNOWLEDGE_BASE_ID=<cloudformation-output>
 BEDROCK_MODEL_ID=
-BEDROCK_INFERENCE_PROFILE_ID=global.anthropic.claude-sonnet-4-5-20250929-v1:0
-BEDROCK_INFERENCE_PROFILE_ARN=
+BEDROCK_INFERENCE_PROFILE_ID=
+BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn-output>
 BEDROCK_MAX_ATTEMPTS=5
 BEDROCK_RETRIEVAL_RESULTS=5
 ```
@@ -82,21 +83,20 @@ Use `BEDROCK_MODEL_ARN` instead of `BEDROCK_MODEL_ID` when calling a model that
 requires an explicit ARN. When `BEDROCK_MODEL_ID` is provided, the API expands
 it to a foundation model ARN for the configured region.
 
-To reduce single-region model throttling, use a Bedrock inference profile
-instead of `BEDROCK_MODEL_ID`:
+The CDK Bedrock stack creates a regional application inference profile from the
+configured `us-east-2` foundation model. Use its output ARN:
 
 ```sh
-BEDROCK_INFERENCE_PROFILE_ID=global.anthropic.claude-sonnet-4-5-20250929-v1:0
+BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn-output>
 ```
 
 `BEDROCK_INFERENCE_PROFILE_ARN` has highest precedence, followed by
 `BEDROCK_INFERENCE_PROFILE_ID`, `BEDROCK_MODEL_ARN`, then `BEDROCK_MODEL_ID`.
 
-The deployed API CDK stack currently sets `BEDROCK_RUNTIME_MODE=local` while
-Bedrock model access is pending. When Bedrock access is approved, update the API
-Lambda environment to `BEDROCK_RUNTIME_MODE=bedrock`, verify corpus ingestion,
-and update the response mapper so `ReadingResponse.metadata.mode` records
-`bedrock` for Bedrock-generated readings.
+The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock`, imports the
+Knowledge Base ID and application inference profile ARN from the same stage,
+and grants the Lambda permission to call `RetrieveAndGenerate`. Generated and
+failed reading metadata records the active generation mode.
 
 ## Commands
 

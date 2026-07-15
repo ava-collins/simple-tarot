@@ -17,8 +17,8 @@ The Bedrock RAG work adds a REST API path for generated tarot readings:
 - A normalized corpus JSONL file is generated from the Firestore-shaped tarot
   source export for Knowledge Base ingestion.
 
-The API can run in local placeholder mode or Bedrock mode. Local mode is the
-default so developers can run the API without AWS credentials.
+The deployed API runs in Bedrock mode in `us-east-2`. Local placeholder mode
+remains available explicitly for offline development without AWS credentials.
 
 ## Architecture
 
@@ -141,9 +141,9 @@ Bedrock mode:
 
 ```sh
 BEDROCK_RUNTIME_MODE=bedrock
-BEDROCK_REGION=us-east-1
+BEDROCK_REGION=us-east-2
 BEDROCK_KNOWLEDGE_BASE_ID=<BedrockKnowledgeBaseId output>
-BEDROCK_INFERENCE_PROFILE_ID=global.anthropic.claude-sonnet-4-5-20250929-v1:0
+BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn output>
 BEDROCK_MAX_ATTEMPTS=5
 BEDROCK_RETRIEVAL_RESULTS=5
 ```
@@ -158,12 +158,11 @@ Model selection precedence:
 When `BEDROCK_MODEL_ID` is set, the API expands it into a regional foundation
 model ARN. Inference profile IDs and ARNs are passed through as provided.
 
-The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` without
-Bedrock resource identifiers, model settings, or IAM permission. This keeps the
-Bedrock stack independently manageable. When activating Bedrock, confirm
-Knowledge Base ingestion, restore the Knowledge Base/region/model environment
-handoff and scoped `bedrock:RetrieveAndGenerate` permission, change the mode to
-`bedrock`, and redeploy the API stack.
+The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock`, imports the
+Knowledge Base ID, `us-east-2` region, and application inference profile ARN
+from the Bedrock stack, and grants `bedrock:RetrieveAndGenerate`. Corpus upload
+and Knowledge Base ingestion must complete before retrieval can return the
+normalized tarot context.
 
 ## Infrastructure Flow
 
@@ -183,6 +182,7 @@ flowchart TB
     Role["Bedrock KnowledgeBaseRole"]
     KB["Bedrock CfnKnowledgeBase"]
     DS["Bedrock CfnDataSource<br/>S3 inclusion prefix"]
+    Profile["Bedrock application<br/>inference profile"]
     UserData["UserDataStack<br/>DynamoDB + S3 API logs"]
     APIStack["ApiStack<br/>HTTP API + Lambda"]
     Outputs["CloudFormation outputs"]
@@ -196,10 +196,12 @@ flowchart TB
     Bucket --> Role
     Role --> KB
     Index --> KB
+    Stack --> Profile
     Bucket --> DS
     KB --> DS
     UserData --> APIStack
     KB --> APIStack
+    Profile --> APIStack
     APIStack --> Outputs
     DS --> Outputs
 ```
@@ -213,6 +215,8 @@ The stack creates:
 - IAM role assumed by Bedrock.
 - Bedrock Knowledge Base using the configured embedding model.
 - S3 data source scoped to the configured corpus prefix.
+- Regional Bedrock application inference profile for generation in
+  `us-east-2`.
 - DynamoDB user-data table for profile, reading history, and failed attempts.
 - S3 API log bucket for request diagnostics that should not live in DynamoDB.
 - API Gateway HTTP API + Lambda runtime with Cognito JWT authorization.
@@ -283,15 +287,16 @@ when that value is changed.
 
 ## Integration Outputs
 
-After deploying the Bedrock RAG stack, copy CloudFormation outputs into a
-direct local API runtime when testing Bedrock mode. The deployed local-mode
-Lambda intentionally does not consume these outputs until Bedrock activation:
+After deploying the Bedrock RAG stack, the deployed Lambda consumes the
+Bedrock values through CDK references. Copy the outputs only when testing a
+direct local API runtime in Bedrock mode:
 
 | CloudFormation output | API env var |
 | --- | --- |
 | `BedrockKnowledgeBaseId` | `BEDROCK_KNOWLEDGE_BASE_ID` |
 | `BedrockRegion` | `BEDROCK_REGION` |
-| `BedrockGenerationModelId` | `BEDROCK_INFERENCE_PROFILE_ID` or model env |
+| `BedrockInferenceProfileArn` | `BEDROCK_INFERENCE_PROFILE_ARN` |
+| `BedrockGenerationModelId` | informational source-model identifier |
 | `BedrockCorpusBucketName` | upload target, not read by current API |
 | `BedrockDataSourceId` | ingestion sync target, not read by current API |
 
@@ -312,10 +317,6 @@ stage path unless CloudFormation outputs one.
 
 - The repo currently has normalization automation only. Uploading corpus files
   and starting Bedrock ingestion are manual or external-script operations.
-- `apps/api/src/readings/response-mapper.ts` currently sets response
-  `metadata.mode` to `local` regardless of whether the generated text came from
-  Bedrock. Before enabling Bedrock mode in production, update this so persisted
-  `ReadingResponse.metadata.mode` can record `bedrock`.
 - The OpenSearch Serverless network policy currently allows public access for
   MVP ingestion simplicity. Revisit this when the API deployment topology is
   settled.

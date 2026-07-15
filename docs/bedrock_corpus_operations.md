@@ -113,6 +113,7 @@ The stack outputs:
 - `BedrockKnowledgeBaseId`
 - `BedrockDataSourceId`
 - `BedrockRegion`
+- `BedrockInferenceProfileArn`
 - `BedrockGenerationModelId`
 - `BedrockEmbeddingModelId`
 
@@ -152,9 +153,9 @@ API runs:
 
 ```sh
 BEDROCK_RUNTIME_MODE=bedrock
-BEDROCK_REGION=<BedrockRegion>
+BEDROCK_REGION=us-east-2
 BEDROCK_KNOWLEDGE_BASE_ID=<BedrockKnowledgeBaseId>
-BEDROCK_INFERENCE_PROFILE_ID=<BedrockGenerationModelId>
+BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn>
 BEDROCK_RETRIEVAL_RESULTS=5
 BEDROCK_MAX_ATTEMPTS=5
 ```
@@ -165,16 +166,10 @@ Then start the API:
 yarn api:dev
 ```
 
-The deployed `SimpleTarotApi-<environment>` stack currently sets the Lambda to
-`BEDROCK_RUNTIME_MODE=local` without Bedrock identifiers/model settings or IAM
-permission, so the Bedrock stack can be managed independently. When activating
-Bedrock, restore the Knowledge Base/region/model environment handoff and scoped
-`bedrock:RetrieveAndGenerate` permission in the API stack, set the mode to
-`bedrock`, and redeploy.
-
-Before enabling Bedrock mode in production, also update
-`apps/api/src/readings/response-mapper.ts` so `ReadingResponse.metadata.mode`
-records `bedrock` for Bedrock-generated readings.
+The deployed `SimpleTarotApi-<environment>` Lambda runs in Bedrock mode and
+receives the Knowledge Base ID, `us-east-2` region, and application inference
+profile ARN directly from the Bedrock stack. Its role can call
+`bedrock:RetrieveAndGenerate`.
 
 ## Refresh Checklist
 

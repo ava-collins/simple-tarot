@@ -3,7 +3,7 @@ import { Match, Template } from 'aws-cdk-lib/assertions';
 import { UserDataStack } from '../lib/user-data-stack';
 import { getInfraConfig } from '../lib/config';
 
-const expectedRegion = 'us-east-1';
+const expectedRegion = 'us-east-2';
 
 const baseEnv = {
   SIMPLE_TAROT_AWS_REGION: expectedRegion,
