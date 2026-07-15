@@ -15,6 +15,7 @@ const TEXT_FIELD = 'bedrock-text';
 const METADATA_FIELD = 'bedrock-metadata';
 
 export class BedrockRagStack extends cdk.Stack {
+  public readonly generationInferenceProfile: bedrock.CfnApplicationInferenceProfile;
   public readonly knowledgeBase: bedrock.CfnKnowledgeBase;
 
   constructor(scope: Construct, id: string, props: BedrockRagStackProps) {
@@ -223,6 +224,21 @@ export class BedrockRagStack extends cdk.Stack {
       }
     });
 
+    const generationInferenceProfile = new bedrock.CfnApplicationInferenceProfile(
+      this,
+      'GenerationInferenceProfile',
+      {
+        description: 'Simple Tarot single-region reading generation profile',
+        inferenceProfileName: props.config.bedrockGenerationInferenceProfileName,
+        modelSource: {
+          copyFrom:
+            `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/` +
+            props.config.bedrockGenerationModelId
+        }
+      }
+    );
+    this.generationInferenceProfile = generationInferenceProfile;
+
     new cdk.CfnOutput(this, 'BedrockCorpusBucketName', {
       value: corpusBucket.bucketName
     });
@@ -237,6 +253,9 @@ export class BedrockRagStack extends cdk.Stack {
     });
     new cdk.CfnOutput(this, 'BedrockGenerationModelId', {
       value: props.config.bedrockGenerationModelId
+    });
+    new cdk.CfnOutput(this, 'BedrockInferenceProfileArn', {
+      value: generationInferenceProfile.attrInferenceProfileArn
     });
     new cdk.CfnOutput(this, 'BedrockEmbeddingModelId', {
       value: props.config.bedrockEmbeddingModelId

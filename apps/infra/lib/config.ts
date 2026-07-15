@@ -35,6 +35,7 @@ export interface InfraConfig {
     bedrockCorpusPrefix: string;
     bedrockEmbeddingModelId: string;
     bedrockEmbeddingDimensions: number;
+    bedrockGenerationInferenceProfileName: string;
     bedrockGenerationModelId: string;
     aossIndexPrincipalArn?: string;
 }
@@ -152,6 +153,8 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockDataSourceName: `simple-tarot-${environmentName}-corpus`,
         bedrockCollectionName: `st-${environmentName}-rag`,
         bedrockVectorIndexName: 'tarot-readings',
+        bedrockGenerationInferenceProfileName:
+            `simple-tarot-${environmentName}-generation`,
         bedrockCorpusPrefix: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX',
@@ -170,7 +173,7 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockGenerationModelId: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID',
-            'global.anthropic.claude-sonnet-4-5-20250929-v1:0'
+            'anthropic.claude-sonnet-4-5-20250929-v1:0'
         ),
         aossIndexPrincipalArn: optionalEnvValue(
             env,
