@@ -117,7 +117,7 @@ describe('BedrockRagStack', () => {
     );
   });
 
-  it('creates a single-region Claude Sonnet application inference profile', () => {
+  it('creates a single-region application inference profile', () => {
     const template = synthesizeBedrockStack();
 
     template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
@@ -125,7 +125,7 @@ describe('BedrockRagStack', () => {
       ModelSource: {
         CopyFrom:
           'arn:aws:bedrock:us-east-2::foundation-model/' +
-          'anthropic.claude-3-5-sonnet-20241022-v2:0',
+          'amazon.nova-lite-v1:0',
       },
     });
     template.hasOutput('BedrockInferenceProfileArn', {});
@@ -199,7 +199,7 @@ describe('BedrockRagStack', () => {
       Value: expectedRegion,
     });
     template.hasOutput('BedrockGenerationModelId', {
-      Value: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+      Value: 'amazon.nova-lite-v1:0',
     });
   });
 });

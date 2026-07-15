@@ -178,7 +178,7 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockGenerationModelId: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID',
-            'anthropic.claude-3-5-sonnet-20241022-v2:0'
+            'amazon.nova-lite-v1:0'
         ),
         aossIndexPrincipalArn:
             optionalEnvValue(env, 'SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN', '') ||

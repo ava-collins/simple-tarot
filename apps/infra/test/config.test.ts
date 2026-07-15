@@ -72,7 +72,7 @@ describe('infrastructure environment configuration', () => {
     })).toMatchObject({
       awsRegion: 'us-east-2',
       bedrockGenerationInferenceProfileName: 'simple-tarot-dev-generation',
-      bedrockGenerationModelId: 'anthropic.claude-3-5-sonnet-20241022-v2:0',
+      bedrockGenerationModelId: 'amazon.nova-lite-v1:0',
     });
   });
 });
