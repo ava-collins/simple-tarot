@@ -6,7 +6,7 @@ import { getInfraConfig, getSelectedEnvironment, loadInfraEnv } from '../lib/con
 
 const devEnv = {
   SIMPLE_TAROT_ENV: 'dev',
-  SIMPLE_TAROT_AWS_REGION: 'us-east-1',
+  SIMPLE_TAROT_AWS_REGION: 'us-east-2',
   SIMPLE_TAROT_MOBILE_CALLBACK_URL: 'simpletarot://auth/callback',
   SIMPLE_TAROT_MOBILE_LOGOUT_URL: 'simpletarot://auth/logout',
   SIMPLE_TAROT_WEB_CALLBACK_URL: 'https://example.com/auth/callback',
@@ -62,5 +62,17 @@ describe('infrastructure environment configuration', () => {
     })).toThrow(
       'Infra environment mismatch: selected "prod" but SIMPLE_TAROT_ENV is "dev".'
     );
+  });
+
+  it('uses a single-region generation model and application profile name', () => {
+    expect(getInfraConfig({
+      app: new cdk.App(),
+      environmentName: 'dev',
+      env: devEnv,
+    })).toMatchObject({
+      awsRegion: 'us-east-2',
+      bedrockGenerationInferenceProfileName: 'simple-tarot-dev-generation',
+      bedrockGenerationModelId: 'amazon.nova-lite-v1:0',
+    });
   });
 });

@@ -3,7 +3,7 @@ import { Match, Template } from 'aws-cdk-lib/assertions';
 import { BedrockRagStack } from '../lib/bedrock-rag-stack';
 import { getInfraConfig } from '../lib/config';
 
-const expectedRegion = 'us-east-1';
+const expectedRegion = 'us-east-2';
 
 const baseEnv = {
   SIMPLE_TAROT_ENV: 'dev',
@@ -14,7 +14,7 @@ const baseEnv = {
   SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
   SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
-    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-1',
+    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-2',
 };
 
 function synthesizeBedrockStack() {
@@ -113,8 +113,22 @@ describe('BedrockRagStack', () => {
 
     const accessPolicies = template.findResources('AWS::OpenSearchServerless::AccessPolicy');
     expect(JSON.stringify(accessPolicies)).toContain(
-      'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-1'
+      'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-2'
     );
+  });
+
+  it('creates a single-region application inference profile', () => {
+    const template = synthesizeBedrockStack();
+
+    template.hasResourceProperties('AWS::Bedrock::ApplicationInferenceProfile', {
+      InferenceProfileName: 'simple-tarot-dev-generation',
+      ModelSource: {
+        CopyFrom:
+          'arn:aws:bedrock:us-east-2::foundation-model/' +
+          'amazon.nova-lite-v1:0',
+      },
+    });
+    template.hasOutput('BedrockInferenceProfileArn', {});
   });
 
   it('creates the Bedrock Knowledge Base and S3 data source', () => {
@@ -175,6 +189,7 @@ describe('BedrockRagStack', () => {
       'BedrockDataSourceId',
       'BedrockRegion',
       'BedrockGenerationModelId',
+      'BedrockInferenceProfileArn',
       'BedrockEmbeddingModelId',
     ]) {
       template.hasOutput(outputName, {});
@@ -184,7 +199,7 @@ describe('BedrockRagStack', () => {
       Value: expectedRegion,
     });
     template.hasOutput('BedrockGenerationModelId', {
-      Value: 'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
+      Value: 'amazon.nova-lite-v1:0',
     });
   });
 });

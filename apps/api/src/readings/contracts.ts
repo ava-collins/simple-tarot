@@ -41,6 +41,7 @@ export type ReadingResponse = {
 export type GeneratedReading = {
     text: string;
     citations: ReadingCitation[];
+    mode: 'local' | 'bedrock';
     modelId?: string;
 };
 

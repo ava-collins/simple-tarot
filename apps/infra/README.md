@@ -2,58 +2,55 @@
 
 This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
-- [App Structure](#app-structure)
-- [Current State](#current-state)
-- [Environment Selection](#environment-selection)
-- [Cognito Stack](#cognito-stack)
-- [Bedrock RAG Stack](#bedrock-rag-stack)
-- [User Data Stack](#user-data-stack)
-- [API Stack](#api-stack)
-- [Environment Configuration](#environment-configuration)
-- [API Contract](#api-contract)
-- [Expo Contract](#expo-contract)
-- [Commands](#commands)
-- [Validation](#validation)
-- [Rollback](#rollback)
+-   [App Structure](#app-structure)
+-   [Current State](#current-state)
+-   [Environment Selection](#environment-selection)
+-   [Cognito Stack](#cognito-stack)
+-   [Bedrock RAG Stack](#bedrock-rag-stack)
+-   [User Data Stack](#user-data-stack)
+-   [API Stack](#api-stack)
+-   [Environment Configuration](#environment-configuration)
+-   [API Contract](#api-contract)
+-   [Expo Contract](#expo-contract)
+-   [Commands](#commands)
+-   [Validation](#validation)
+-   [Rollback](#rollback)
 
 ## Current State
 
-`dev` is the deployed pre-production/test environment. `prod` is defined in
-the CDK app but intentionally is not deployed. Application deployments use
-the standard `hnb659fds` CDK bootstrap roles. The deployed dev application has
-a zero CDK diff. The API Bedrock
-runtime remains disabled: the deployed API uses `BEDROCK_RUNTIME_MODE=local`
-and does not receive Bedrock resource identifiers or Bedrock IAM permissions.
+`dev` is the pre-production/test environment and `prod` is the production
+definition. The dev deployment targets `us-east-2` and provisions the
+full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation enabled.
 
 ## App Structure
 
-- `bin/simple-tarot-infra.ts` is the CDK entrypoint.
-- `lib/config.ts` selects `dev` or `prod` explicitly and loads deployment
-  configuration from `apps/infra/.env.<environment>`.
-- `lib/simple-tarot-stage.ts` composes Cognito, user data, Bedrock RAG, and API
-  stacks into one environment boundary.
-- `lib/cognito-stack.ts` defines the Cognito user pool, public OAuth app
-  client, hosted domain, and Expo-facing CloudFormation outputs.
-- `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, OpenSearch
-  Serverless vector store, Bedrock Knowledge Base, S3 data source, and API
-  handoff outputs for generated tarot readings.
-- `lib/user-data-stack.ts` defines the DynamoDB user-data table and S3 API log
-  bucket used by authenticated reading persistence.
-- `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
-  JWT authorizer, and Lambda permissions for DynamoDB and S3 API logs. The
-  deployed Lambda does not have Bedrock permissions.
-- `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
-  contract.
-- `test/bedrock-rag-stack.test.ts` contains CDK assertion tests for the
-  Bedrock RAG contract.
-- `test/user-data-stack.test.ts` contains CDK assertion tests for the DynamoDB
-  user-data table and S3 API log bucket.
-- `test/api-stack.test.ts` contains CDK assertion tests for the HTTP API,
-  Lambda runtime, Cognito authorizer, and runtime permissions.
-- `test/config.test.ts` covers fail-closed environment selection and config
-  loading.
-- `test/simple-tarot-stage.test.ts` covers stage names, tags, and same-stage
-  resource wiring.
+-   `bin/simple-tarot-infra.ts` is the CDK entrypoint.
+-   `lib/config.ts` selects `dev` or `prod` explicitly and loads deployment
+    configuration from `apps/infra/.env.<environment>`.
+-   `lib/simple-tarot-stage.ts` composes Cognito, user data, Bedrock RAG, and API
+    stacks into one environment boundary.
+-   `lib/cognito-stack.ts` defines the Cognito user pool, public OAuth app
+    client, hosted domain, and Expo-facing CloudFormation outputs.
+-   `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, OpenSearch
+    Serverless vector store, Bedrock Knowledge Base, S3 data source, application
+    inference profile, and API handoff outputs for generated tarot readings.
+-   `lib/user-data-stack.ts` defines the DynamoDB user-data table and S3 API log
+    bucket used by authenticated reading persistence.
+-   `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
+    JWT authorizer, and Lambda permissions for DynamoDB, S3 API logs, and
+    Bedrock `RetrieveAndGenerate`.
+-   `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
+    contract.
+-   `test/bedrock-rag-stack.test.ts` contains CDK assertion tests for the
+    Bedrock RAG contract.
+-   `test/user-data-stack.test.ts` contains CDK assertion tests for the DynamoDB
+    user-data table and S3 API log bucket.
+-   `test/api-stack.test.ts` contains CDK assertion tests for the HTTP API,
+    Lambda runtime, Cognito authorizer, and runtime permissions.
+-   `test/config.test.ts` covers fail-closed environment selection and config
+    loading.
+-   `test/simple-tarot-stage.test.ts` covers stage names, tags, and same-stage
+    resource wiring.
 
 ## Environment Selection
 
@@ -90,10 +87,10 @@ SimpleTarotCognito-<environment>
 
 The stack creates:
 
-- a Cognito user pool for email sign-in and self sign-up
-- a public app client for Expo/mobile OAuth authorization-code flow
-- a hosted Cognito domain
-- CloudFormation outputs that map to Expo `EXPO_PUBLIC_*` values
+-   a Cognito user pool for email sign-in and self sign-up
+-   a public app client for Expo/mobile OAuth authorization-code flow
+-   a hosted Cognito domain
+-   CloudFormation outputs that map to Expo `EXPO_PUBLIC_*` values
 
 The app client does not create a client secret. Expo receives public
 identifiers and URLs only.
@@ -113,12 +110,14 @@ SimpleTarotBedrockRag-<environment>
 
 The stack creates:
 
-- an S3 bucket for normalized corpus documents
-- an OpenSearch Serverless `VECTORSEARCH` collection and vector index
-- OpenSearch Serverless encryption, network, and data access policies
-- a Bedrock Knowledge Base using the configured embedding model
-- an S3 data source scoped to the configured corpus prefix
-- CloudFormation outputs consumed by `apps/api`
+-   an S3 bucket for normalized corpus documents
+-   an OpenSearch Serverless `VECTORSEARCH` collection and vector index
+-   OpenSearch Serverless encryption, network, and data access policies
+-   a Bedrock Knowledge Base using the configured embedding model
+-   an S3 data source scoped to the configured corpus prefix
+-   a regional Bedrock application inference profile for the configured
+    generation model
+-   CloudFormation outputs consumed by `apps/api`
 
 The first MVP pass uses public OpenSearch Serverless network access so Bedrock
 can manage ingestion without introducing VPC routing. Tighten this after the
@@ -135,10 +134,10 @@ SimpleTarotUserData-<environment>
 
 The stack creates:
 
-- a DynamoDB table with `pk` and `sk` string keys for user profile, successful
-  reading, and failed reading-attempt items
-- an S3 bucket for structured API request/diagnostic logs under `api-logs/`
-- CloudFormation outputs for table name/ARN and log bucket name/ARN
+-   a DynamoDB table with `pk` and `sk` string keys for user profile, successful
+    reading, and failed reading-attempt items
+-   an S3 bucket for structured API request/diagnostic logs under `api-logs/`
+-   CloudFormation outputs for table name/ARN and log bucket name/ARN
 
 Development environments use destroy removal policy and a 30-day API log
 lifecycle. Production uses retain removal policy and point-in-time recovery for
@@ -155,34 +154,33 @@ SimpleTarotApi-<environment>
 
 The stack creates:
 
-- a Node.js 22 Lambda for `apps/api`
-- an API Gateway HTTP API protected by the Cognito JWT authorizer
-- `ANY /{proxy+}` and `ANY /` routes to the Lambda integration
-- Lambda environment variables for local runtime mode, user-data table, and API
-  log bucket
-- least-privilege grants for DynamoDB read/write and S3 API log writes
-- `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
+-   a Node.js 22 Lambda for `apps/api`
+-   an API Gateway HTTP API protected by the Cognito JWT authorizer
+-   `ANY /{proxy+}` and `ANY /` routes to the Lambda integration
+-   Lambda environment variables for Bedrock runtime mode, the `us-east-2`
+    Knowledge Base and application inference profile, user-data table, and API
+    log bucket
+-   least-privilege grants for DynamoDB read/write and S3 API log writes
+-   permission to call Bedrock Agent Runtime `RetrieveAndGenerate`
+-   `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
 
 `ApiUrl` is the mobile app's `EXPO_PUBLIC_TAROT_API_URL`. The current API uses
 API Gateway HTTP API, so this output does not include a REST API stage path such
 as `/dev`.
 
-The API stack currently deploys `BEDROCK_RUNTIME_MODE=local` without Bedrock
-resource identifiers, model settings, or IAM permissions. This lets the
-Bedrock stack be replaced or managed independently while the mobile
-reading-history persistence flow remains available. Enabling Bedrock is a
-deliberate infrastructure change: confirm corpus ingestion, restore the
-Knowledge Base/region/model environment handoff and scoped
-`bedrock:RetrieveAndGenerate` permission, set `BEDROCK_RUNTIME_MODE=bedrock`,
-and redeploy `SimpleTarotApi-<environment>`.
+The API stack deploys `BEDROCK_RUNTIME_MODE=bedrock` and receives the Knowledge
+Base ID, `us-east-2` region, and application inference profile ARN directly
+from the Bedrock stack. The Lambda role can call
+`bedrock:RetrieveAndGenerate`; corpus upload and ingestion must complete before
+generated readings can retrieve context.
 
 ## Environment Configuration
 
 Deployment-specific values are intentionally kept out of committed source and
 are loaded from the file matching the explicit CDK environment:
 
-- `apps/infra/.env.dev`
-- `apps/infra/.env.prod`
+-   `apps/infra/.env.dev`
+-   `apps/infra/.env.prod`
 
 For an existing checkout, preserve the current dev values with a one-time
 non-destructive copy:
@@ -207,17 +205,17 @@ The declared `SIMPLE_TAROT_ENV` must match the CDK context selection.
 
 The example file lists required variable names only:
 
-- `SIMPLE_TAROT_ENV`
-- `SIMPLE_TAROT_AWS_REGION`
-- `SIMPLE_TAROT_MOBILE_CALLBACK_URL`
-- `SIMPLE_TAROT_MOBILE_LOGOUT_URL`
-- `SIMPLE_TAROT_WEB_CALLBACK_URL`
-- `SIMPLE_TAROT_WEB_LOGOUT_URL`
-- `SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX`
-- `SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX`
-- `SIMPLE_TAROT_BEDROCK_EMBEDDING_MODEL_ID`
-- `SIMPLE_TAROT_BEDROCK_EMBEDDING_DIMENSIONS`
-- `SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID`
+-   `SIMPLE_TAROT_ENV`
+-   `SIMPLE_TAROT_AWS_REGION`
+-   `SIMPLE_TAROT_MOBILE_CALLBACK_URL`
+-   `SIMPLE_TAROT_MOBILE_LOGOUT_URL`
+-   `SIMPLE_TAROT_WEB_CALLBACK_URL`
+-   `SIMPLE_TAROT_WEB_LOGOUT_URL`
+-   `SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX`
+-   `SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX`
+-   `SIMPLE_TAROT_BEDROCK_EMBEDDING_MODEL_ID`
+-   `SIMPLE_TAROT_BEDROCK_EMBEDDING_DIMENSIONS`
+-   `SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID`
 
 Do not commit real environment values.
 
@@ -234,29 +232,30 @@ arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
 
 ## API Contract
 
-The deployed local-mode API stack wires Cognito, user-data, and log-bucket
-values into the Lambda but intentionally does not import Bedrock outputs. For
-direct local API runs in Bedrock mode, copy the dev CloudFormation outputs into
-`apps/api/.env`. Production outputs belong only in production API
-configuration; never mix outputs between environments.
+The deployed API stack receives Cognito, user-data, log-bucket, Knowledge Base,
+region, and application inference profile values through same-stage CDK
+references. For direct local API runs in Bedrock mode, copy the matching
+CloudFormation outputs into `apps/api/.env`. Never mix outputs between
+environments.
 
 Bedrock outputs:
 
-- `BedrockCorpusBucketName` -> `BEDROCK_CORPUS_BUCKET`
-- `BedrockKnowledgeBaseId` -> `BEDROCK_KNOWLEDGE_BASE_ID`
-- `BedrockDataSourceId` -> `BEDROCK_DATA_SOURCE_ID`
-- `BedrockRegion` -> `BEDROCK_REGION`
-- `BedrockGenerationModelId` -> `BEDROCK_INFERENCE_PROFILE_ID`
+-   `BedrockCorpusBucketName` -> `BEDROCK_CORPUS_BUCKET`
+-   `BedrockKnowledgeBaseId` -> `BEDROCK_KNOWLEDGE_BASE_ID`
+-   `BedrockDataSourceId` -> `BEDROCK_DATA_SOURCE_ID`
+-   `BedrockRegion` -> `BEDROCK_REGION`
+-   `BedrockInferenceProfileArn` -> `BEDROCK_INFERENCE_PROFILE_ARN`
+-   `BedrockGenerationModelId` -> informational source-model identifier
 
 User-data outputs:
 
-- `UserDataTableName` -> `USER_DATA_TABLE_NAME`
-- `ApiLogBucketName` -> `API_LOG_BUCKET_NAME`
+-   `UserDataTableName` -> `USER_DATA_TABLE_NAME`
+-   `ApiLogBucketName` -> `API_LOG_BUCKET_NAME`
 
 Cognito outputs:
 
-- `CognitoIssuer` -> `COGNITO_ISSUER`
-- `CognitoUserPoolClientId` -> `COGNITO_CLIENT_ID`
+-   `CognitoIssuer` -> `COGNITO_ISSUER`
+-   `CognitoUserPoolClientId` -> `COGNITO_CLIENT_ID`
 
 ## Expo Contract
 
@@ -265,8 +264,8 @@ The Expo-facing public output contract is documented in
 
 After a dev deployment, sync only dev CDK outputs into:
 
-- `apps/tarot/.env.local` for local development
-- EAS environment variables for preview/testing builds
+-   `apps/tarot/.env.local` for local development
+-   EAS environment variables for preview/testing builds
 
 Sync prod outputs only into the production EAS environment.
 
@@ -318,7 +317,7 @@ approval.
 Confirm the dev API health endpoint:
 
 ```sh
-DEV_API_URL=https://your-dev-api-id.execute-api.us-east-1.amazonaws.com
+DEV_API_URL=https://your-dev-api-id.execute-api.us-east-2.amazonaws.com
 curl -s -o /dev/null -w '%{http_code}\n' "${DEV_API_URL}/health"
 ```
 

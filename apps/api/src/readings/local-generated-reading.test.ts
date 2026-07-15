@@ -50,6 +50,7 @@ describe('createLocalGeneratedReading', () => {
                     text: 'Deterministic local single-card fixture for API flow tests.'
                 }
             ],
+            mode: 'local',
             modelId: 'local-test-variant-1',
             text: [
                 'Local test reading variant 1: one clear card anchors the moment.',
@@ -70,6 +71,7 @@ describe('createLocalGeneratedReading', () => {
                     text: 'Deterministic local multi-card fixture for API flow tests.'
                 }
             ],
+            mode: 'local',
             modelId: 'local-test-variant-2',
             text: [
                 'Local test reading variant 2: the cards form a short progression.',
