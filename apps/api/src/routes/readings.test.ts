@@ -22,6 +22,7 @@ const requestBody: ReadingRequest = {
 
 const generatedReading: GeneratedReading = {
     citations: [],
+    mode: 'local',
     modelId: 'local-test-variant-1',
     text: [
         'Local test reading variant 1: one clear card anchors the moment.',
@@ -191,6 +192,33 @@ describe('createPostReadingHandler', () => {
             })
         );
         expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('records Bedrock mode for failed Bedrock generation attempts', async () => {
+        const store = createStore();
+        const error = Object.assign(new Error('Bedrock throttled'), {
+            name: 'ThrottlingException',
+            $metadata: {
+                httpStatusCode: 429
+            }
+        });
+        const handler = createPostReadingHandler({
+            generateReading: vi.fn().mockRejectedValue(error),
+            generationMode: 'bedrock',
+            now: vi.fn().mockReturnValue(new Date('2026-07-15T18:00:00.000Z')),
+            readingHistoryStore: store
+        });
+
+        await handler(createRequest(), createResponse() as never, vi.fn());
+
+        expect(store.saveFailedReadingAttempt).toHaveBeenCalledWith(
+            expect.objectContaining({
+                generationMetadata: {
+                    itemCount: 1,
+                    mode: 'bedrock'
+                }
+            })
+        );
     });
 });
 

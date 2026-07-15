@@ -38,6 +38,7 @@ const citationFor = (variant: 'local-test-variant-1' | 'local-test-variant-2') =
 
 const singleCardReading = (request: ReadingRequest): GeneratedReading => ({
     citations: [citationFor('local-test-variant-1')],
+    mode: 'local',
     modelId: 'local-test-variant-1',
     text: [
         'Local test reading variant 1: one clear card anchors the moment.',
@@ -47,6 +48,7 @@ const singleCardReading = (request: ReadingRequest): GeneratedReading => ({
 
 const multiCardReading = (request: ReadingRequest): GeneratedReading => ({
     citations: [citationFor('local-test-variant-2')],
+    mode: 'local',
     modelId: 'local-test-variant-2',
     text: [
         'Local test reading variant 2: the cards form a short progression.',

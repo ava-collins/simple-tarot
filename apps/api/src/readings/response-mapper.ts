@@ -6,8 +6,11 @@ const nonEmptyLines = (text: string): string[] =>
         .map(line => line.trim())
         .filter(line => line.length > 0);
 
-const readingIdFor = (request: ReadingRequest): string =>
-    `local-${request.spread}-${request.items.map(item => item.cardIndex).join('-')}`;
+const readingIdFor = (
+    request: ReadingRequest,
+    mode: GeneratedReading['mode']
+): string =>
+    `${mode}-${request.spread}-${request.items.map(item => item.cardIndex).join('-')}`;
 
 export function mapGeneratedReadingResponse(
     request: ReadingRequest,
@@ -17,7 +20,7 @@ export function mapGeneratedReadingResponse(
     const [summary = '', ...positionLines] = lines;
 
     return {
-        readingId: readingIdFor(request),
+        readingId: readingIdFor(request, generated.mode),
         spread: request.spread,
         summary,
         positions: request.items.map((item, index) => ({
@@ -34,7 +37,7 @@ export function mapGeneratedReadingResponse(
         citations: generated.citations,
         metadata: {
             itemCount: request.items.length,
-            mode: 'local',
+            mode: generated.mode,
             ...(generated.modelId ? { modelId: generated.modelId } : {})
         }
     };

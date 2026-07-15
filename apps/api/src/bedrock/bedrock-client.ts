@@ -99,6 +99,7 @@ export function createBedrockReadingGenerator(
 
                 return {
                     citations,
+                    mode: 'bedrock',
                     modelId: config.modelArn,
                     text
                 };

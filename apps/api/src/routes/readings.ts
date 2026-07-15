@@ -25,6 +25,7 @@ type ReadingGenerator = (
 export type ReadingsRouterOptions = {
     apiLogSink?: ApiLogSink;
     generateReading?: ReadingGenerator;
+    generationMode?: GeneratedReading['mode'];
     now?: () => Date;
     readingHistoryStore?: ReadingHistoryStore;
 };
@@ -84,9 +85,12 @@ const logEventBaseFor = (
     userAgent: req.header('user-agent')
 });
 
-const generationMetadataFor = (request: ReadingRequest) => ({
+const generationMetadataFor = (
+    request: ReadingRequest,
+    mode: GeneratedReading['mode']
+) => ({
     itemCount: request.items.length,
-    mode: 'local' as const
+    mode
 });
 
 const historyItemFor = (record: ReadingHistoryRecord) => ({
@@ -111,6 +115,7 @@ const limitFor = (value: unknown): number | undefined => {
 export const createPostReadingHandler = ({
     apiLogSink,
     generateReading = defaultGenerateReading,
+    generationMode = 'local',
     now = () => new Date(),
     readingHistoryStore
 }: ReadingsRouterOptions = {}): RequestHandler => async (req, res, next) => {
@@ -147,7 +152,10 @@ export const createPostReadingHandler = ({
                     message: apiError.body.message,
                     statusCode: apiError.status
                 },
-                generationMetadata: generationMetadataFor(validation.value),
+                generationMetadata: generationMetadataFor(
+                    validation.value,
+                    generationMode
+                ),
                 request: validation.value,
                 requestId: res.locals.requestId,
                 userId
@@ -231,6 +239,7 @@ const defaultOptions = (): ReadingsRouterOptions => {
                   bucketName: config.apiLog.bucketName
               })
             : undefined,
+        generationMode: config.bedrock.mode,
         readingHistoryStore: config.userData.tableName
             ? createDynamoDbReadingHistoryStore({
                   tableName: config.userData.tableName

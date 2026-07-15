@@ -41,6 +41,7 @@ describe('mapGeneratedReadingResponse', () => {
                         }
                     }
                 ],
+                mode: 'local',
                 modelId: 'placeholder-local-model'
             }
         );
@@ -82,6 +83,40 @@ describe('mapGeneratedReadingResponse', () => {
                 mode: 'local',
                 modelId: 'placeholder-local-model'
             }
+        });
+    });
+
+    it('labels Bedrock responses and IDs from the generated mode', () => {
+        const response = mapGeneratedReadingResponse(
+            {
+                items: [
+                    {
+                        cardIndex: 0,
+                        cardName: 'The Star',
+                        position: 'guidance',
+                        reversed: false
+                    }
+                ],
+                spread: 'single_card'
+            },
+            {
+                citations: [],
+                mode: 'bedrock',
+                modelId:
+                    'arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/profile-id',
+                text: [
+                    'Trust the wider pattern.',
+                    'guidance: The Star restores perspective.'
+                ].join('\n')
+            }
+        );
+
+        expect(response.readingId).toBe('bedrock-single_card-0');
+        expect(response.metadata).toEqual({
+            itemCount: 1,
+            mode: 'bedrock',
+            modelId:
+                'arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/profile-id'
         });
     });
 });
