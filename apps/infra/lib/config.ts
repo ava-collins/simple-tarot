@@ -62,7 +62,9 @@ export function parseSimpleTarotEnvironment(value: unknown): SimpleTarotEnvironm
     }
 
     throw new Error(
-        `Unsupported Simple Tarot environment "${String(value)}". Expected "dev" or "prod".`
+        `Unsupported Simple Tarot environment "${String(
+            value
+        )}". Expected "dev" or "prod".`
     );
 }
 
@@ -92,10 +94,14 @@ function requiredEnvValue(env: InfraEnvironment, key: string): string {
     return value;
 }
 
-function optionalEnvValue(env: InfraEnvironment, key: string, defaultValue: string): string {
+function optionalEnvValue(
+    env: InfraEnvironment,
+    key: string,
+    defaultValue: string
+): string {
     const value = env[key];
 
-return typeof value === 'string' && value.length > 0 ? value : defaultValue;
+    return typeof value === 'string' && value.length > 0 ? value : defaultValue;
 }
 
 function optionalIntegerEnvValue(
@@ -153,8 +159,7 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockDataSourceName: `simple-tarot-${environmentName}-corpus`,
         bedrockCollectionName: `st-${environmentName}-rag`,
         bedrockVectorIndexName: 'tarot-readings',
-        bedrockGenerationInferenceProfileName:
-            `simple-tarot-${environmentName}-generation`,
+        bedrockGenerationInferenceProfileName: `simple-tarot-${environmentName}-generation`,
         bedrockCorpusPrefix: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX',
@@ -173,12 +178,10 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockGenerationModelId: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID',
-            'anthropic.claude-sonnet-4-5-20250929-v1:0'
+            'anthropic.claude-3-5-sonnet-20241022-v2:0'
         ),
-        aossIndexPrincipalArn: optionalEnvValue(
-            env,
-            'SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN',
-            ''
-        ) || undefined
+        aossIndexPrincipalArn:
+            optionalEnvValue(env, 'SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN', '') ||
+            undefined
     };
 }

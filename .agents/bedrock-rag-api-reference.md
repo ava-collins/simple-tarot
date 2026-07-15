@@ -230,7 +230,7 @@ Defaults in `apps/infra/lib/config.ts`:
 - corpus prefix: `corpus/`
 - embedding model: `amazon.titan-embed-text-v2:0`
 - embedding dimensions: `1024`
-- generation model: `global.anthropic.claude-sonnet-4-5-20250929-v1:0`
+- generation model: `anthropic.claude-3-5-sonnet-20241022-v2:0`
 
 ## Mobile Handoff
 
