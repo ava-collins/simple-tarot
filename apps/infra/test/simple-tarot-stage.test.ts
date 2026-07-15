@@ -4,7 +4,7 @@ import { getInfraConfig, type SimpleTarotEnvironment } from '../lib/config';
 import { SimpleTarotStage } from '../lib/simple-tarot-stage';
 
 const account = '123456789012';
-const region = 'us-east-1';
+const region = 'us-east-2';
 
 function synthesize(environmentName: SimpleTarotEnvironment) {
   const app = new cdk.App();
@@ -83,14 +83,22 @@ describe('SimpleTarotStage', () => {
     }
   );
 
-  it('wires local API data values without a Bedrock import', () => {
+  it('wires Bedrock stack outputs into the API Lambda', () => {
     const template = Template.fromStack(synthesize('dev').stage.apiStack);
     const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
     const variables = fn.Properties.Environment.Variables;
+
     expect(JSON.stringify(variables.API_LOG_BUCKET_NAME)).toContain(
       'SimpleTarotUserData-dev'
     );
-    expect(variables).not.toHaveProperty('BEDROCK_KNOWLEDGE_BASE_ID');
+    expect(variables.BEDROCK_RUNTIME_MODE).toBe('bedrock');
+    expect(variables.BEDROCK_REGION).toBe('us-east-2');
+    expect(JSON.stringify(variables.BEDROCK_KNOWLEDGE_BASE_ID)).toContain(
+      'SimpleTarotBedrockRag-dev'
+    );
+    expect(JSON.stringify(variables.BEDROCK_INFERENCE_PROFILE_ARN)).toContain(
+      'SimpleTarotBedrockRag-dev'
+    );
     expect(variables.USER_DATA_TABLE_NAME).toBe('simple-tarot-dev-user-data');
   });
 

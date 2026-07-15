@@ -1,11 +1,12 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { ApiStack } from '../lib/api-stack';
+import { BedrockRagStack } from '../lib/bedrock-rag-stack';
 import { CognitoStack } from '../lib/cognito-stack';
 import { getInfraConfig } from '../lib/config';
 import { UserDataStack } from '../lib/user-data-stack';
 
-const expectedRegion = 'us-east-1';
+const expectedRegion = 'us-east-2';
 
 const baseEnv = {
   SIMPLE_TAROT_ENV: 'dev',
@@ -16,7 +17,7 @@ const baseEnv = {
   SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
   SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
-    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-1',
+    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-2',
 };
 
 function synthesizeApiStack() {
@@ -41,6 +42,13 @@ function synthesizeApiStack() {
       region: config.awsRegion,
     },
   });
+  const bedrockStack = new BedrockRagStack(app, 'TestBedrockRagStack', {
+    config,
+    env: {
+      account: '123456789012',
+      region: config.awsRegion,
+    },
+  });
   const apiStack = new ApiStack(app, 'TestApiStack', {
     apiLogBucket: userDataStack.apiLogBucket,
     config,
@@ -48,6 +56,8 @@ function synthesizeApiStack() {
       account: '123456789012',
       region: config.awsRegion,
     },
+    generationInferenceProfile: bedrockStack.generationInferenceProfile,
+    knowledgeBase: bedrockStack.knowledgeBase,
     userDataTable: userDataStack.userDataTable,
     userPool: cognitoStack.userPool,
     userPoolClient: cognitoStack.userPoolClient,
@@ -67,7 +77,10 @@ describe('ApiStack', () => {
       Environment: {
         Variables: Match.objectLike({
           API_LOG_BUCKET_NAME: Match.anyValue(),
-          BEDROCK_RUNTIME_MODE: 'local',
+          BEDROCK_INFERENCE_PROFILE_ARN: Match.anyValue(),
+          BEDROCK_KNOWLEDGE_BASE_ID: Match.anyValue(),
+          BEDROCK_REGION: expectedRegion,
+          BEDROCK_RUNTIME_MODE: 'bedrock',
           USER_DATA_TABLE_NAME: Match.anyValue(),
         }),
       },
@@ -119,16 +132,13 @@ describe('ApiStack', () => {
     expect(policies).toContain('/api-logs/*');
   });
 
-  it('keeps local mode independent of Bedrock resources and permissions', () => {
+  it('grants only the Bedrock Agent Runtime generation action', () => {
     const template = synthesizeApiStack();
-    const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
-    const variables = fn.Properties.Environment.Variables;
     const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
 
-    expect(variables).not.toHaveProperty('BEDROCK_INFERENCE_PROFILE_ID');
-    expect(variables).not.toHaveProperty('BEDROCK_KNOWLEDGE_BASE_ID');
-    expect(variables).not.toHaveProperty('BEDROCK_REGION');
-    expect(policies).not.toContain('bedrock:RetrieveAndGenerate');
+    expect(policies).toContain('bedrock:RetrieveAndGenerate');
+    expect(policies).not.toContain('bedrock:InvokeModel');
+    expect(policies).not.toContain('bedrock:*');
   });
 
   it('emits API handoff outputs for the mobile client and later stages', () => {
