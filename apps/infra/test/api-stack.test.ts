@@ -74,6 +74,7 @@ describe('ApiStack', () => {
       FunctionName: 'simple-tarot-dev-api',
       Handler: 'index.handler',
       Runtime: 'nodejs22.x',
+      Timeout: 29,
       Environment: {
         Variables: Match.objectLike({
           API_LOG_BUCKET_NAME: Match.anyValue(),
@@ -132,12 +133,14 @@ describe('ApiStack', () => {
     expect(policies).toContain('/api-logs/*');
   });
 
-  it('grants only the Bedrock Agent Runtime generation action', () => {
+  it('grants the Bedrock Agent Runtime generation, retrieval, and inference profile actions', () => {
     const template = synthesizeApiStack();
     const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
 
     expect(policies).toContain('bedrock:RetrieveAndGenerate');
-    expect(policies).not.toContain('bedrock:InvokeModel');
+    expect(policies).toContain('bedrock:GetInferenceProfile');
+    expect(policies).toContain('"bedrock:Retrieve"');
+    expect(policies).toContain('bedrock:InvokeModel');
     expect(policies).not.toContain('bedrock:*');
   });
 
