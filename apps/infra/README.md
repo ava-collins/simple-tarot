@@ -38,7 +38,9 @@ full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation enabl
     bucket used by authenticated reading persistence.
 -   `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
     JWT authorizer, and Lambda permissions for DynamoDB, S3 API logs, and
-    Bedrock `RetrieveAndGenerate`.
+    Bedrock (`RetrieveAndGenerate`, `GetInferenceProfile`, `InvokeModel`,
+    `Retrieve`). Consumes `BedrockRagStack`/`UserDataStack`/`CognitoStack`
+    resources with `ReferenceStrength.STRONG`.
 -   `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
     contract.
 -   `test/bedrock-rag-stack.test.ts` contains CDK assertion tests for the
@@ -164,18 +166,27 @@ The stack creates:
     Knowledge Base and application inference profile, user-data table, and API
     log bucket
 -   least-privilege grants for DynamoDB read/write and S3 API log writes
--   permission to call Bedrock Agent Runtime `RetrieveAndGenerate`
+-   permission to call Bedrock Agent Runtime `RetrieveAndGenerate`,
+    `GetInferenceProfile`, `InvokeModel`, and `Retrieve`
 -   `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
 
 `ApiUrl` is the mobile app's `EXPO_PUBLIC_TAROT_API_URL`. The current API uses
 API Gateway HTTP API, so this output does not include a REST API stage path such
-as `/dev`.
+as `/dev`. Every route requires a valid Cognito JWT at the gateway layer — the
+API's own "unauthenticated reads permitted" logic is unreachable through the
+deployed URL; it only applies when running the Express app directly.
 
-The API stack deploys `BEDROCK_RUNTIME_MODE=bedrock` and receives the Knowledge
-Base ID, `us-east-2` region, and application inference profile ARN directly
-from the Bedrock stack. The Lambda role can call
-`bedrock:RetrieveAndGenerate`; corpus upload and ingestion must complete before
-generated readings can retrieve context.
+The API stack deploys `BEDROCK_RUNTIME_MODE=bedrock` unconditionally (no
+deployed local-mode fallback) and receives the Knowledge Base ID, `us-east-2`
+region, and application inference profile ARN directly from the Bedrock stack
+via `ReferenceStrength.STRONG` cross-stack references (CloudFormation
+Export/Import, not the CDK default `Fn::GetStackOutput` — needed so a plain
+`cdk deploy` of this stack reliably picks up a replaced Knowledge Base or
+inference profile from `SimpleTarotBedrockRag-<env>`). The Lambda role can
+call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
+`bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required for a
+generation model behind an application inference profile. Corpus upload and
+ingestion must complete before generated readings can retrieve context.
 
 ## Environment Configuration
 

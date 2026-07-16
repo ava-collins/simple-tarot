@@ -146,6 +146,17 @@ aws bedrock-agent start-ingestion-job \
 If `SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX` is changed, upload into that prefix
 instead of `corpus/`.
 
+The vector store is Amazon S3 Vectors (migrated from OpenSearch Serverless on
+2026-07-16). Ingestion chunks the corpus with `FIXED_SIZE` chunking at 200 max
+tokens / 20% overlap — smaller than a typical default because S3 Vectors caps
+*filterable* metadata at 2048 bytes per vector, and larger chunks push the
+chunk's own text over that cap (`Filterable metadata must have at most 2048
+bytes`, a 400 from the S3Vectors service during ingestion). The corpus's 8
+custom metadata keys are marked non-filterable on the index, which helps but
+wasn't the fix by itself — chunk size was the dominant factor. If ingestion
+ever fails with that error again after a corpus change, reducing `maxTokens`
+further (in `apps/infra/lib/bedrock-rag-stack.ts`) is the first thing to try.
+
 ## API Handoff
 
 After the corpus has been uploaded and synced, set API Bedrock mode for local
@@ -166,10 +177,14 @@ Then start the API:
 yarn api:dev
 ```
 
-The deployed `SimpleTarotApi-<environment>` Lambda runs in Bedrock mode and
-receives the Knowledge Base ID, `us-east-2` region, and application inference
-profile ARN directly from the Bedrock stack. Its role can call
-`bedrock:RetrieveAndGenerate`.
+The deployed `SimpleTarotApi-<environment>` Lambda runs in Bedrock mode
+unconditionally and receives the Knowledge Base ID, `us-east-2` region, and
+application inference profile ARN directly from the Bedrock stack. Its role
+can call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
+`bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required when the
+generation model sits behind an application inference profile, which is the
+case for every current-generation model in `us-east-2` (see
+`apps/infra/lib/api-stack.ts`).
 
 ## Refresh Checklist
 

@@ -93,10 +93,13 @@ BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn-output>
 `BEDROCK_INFERENCE_PROFILE_ARN` has highest precedence, followed by
 `BEDROCK_INFERENCE_PROFILE_ID`, `BEDROCK_MODEL_ARN`, then `BEDROCK_MODEL_ID`.
 
-The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock`, imports the
-Knowledge Base ID and application inference profile ARN from the same stage,
-and grants the Lambda permission to call `RetrieveAndGenerate`. Generated and
-failed reading metadata records the active generation mode.
+The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally
+(no deployed local-mode fallback), imports the Knowledge Base ID and
+application inference profile ARN from the same stage, and grants the Lambda
+permission to call `RetrieveAndGenerate`, `GetInferenceProfile`,
+`InvokeModel`, and `Retrieve` — all four are required once the generation
+model sits behind an application inference profile. Generated and failed
+reading metadata records the active generation mode.
 
 ## Commands
 

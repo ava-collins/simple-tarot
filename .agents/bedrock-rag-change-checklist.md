@@ -83,10 +83,9 @@ When changing Bedrock runtime behavior:
   `apps/api/src/config.test.ts`.
 - Preserve inference profile precedence unless intentionally changing API env
   semantics.
-- Remember that the deployed API stack currently sets
-  `BEDROCK_RUNTIME_MODE=local` without Bedrock identifiers/model settings or
-  IAM permission; enabling Bedrock requires restoring that handoff and scoped
-  permission in the API stack, then deploying it.
+- The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally;
+  there is no deployed local-mode fallback. Local mode only applies to
+  offline API development (`yarn api:dev` without Bedrock env vars).
 
 When changing reading persistence behavior:
 
@@ -132,6 +131,13 @@ When changing infra:
 - Update the matching `apps/infra/test/*.test.ts`.
 - Keep CloudFormation outputs stable unless coordinating an API/deployment
   handoff update.
+- If a `bedrock-rag-stack.ts` resource (KB, index, data source, inference
+  profile) that `api-stack.ts` consumes gets replaced (new physical
+  ID/ARN), verify `ApiStack` actually picked up the new value after
+  deploying — `ApiStack` uses `ReferenceStrength.STRONG` for exactly this
+  reason, but always confirm with `aws cloudformation detect-stack-drift`
+  or a direct `aws lambda get-function-configuration` /
+  `aws iam get-role-policy` check rather than assuming.
 
 ## Upload And Sync Reality Check
 
@@ -152,15 +158,18 @@ Default prefix is `corpus/`.
 
 ## Known Follow-Up Candidates
 
-- Add `metadata.mode = bedrock` when Bedrock generation is used.
 - Decide whether Bedrock successful readings need additional generation
   metadata beyond `modelId`, item count, and mode.
 - Add scripted corpus upload.
 - Add scripted ingestion start and status polling.
 - Consider a long-lived Bedrock runtime generator instead of creating one in
   the request path.
-- Revisit OpenSearch Serverless public network policy after API deployment
-  topology is known.
+- Reconsider `FIXED_SIZE` chunking at 200 max tokens: it operates on raw file
+  bytes, not JSONL record boundaries, so some retrieved chunks include a
+  trailing fragment of JSON syntax from the neighboring corpus record.
+  Generated response quality wasn't affected in testing, but a record-aware
+  corpus/chunking format (one S3 object per document, or `NONE` chunking with
+  pre-chunked input) would remove the artifact entirely.
 
 ## Required Verification
 

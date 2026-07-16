@@ -18,7 +18,7 @@ The backend is organized around two surfaces.
    and the Bedrock RAG stack for generated tarot readings.
 
 The current Bedrock path uses RAG with normalized tarot corpus documents in S3,
-an Amazon Bedrock Knowledge Base, and an OpenSearch Serverless vector store.
+an Amazon Bedrock Knowledge Base, and an Amazon S3 Vectors vector store.
 
 ### UI
 
@@ -44,9 +44,9 @@ Function wrappers around shared package code.
 infrastructure for Simple Tarot and the Bedrock RAG stack. Dev and prod are
 isolated by explicit CDK environment selection and distinct resources.
 Dev is deployed as the pre-production/test environment with a zero CDK diff;
-prod is defined but not deployed. The Bedrock stack creates the S3 corpus bucket, 
-OpenSearch Serverless vector search resources, Bedrock Knowledge Base, S3 data 
-source, IAM role, and CloudFormation outputs that hand off deployment values 
+prod is defined but not deployed. The Bedrock stack creates the S3 corpus bucket,
+an S3 Vectors vector bucket and index, Bedrock Knowledge Base, S3 data
+source, IAM role, and CloudFormation outputs that hand off deployment values
 to the API and corpus operations.
 
 `docs` are a collection of documents that facilitate the planning and execution
