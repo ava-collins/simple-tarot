@@ -59,7 +59,7 @@ describe('BedrockRagStack', () => {
     });
 
     template.hasResourceProperties('AWS::S3Vectors::Index', {
-      IndexName: 'tarot-readings',
+      IndexName: 'tarot-readings-v2',
       DataType: 'float32',
       Dimension: 1024,
       DistanceMetric: 'cosine',
@@ -95,7 +95,7 @@ describe('BedrockRagStack', () => {
     const template = synthesizeBedrockStack();
 
     template.hasResourceProperties('AWS::Bedrock::KnowledgeBase', {
-      Name: 'simple-tarot-dev-readings',
+      Name: 'simple-tarot-dev-readings-v3',
       KnowledgeBaseConfiguration: {
         Type: 'VECTOR',
         VectorKnowledgeBaseConfiguration: {
@@ -116,7 +116,7 @@ describe('BedrockRagStack', () => {
     });
 
     template.hasResourceProperties('AWS::Bedrock::DataSource', {
-      Name: 'simple-tarot-dev-corpus',
+      Name: 'simple-tarot-dev-corpus-v2',
       DataSourceConfiguration: {
         Type: 'S3',
         S3Configuration: {
@@ -127,7 +127,7 @@ describe('BedrockRagStack', () => {
         ChunkingConfiguration: {
           ChunkingStrategy: 'FIXED_SIZE',
           FixedSizeChunkingConfiguration: {
-            MaxTokens: 512,
+            MaxTokens: 200,
             OverlapPercentage: 20,
           },
         },

@@ -154,10 +154,10 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         userDataStackName: `SimpleTarotUserData-${environmentName}`,
         userDataTableName: `simple-tarot-${environmentName}-user-data`,
         bedrockStackName: `SimpleTarotBedrockRag-${environmentName}`,
-        bedrockKnowledgeBaseName: `simple-tarot-${environmentName}-readings`,
-        bedrockDataSourceName: `simple-tarot-${environmentName}-corpus`,
+        bedrockKnowledgeBaseName: `simple-tarot-${environmentName}-readings-v3`,
+        bedrockDataSourceName: `simple-tarot-${environmentName}-corpus-v2`,
         bedrockVectorBucketName: `st-${environmentName}-vectors`,
-        bedrockVectorIndexName: 'tarot-readings',
+        bedrockVectorIndexName: 'tarot-readings-v2',
         bedrockGenerationInferenceProfileName: `simple-tarot-${environmentName}-generation`,
         bedrockCorpusPrefix: optionalEnvValue(
             env,

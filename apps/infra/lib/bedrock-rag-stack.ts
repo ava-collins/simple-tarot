@@ -45,12 +45,24 @@ export class BedrockRagStack extends cdk.Stack {
       vectorBucketName: props.config.bedrockVectorBucketName
     });
 
-    const vectorIndex = new s3vectors.CfnIndex(this, 'VectorStoreIndex', {
+    const vectorIndex = new s3vectors.CfnIndex(this, 'S3VectorsIndex', {
       vectorBucketArn: vectorBucket.attrVectorBucketArn,
       indexName: props.config.bedrockVectorIndexName,
       dataType: 'float32',
       dimension: props.config.bedrockEmbeddingDimensions,
-      distanceMetric: 'cosine'
+      distanceMetric: 'cosine',
+      metadataConfiguration: {
+        nonFilterableMetadataKeys: [
+          'cardIndex',
+          'cardName',
+          'keywords',
+          'orientation',
+          'position',
+          'sourceCollection',
+          'sourcePath',
+          'spread'
+        ]
+      }
     });
     vectorIndex.addDependency(vectorBucket);
 
@@ -88,6 +100,7 @@ export class BedrockRagStack extends cdk.Stack {
       }
     });
     knowledgeBase.addDependency(vectorIndex);
+    knowledgeBase.node.addDependency(knowledgeBaseRole);
     this.knowledgeBase = knowledgeBase;
 
     const dataSource = new bedrock.CfnDataSource(this, 'CorpusDataSource', {
@@ -105,7 +118,7 @@ export class BedrockRagStack extends cdk.Stack {
         chunkingConfiguration: {
           chunkingStrategy: 'FIXED_SIZE',
           fixedSizeChunkingConfiguration: {
-            maxTokens: 512,
+            maxTokens: 200,
             overlapPercentage: 20
           }
         }
