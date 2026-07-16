@@ -31,9 +31,9 @@ full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation enabl
     stacks into one environment boundary.
 -   `lib/cognito-stack.ts` defines the Cognito user pool, public OAuth app
     client, hosted domain, and Expo-facing CloudFormation outputs.
--   `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, OpenSearch
-    Serverless vector store, Bedrock Knowledge Base, S3 data source, application
-    inference profile, and API handoff outputs for generated tarot readings.
+-   `lib/bedrock-rag-stack.ts` defines the S3 corpus bucket, S3 Vectors vector
+    store, Bedrock Knowledge Base, S3 data source, application inference
+    profile, and API handoff outputs for generated tarot readings.
 -   `lib/user-data-stack.ts` defines the DynamoDB user-data table and S3 API log
     bucket used by authenticated reading persistence.
 -   `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
@@ -111,17 +111,20 @@ SimpleTarotBedrockRag-<environment>
 The stack creates:
 
 -   an S3 bucket for normalized corpus documents
--   an OpenSearch Serverless `VECTORSEARCH` collection and vector index
--   OpenSearch Serverless encryption, network, and data access policies
--   a Bedrock Knowledge Base using the configured embedding model
+-   an Amazon S3 Vectors vector bucket and vector index
+-   a Bedrock Knowledge Base using the configured embedding model, backed by
+    the S3 Vectors index
 -   an S3 data source scoped to the configured corpus prefix
 -   a regional Bedrock application inference profile for the configured
     generation model
 -   CloudFormation outputs consumed by `apps/api`
 
-The first MVP pass uses public OpenSearch Serverless network access so Bedrock
-can manage ingestion without introducing VPC routing. Tighten this after the
-API deployment topology is known.
+S3 Vectors was chosen over OpenSearch Serverless for cost: OpenSearch
+Serverless carries a fixed OCU-hour floor even in non-redundant mode
+(~$174/mo), while S3 Vectors is pure pay-per-use with no fixed floor. The
+tradeoff is retrieval latency — sub-second/cold, as low as 100ms warm for S3
+Vectors versus OpenSearch Serverless's sub-millisecond — acceptable for this
+app's single-request reading flow.
 
 ## User Data Stack
 
@@ -222,13 +225,6 @@ Do not commit real environment values.
 The Bedrock values have safe defaults in both example files. Override
 them only when changing model choices, embedding dimensions, or the S3 object
 prefix used for corpus ingestion.
-
-The stack grants OpenSearch Serverless index creation to the standard modern
-CDK CloudFormation execution role:
-
-```text
-arn:aws:iam::<account-id>:role/cdk-hnb659fds-cfn-exec-role-<account-id>-<region>
-```
 
 ## API Contract
 

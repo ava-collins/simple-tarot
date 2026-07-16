@@ -30,14 +30,13 @@ export interface InfraConfig {
     bedrockStackName: string;
     bedrockKnowledgeBaseName: string;
     bedrockDataSourceName: string;
-    bedrockCollectionName: string;
+    bedrockVectorBucketName: string;
     bedrockVectorIndexName: string;
     bedrockCorpusPrefix: string;
     bedrockEmbeddingModelId: string;
     bedrockEmbeddingDimensions: number;
     bedrockGenerationInferenceProfileName: string;
     bedrockGenerationModelId: string;
-    aossIndexPrincipalArn?: string;
 }
 
 const DEFAULT_ENV_DIRECTORY = join(__dirname, '..');
@@ -157,7 +156,7 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         bedrockStackName: `SimpleTarotBedrockRag-${environmentName}`,
         bedrockKnowledgeBaseName: `simple-tarot-${environmentName}-readings`,
         bedrockDataSourceName: `simple-tarot-${environmentName}-corpus`,
-        bedrockCollectionName: `st-${environmentName}-rag`,
+        bedrockVectorBucketName: `st-${environmentName}-vectors`,
         bedrockVectorIndexName: 'tarot-readings',
         bedrockGenerationInferenceProfileName: `simple-tarot-${environmentName}-generation`,
         bedrockCorpusPrefix: optionalEnvValue(
@@ -179,9 +178,6 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
             env,
             'SIMPLE_TAROT_BEDROCK_GENERATION_MODEL_ID',
             'amazon.nova-lite-v1:0'
-        ),
-        aossIndexPrincipalArn:
-            optionalEnvValue(env, 'SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN', '') ||
-            undefined
+        )
     };
 }
