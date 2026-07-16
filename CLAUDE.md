@@ -75,7 +75,7 @@ apps/tarot (Expo SDK 57, expo-router)
   └── REST → apps/api (Express 5)
                ├── local mode  → placeholder reading response
                └── bedrock mode → Bedrock Agent Runtime RetrieveAndGenerate
-                                   ↑ Bedrock Knowledge Base (OpenSearch Serverless)
+                                   ↑ Bedrock Knowledge Base (S3 Vectors)
                └── DynamoDB   → reading history persistence (authenticated)
                └── GET /avatars → SerpAPI Google Images
 ```
@@ -96,7 +96,7 @@ Four stacks deployed per environment (`SIMPLE_TAROT_ENV`):
 | Stack | Key resources |
 |---|---|
 | `SimpleTarotCognito-<env>` | Cognito user pool, public OAuth app client, hosted domain |
-| `SimpleTarotBedrockRag-<env>` | S3 corpus bucket, OpenSearch Serverless collection, Bedrock Knowledge Base |
+| `SimpleTarotBedrockRag-<env>` | S3 corpus bucket, S3 Vectors vector store, Bedrock Knowledge Base |
 | `SimpleTarotUserData-<env>` | DynamoDB user-data table, S3 API log bucket |
 | `SimpleTarotApi-<env>` | Lambda (Node 22), API Gateway HTTP API, Cognito JWT authorizer |
 

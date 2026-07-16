@@ -28,12 +28,11 @@ The Bedrock path spans:
 Do not assume the S3 corpus upload or Bedrock ingestion sync is automated.
 Only normalization is currently automated in this repo.
 
-The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` and does not
-receive Bedrock identifiers/model settings or Bedrock IAM permission. This
-keeps the Bedrock stack independently manageable. Activation must deliberately
-restore that environment handoff and scoped permission, confirm corpus
-ingestion, set `BEDROCK_RUNTIME_MODE=bedrock`, and update response metadata so
-Bedrock-generated readings persist `metadata.mode = bedrock`.
+The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally and
+receives the Knowledge Base ID, application inference profile ARN, and region
+directly from `SimpleTarotBedrockRag-<env>` via CDK cross-stack references.
+There is no local-mode fallback in the deployed Lambda; local mode exists only
+for offline API development (`yarn api:dev` without Bedrock env vars set).
 
 ## Runtime Decision
 
@@ -89,9 +88,6 @@ Important files:
 - Bedrock runtime call: `apps/api/src/bedrock/bedrock-client.ts`
 - Reading persistence: `apps/api/src/readings/persistence/*`
 - API log sink: `apps/api/src/logging/api-log-sink.ts`
-
-Known caveat: `mapGeneratedReadingResponse` currently hard-codes
-`metadata.mode` as `local`, even for Bedrock-generated text.
 
 ## Authenticated Persistence Path
 
@@ -192,14 +188,23 @@ Generated metadata fields:
 `apps/infra/lib/bedrock-rag-stack.ts` creates:
 
 - private versioned S3 corpus bucket
-- OpenSearch Serverless vector collection
-- security and data access policies
-- vector index with fields `bedrock-vector`, `bedrock-text`,
-  `bedrock-metadata`
-- Bedrock Knowledge Base IAM role
-- Bedrock Knowledge Base
-- S3 data source with configured inclusion prefix
+- S3 Vectors vector bucket (`AWS::S3Vectors::VectorBucket`)
+- S3 Vectors index (`AWS::S3Vectors::Index`), `cosine` distance metric,
+  `float32` data type, with the corpus's 8 custom metadata keys
+  (`cardIndex`, `cardName`, `keywords`, `orientation`, `position`,
+  `sourceCollection`, `sourcePath`, `spread`) marked non-filterable
+- Bedrock Knowledge Base IAM role, granted `bedrock:InvokeModel` (embedding
+  model) and the five `s3vectors:*` data-plane actions scoped to the index ARN
+- Bedrock Knowledge Base (`storageConfiguration.type: S3_VECTORS`)
+- S3 data source with configured inclusion prefix, `FIXED_SIZE` chunking at
+  200 max tokens / 20% overlap
 - CloudFormation outputs for API and operations handoff
+
+OpenSearch Serverless (AOSS) was the original vector store and was fully
+migrated away from on 2026-07-16 for cost (AOSS carries a fixed OCU-hour
+floor; S3 Vectors is pure pay-per-use). No AOSS resources remain in this
+stack. If you see AOSS mentioned elsewhere (older docs, git history), it's
+describing the pre-migration architecture.
 
 `apps/infra/lib/user-data-stack.ts` creates:
 
@@ -210,11 +215,33 @@ Generated metadata fields:
 
 `apps/infra/lib/api-stack.ts` creates:
 
-- Node.js 22 Lambda for `apps/api`
-- API Gateway HTTP API with Cognito JWT authorizer
+- Node.js 22 Lambda for `apps/api`, 29s timeout (API Gateway HTTP API's
+  integration timeout is a hard, non-configurable 30s ceiling)
+- API Gateway HTTP API with Cognito JWT authorizer — every route requires a
+  valid JWT at the gateway layer; the API's own "unauthenticated reads
+  permitted" logic is unreachable through the deployed URL, only via a direct
+  Express run
 - Lambda environment for Bedrock, user-data table, and API log bucket
-- least-privilege permissions for DynamoDB, S3 API logs, and Bedrock
+- least-privilege permissions for DynamoDB, S3 API logs, and four separate
+  Bedrock IAM statements (all required — verified against live
+  `AccessDeniedException`s, not just AWS's KB-permissions sample doc):
+  `bedrock:RetrieveAndGenerate` (`*`), `bedrock:GetInferenceProfile` +
+  `bedrock:InvokeModel` (inference profile ARN), `bedrock:InvokeModel`
+  (underlying foundation-model ARN), `bedrock:Retrieve` (Knowledge Base ARN)
 - `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
+
+**`ApiStack` consumes `BedrockRagStack`/`UserDataStack`/`CognitoStack`
+resources with `ReferenceStrength.STRONG`** (`cdk.CrossStackReferences.of(this).consume(cdk.ReferenceStrength.STRONG)`,
+first line of the constructor) — this uses real CloudFormation Export/Import,
+not the CDK default `Fn::GetStackOutput`. Do not remove this: with the
+default (weak) reference strength, a plain `cdk deploy` of `ApiStack` —
+even with `--force` — reports "no changes" and silently leaves the Lambda
+environment and IAM policy pointing at a stale/deleted value when a producer
+stack replaces a consumed resource, because `Fn::GetStackOutput`'s own
+arguments (stack name, output name) never change even though the value they
+resolve to did. STRONG is safe here specifically because this project always
+deploys `ApiStack` together with its dependency stacks in one `cdk deploy`
+invocation.
 
 `ApiUrl` is the mobile `EXPO_PUBLIC_TAROT_API_URL`. The current API is an
 API Gateway HTTP API, so do not append a REST API stage path such as `/dev`
@@ -223,14 +250,21 @@ unless CloudFormation outputs one.
 Defaults in `apps/infra/lib/config.ts`:
 
 - stack name: `SimpleTarotBedrockRag-<environment>`
-- KB name: `simple-tarot-<environment>-readings`
-- data source name: `simple-tarot-<environment>-corpus`
-- collection name: `st-<environment>-rag`
-- vector index: `tarot-readings`
+- KB name: `simple-tarot-<environment>-readings-v3`
+- data source name: `simple-tarot-<environment>-corpus-v2`
+- vector bucket name: `st-<environment>-vectors`
+- vector index: `tarot-readings-v2`
 - corpus prefix: `corpus/`
 - embedding model: `amazon.titan-embed-text-v2:0`
 - embedding dimensions: `1024`
 - generation model: `amazon.nova-lite-v1:0`
+
+The `-v2`/`-v3` suffixes on the KB, data source, and index names are permanent
+artifacts of the 2026-07-16 S3 Vectors migration (each name had to change to
+avoid a CloudFormation create-before-delete collision with its predecessor
+during resource replacement) — not meaningful versioning. Nothing in the app
+references these names, only their IDs/ARNs, so don't "clean up" the suffixes
+without expecting another replacement cycle.
 
 ## Mobile Handoff
 

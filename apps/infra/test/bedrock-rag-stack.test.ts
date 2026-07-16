@@ -13,8 +13,6 @@ const baseEnv = {
   SIMPLE_TAROT_WEB_CALLBACK_URL: 'https://example.com/auth/callback',
   SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
-  SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
-    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-2',
 };
 
 function synthesizeBedrockStack() {
@@ -53,68 +51,30 @@ describe('BedrockRagStack', () => {
     });
   });
 
-  it('creates an OpenSearch Serverless vector collection and index', () => {
+  it('creates an S3 Vectors bucket and index', () => {
     const template = synthesizeBedrockStack();
 
-    template.hasResourceProperties('AWS::OpenSearchServerless::Collection', {
-      Name: 'st-dev-rag',
-      Type: 'VECTORSEARCH',
-      StandbyReplicas: 'DISABLED',
+    template.hasResourceProperties('AWS::S3Vectors::VectorBucket', {
+      VectorBucketName: 'st-dev-vectors',
     });
 
-    template.hasResourceProperties('AWS::OpenSearchServerless::Index', {
-      IndexName: 'tarot-readings',
-      Settings: {
-        Index: {
-          Knn: true,
-        },
-      },
-      Mappings: {
-        Properties: {
-          'bedrock-vector': Match.objectLike({
-            Type: 'knn_vector',
-            Dimension: 1024,
-          }),
-          'bedrock-text': {
-            Type: 'text',
-          },
-          'bedrock-metadata': {
-            Type: 'text',
-          },
-        },
-      },
+    template.hasResourceProperties('AWS::S3Vectors::Index', {
+      IndexName: 'tarot-readings-v2',
+      DataType: 'float32',
+      Dimension: 1024,
+      DistanceMetric: 'cosine',
     });
   });
 
-  it('creates Bedrock access, network, and encryption policies for the vector store', () => {
+  it('grants the Knowledge Base role S3 Vectors index permissions', () => {
     const template = synthesizeBedrockStack();
+    const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
 
-    template.resourceCountIs('AWS::OpenSearchServerless::SecurityPolicy', 2);
-    template.hasResourceProperties('AWS::OpenSearchServerless::SecurityPolicy', {
-      Name: 'st-dev-rag-enc',
-      Type: 'encryption',
-      Policy: Match.serializedJson(Match.objectLike({
-        AWSOwnedKey: true,
-      })),
-    });
-    template.hasResourceProperties('AWS::OpenSearchServerless::SecurityPolicy', {
-      Name: 'st-dev-rag-net',
-      Type: 'network',
-      Policy: Match.serializedJson(Match.arrayWith([
-        Match.objectLike({
-          AllowFromPublic: true,
-        }),
-      ])),
-    });
-    template.hasResourceProperties('AWS::OpenSearchServerless::AccessPolicy', {
-      Name: 'st-dev-rag-data',
-      Type: 'data',
-    });
-
-    const accessPolicies = template.findResources('AWS::OpenSearchServerless::AccessPolicy');
-    expect(JSON.stringify(accessPolicies)).toContain(
-      'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-2'
-    );
+    expect(policies).toContain('s3vectors:PutVectors');
+    expect(policies).toContain('s3vectors:GetVectors');
+    expect(policies).toContain('s3vectors:DeleteVectors');
+    expect(policies).toContain('s3vectors:QueryVectors');
+    expect(policies).toContain('s3vectors:GetIndex');
   });
 
   it('creates a single-region application inference profile', () => {
@@ -135,7 +95,7 @@ describe('BedrockRagStack', () => {
     const template = synthesizeBedrockStack();
 
     template.hasResourceProperties('AWS::Bedrock::KnowledgeBase', {
-      Name: 'simple-tarot-dev-readings',
+      Name: 'simple-tarot-dev-readings-v3',
       KnowledgeBaseConfiguration: {
         Type: 'VECTOR',
         VectorKnowledgeBaseConfiguration: {
@@ -148,20 +108,15 @@ describe('BedrockRagStack', () => {
         },
       },
       StorageConfiguration: {
-        Type: 'OPENSEARCH_SERVERLESS',
-        OpensearchServerlessConfiguration: {
-          VectorIndexName: 'tarot-readings',
-          FieldMapping: {
-            VectorField: 'bedrock-vector',
-            TextField: 'bedrock-text',
-            MetadataField: 'bedrock-metadata',
-          },
+        Type: 'S3_VECTORS',
+        S3VectorsConfiguration: {
+          IndexArn: Match.anyValue(),
         },
       },
     });
 
     template.hasResourceProperties('AWS::Bedrock::DataSource', {
-      Name: 'simple-tarot-dev-corpus',
+      Name: 'simple-tarot-dev-corpus-v2',
       DataSourceConfiguration: {
         Type: 'S3',
         S3Configuration: {
@@ -172,7 +127,7 @@ describe('BedrockRagStack', () => {
         ChunkingConfiguration: {
           ChunkingStrategy: 'FIXED_SIZE',
           FixedSizeChunkingConfiguration: {
-            MaxTokens: 512,
+            MaxTokens: 200,
             OverlapPercentage: 20,
           },
         },

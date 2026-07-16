@@ -19,8 +19,6 @@ function synthesize(environmentName: SimpleTarotEnvironment) {
       SIMPLE_TAROT_WEB_CALLBACK_URL: 'https://example.com/auth/callback',
       SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
       SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: `simple-tarot-${environmentName}`,
-      SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
-        `arn:aws:iam::${account}:role/cdk-hnb659fds-cfn-exec-role-${account}-${region}`,
     },
   });
   const suffix = environmentName === 'dev' ? 'Dev' : 'Prod';

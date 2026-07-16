@@ -11,8 +11,8 @@ The Bedrock RAG work adds a REST API path for generated tarot readings:
 - `apps/api` receives reading requests and builds a deterministic retrieval
   prompt. Authenticated requests also persist reading history through the API's
   user-data store.
-- `apps/infra` deploys the Bedrock Knowledge Base dependencies: S3, OpenSearch
-  Serverless, IAM, Bedrock data source resources, the user-data table, the API
+- `apps/infra` deploys the Bedrock Knowledge Base dependencies: S3, S3
+  Vectors, IAM, Bedrock data source resources, the user-data table, the API
   log bucket, and the API Gateway/Lambda runtime.
 - A normalized corpus JSONL file is generated from the Firestore-shaped tarot
   source export for Knowledge Base ingestion.
@@ -32,7 +32,7 @@ flowchart LR
     BedrockClient["Bedrock client<br/>bedrock/bedrock-client.ts"]
     Runtime["Bedrock Agent Runtime<br/>RetrieveAndGenerate"]
     KB["Bedrock Knowledge Base"]
-    AOSS["OpenSearch Serverless<br/>vector index"]
+    Vectors["S3 Vectors<br/>vector index"]
     S3["S3 corpus bucket<br/>corpus/ prefix"]
     Mapper["Response mapper<br/>readings/response-mapper.ts"]
     DDB["DynamoDB user-data table<br/>profile, readings, failed attempts"]
@@ -46,7 +46,7 @@ flowchart LR
     Route -->|"BEDROCK_RUNTIME_MODE=bedrock"| BedrockClient
     BedrockClient --> Runtime
     Runtime --> KB
-    KB --> AOSS
+    KB --> Vectors
     KB --> S3
     Local --> Mapper
     BedrockClient --> Mapper
@@ -158,11 +158,18 @@ Model selection precedence:
 When `BEDROCK_MODEL_ID` is set, the API expands it into a regional foundation
 model ARN. Inference profile IDs and ARNs are passed through as provided.
 
-The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock`, imports the
-Knowledge Base ID, `us-east-2` region, and application inference profile ARN
-from the Bedrock stack, and grants `bedrock:RetrieveAndGenerate`. Corpus upload
-and Knowledge Base ingestion must complete before retrieval can return the
-normalized tarot context.
+The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally,
+imports the Knowledge Base ID, `us-east-2` region, and application inference
+profile ARN from the Bedrock stack, and grants four IAM statements:
+`bedrock:RetrieveAndGenerate` (`*`), `bedrock:GetInferenceProfile` (inference
+profile ARN), `bedrock:InvokeModel` (inference profile ARN and the underlying
+foundation-model ARN), and `bedrock:Retrieve` (Knowledge Base ARN). All four
+are required — a single `bedrock:RetrieveAndGenerate` grant alone returns
+`AccessDeniedException` once the generation model is behind an application
+inference profile (required in `us-east-2`, where no Anthropic model
+currently supports on-demand invocation). Corpus upload and Knowledge Base
+ingestion must complete before retrieval can return the normalized tarot
+context.
 
 ## Infrastructure Flow
 
@@ -176,9 +183,8 @@ flowchart TB
     Config["apps/infra/.env.dev or .env.prod<br/>lib/config.ts"]
     Stack["BedrockRagStack"]
     Bucket["S3 CorpusBucket<br/>versioned, SSL-only, private"]
-    Policies["OpenSearch Serverless<br/>security and data policies"]
-    Collection["AOSS VECTORSEARCH collection"]
-    Index["AOSS vector index<br/>bedrock-vector/text/metadata fields"]
+    VectorBucket["S3Vectors::VectorBucket"]
+    Index["S3Vectors::Index<br/>cosine, float32, non-filterable metadata"]
     Role["Bedrock KnowledgeBaseRole"]
     KB["Bedrock CfnKnowledgeBase"]
     DS["Bedrock CfnDataSource<br/>S3 inclusion prefix"]
@@ -189,9 +195,8 @@ flowchart TB
 
     Config --> Stack
     Stack --> Bucket
-    Stack --> Policies
-    Policies --> Collection
-    Collection --> Index
+    Stack --> VectorBucket
+    VectorBucket --> Index
     Stack --> Role
     Bucket --> Role
     Role --> KB
@@ -209,9 +214,9 @@ flowchart TB
 The stack creates:
 
 - S3 bucket for normalized corpus artifacts.
-- OpenSearch Serverless vector search collection.
-- OpenSearch Serverless encryption, network, and data access policies.
-- OpenSearch Serverless vector index.
+- S3 Vectors vector bucket and index (`cosine` distance, `float32`, corpus
+  metadata keys marked non-filterable to stay under S3 Vectors' 2048-byte
+  filterable-metadata cap).
 - IAM role assumed by Bedrock.
 - Bedrock Knowledge Base using the configured embedding model.
 - S3 data source scoped to the configured corpus prefix.
@@ -317,9 +322,11 @@ stage path unless CloudFormation outputs one.
 
 - The repo currently has normalization automation only. Uploading corpus files
   and starting Bedrock ingestion are manual or external-script operations.
-- The OpenSearch Serverless network policy currently allows public access for
-  MVP ingestion simplicity. Revisit this when the API deployment topology is
-  settled.
+- `FIXED_SIZE` chunking (200 max tokens, 20% overlap) operates on raw file
+  bytes, not JSONL record boundaries, so some retrieved chunks include a
+  trailing fragment of JSON syntax from the neighboring corpus record.
+  Generated response quality wasn't affected in testing, but a record-aware
+  corpus/chunking format would remove the artifact.
 - The API creates a Bedrock runtime client per request path invocation through
   `createBedrockReadingGenerator`. That is simple and testable, but not yet
   optimized as a long-lived singleton.

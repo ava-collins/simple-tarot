@@ -16,8 +16,6 @@ const baseEnv = {
   SIMPLE_TAROT_WEB_CALLBACK_URL: 'https://example.com/auth/callback',
   SIMPLE_TAROT_WEB_LOGOUT_URL: 'https://example.com/auth/logout',
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
-  SIMPLE_TAROT_AOSS_INDEX_PRINCIPAL_ARN:
-    'arn:aws:iam::123456789012:role/cdk-hnb659fds-cfn-exec-role-123456789012-us-east-2',
 };
 
 function synthesizeApiStack() {

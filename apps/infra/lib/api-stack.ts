@@ -27,6 +27,8 @@ export class ApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: ApiStackProps) {
     super(scope, id, props);
 
+    cdk.CrossStackReferences.of(this).consume(cdk.ReferenceStrength.STRONG);
+
     const apiFunction = new nodejs.NodejsFunction(this, 'ApiFunction', {
       entry: join(__dirname, '..', '..', 'api', 'src', 'lambda.ts'),
       functionName: props.config.apiFunctionName,
