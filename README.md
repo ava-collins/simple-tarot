@@ -18,10 +18,7 @@ The backend is organized around two surfaces.
    and the Bedrock RAG stack for generated tarot readings.
 
 The current Bedrock path uses RAG with normalized tarot corpus documents in S3,
-an Amazon Bedrock Knowledge Base, and an OpenSearch Serverless vector store. If
-retrieval and prompting are not sufficient, a later model customization phase
-may prepare training data for Bedrock fine-tuning or another supported
-customization method.
+an Amazon Bedrock Knowledge Base, and an OpenSearch Serverless vector store.
 
 ### UI
 
@@ -47,23 +44,21 @@ Function wrappers around shared package code.
 infrastructure for Simple Tarot and the Bedrock RAG stack. Dev and prod are
 isolated by explicit CDK environment selection and distinct resources.
 Dev is deployed as the pre-production/test environment with a zero CDK diff;
-prod is defined but not deployed. The deployed API remains in local mode and
-does not currently use the Bedrock resources.
-The Bedrock stack creates the S3 corpus bucket, OpenSearch Serverless vector
-search resources, Bedrock Knowledge Base, S3 data source, IAM role, and
-CloudFormation outputs that hand off deployment values to the API and corpus
-operations.
+prod is defined but not deployed. The Bedrock stack creates the S3 corpus bucket, 
+OpenSearch Serverless vector search resources, Bedrock Knowledge Base, S3 data 
+source, IAM role, and CloudFormation outputs that hand off deployment values 
+to the API and corpus operations.
 
 `docs` are a collection of documents that facilitate the planning and execution
-of the project as a whole, used to provide context over time.
+of the project as a whole.
 
 `packages/hooks` owns reusable API contracts, API clients, request builders,
 resource helpers, constants, and hooks. Its root export is server-safe; React
 hooks are exported from `@simpletarot/hooks/client`.
 
 `packages/cards` is a shared React Native package for generated tarot card SVG
-components and the `useSvgCards` hook. It generates card face components from
-raw SVG files with SVGR.
+components and the `useSvgCards` hook. It generates card React components from
+raw SVG files using SVGR tool.
 
 `packages/ui` owns the Storybook-driven React Native presentation layer:
 atoms, molecules, organisms, and mobile screen components consumed by the app.
