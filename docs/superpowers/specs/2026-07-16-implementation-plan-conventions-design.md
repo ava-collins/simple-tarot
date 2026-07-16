@@ -73,9 +73,12 @@ Every implementation plan must encode the following constraints.
   internal TDD checklist operation.
 - Within each checkpoint, specify files, interfaces, tests, implementation work, and automated
   verification.
-- End every checkpoint with concrete user manual-verification instructions and an explicit stop.
-- Do not begin the next checkpoint until the user verifies the result and explicitly authorizes
-  continuation.
+- After automated verification, leave the checkpoint changes uncommitted and end with concrete
+  user manual-verification instructions and an explicit stop.
+- The user validates the checkpoint and commits its files. The agent must not create the checkpoint
+  commit unless the user explicitly requests it.
+- Do not begin the next checkpoint until the user confirms validation, confirms the checkpoint
+  commit, and explicitly authorizes continuation.
 
 ### Documentation
 

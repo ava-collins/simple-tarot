@@ -10,12 +10,13 @@
 
 ## Global Constraints
 
-- Preserve all unrelated staged and working-tree changes; commit only `AGENTS.md` and `CLAUDE.md`.
+- Preserve all unrelated staged and working-tree changes; leave `AGENTS.md` and `CLAUDE.md` uncommitted for user validation.
 - Keep `packages/hooks` responsible for reusable data fetching and non-visual orchestration.
 - Keep `packages/ui` presentational and composable from atoms through mobile screens.
 - Use `EXPO_PUBLIC_*` only for intentionally public, non-secret Expo values.
 - Prefer React 19 `use()`, Suspense, and Error Boundaries over new effect-driven fetch loops when a Promise resource fits.
 - Require manual user verification only between coherent major checkpoints, after automated verification completes.
+- Leave checkpoint changes uncommitted so the user can validate and commit them before authorizing the next checkpoint.
 - Include documentation accuracy in every future implementation plan.
 
 ---
@@ -85,8 +86,9 @@ Apply these rules whenever creating or executing a Simple Tarot implementation p
 
 - Divide implementation plans into small, coherent major checkpoints. Do not pause between internal test-writing, test-running, and implementation steps within one checkpoint.
 - Within every checkpoint, specify exact files, interfaces, tests, implementation steps, and automated verification commands.
-- End every checkpoint with concrete manual-verification instructions and an explicit stop.
-- Do not begin the next checkpoint until the user verifies the result and explicitly authorizes continuation.
+- After automated verification, leave the checkpoint changes uncommitted and end with concrete manual-verification instructions and an explicit stop.
+- The user validates the checkpoint and commits its files. Do not create the checkpoint commit on the user's behalf unless the user explicitly requests it.
+- Do not begin the next checkpoint until the user confirms validation, confirms the checkpoint commit, and explicitly authorizes continuation.
 
 ### Documentation
 
@@ -134,20 +136,20 @@ git diff -- AGENTS.md CLAUDE.md
 git status --short
 ```
 
-Expected: the diff contains only the new root policy and the `@AGENTS.md` import. Existing unrelated staged README changes may remain in `git status` but must not enter this task's commit.
+Expected: the diff contains only the new root policy and the `@AGENTS.md` import. Existing unrelated staged README changes may remain in `git status`; do not alter them or include them when the user commits this checkpoint.
 
-- [ ] **Step 5: Commit only the policy files**
+- [ ] **Step 5: Leave the verified checkpoint uncommitted**
 
 Run:
 
 ```sh
-git add AGENTS.md CLAUDE.md
-git diff --cached --check
-git commit --only AGENTS.md CLAUDE.md -m "docs: add implementation plan conventions"
+git diff --check -- AGENTS.md CLAUDE.md
+git diff -- AGENTS.md CLAUDE.md
+git status --short
 ```
 
-Expected: the commit contains only `AGENTS.md` and `CLAUDE.md`; unrelated staged changes remain staged and uncommitted.
+Expected: `AGENTS.md` and `CLAUDE.md` remain uncommitted for user validation. No checkpoint commit is created by the agent.
 
 - [ ] **Manual verification pause — checkpoint 1**
 
-Stop and ask the user to review `AGENTS.md` and confirm that the package boundaries, React 19 policy, major-checkpoint gate, and documentation pass reflect the intended planning rules. Do not begin another implementation checkpoint until the user explicitly authorizes it.
+Stop and ask the user to review `AGENTS.md` and confirm that the package boundaries, React 19 policy, major-checkpoint gate, and documentation pass reflect the intended planning rules. The user commits the checkpoint files, then confirms the commit and explicitly authorizes continuation. Do not begin another implementation checkpoint before both confirmations.

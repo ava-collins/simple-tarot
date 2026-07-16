@@ -39,8 +39,9 @@ Apply these rules whenever creating or executing a Simple Tarot implementation p
 
 - Divide implementation plans into small, coherent major checkpoints. Do not pause between internal test-writing, test-running, and implementation steps within one checkpoint.
 - Within every checkpoint, specify exact files, interfaces, tests, implementation steps, and automated verification commands.
-- End every checkpoint with concrete manual-verification instructions and an explicit stop.
-- Do not begin the next checkpoint until the user verifies the result and explicitly authorizes continuation.
+- After automated verification, leave the checkpoint changes uncommitted and end with concrete manual-verification instructions and an explicit stop.
+- The user validates the checkpoint and commits its files. Do not create the checkpoint commit on the user's behalf unless the user explicitly requests it.
+- Do not begin the next checkpoint until the user confirms validation, confirms the checkpoint commit, and explicitly authorizes continuation.
 
 ### Documentation
 
