@@ -32,6 +32,7 @@ export class ApiStack extends cdk.Stack {
       functionName: props.config.apiFunctionName,
       handler: 'handler',
       runtime: lambda.Runtime.NODEJS_22_X,
+      timeout: cdk.Duration.seconds(29),
       environment: {
         API_LOG_BUCKET_NAME: props.apiLogBucket.bucketName,
         BEDROCK_INFERENCE_PROFILE_ARN:
@@ -49,6 +50,21 @@ export class ApiStack extends cdk.Stack {
     apiFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['bedrock:RetrieveAndGenerate'],
       resources: ['*']
+    }));
+    apiFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['bedrock:GetInferenceProfile'],
+      resources: [props.generationInferenceProfile.attrInferenceProfileArn]
+    }));
+    apiFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['bedrock:Retrieve'],
+      resources: [props.knowledgeBase.attrKnowledgeBaseArn]
+    }));
+    apiFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['bedrock:InvokeModel'],
+      resources: [
+        props.generationInferenceProfile.attrInferenceProfileArn,
+        `arn:aws:bedrock:${props.config.awsRegion}::foundation-model/${props.config.bedrockGenerationModelId}`
+      ]
     }));
     props.userDataTable.grantReadWriteData(apiFunction);
     props.apiLogBucket.grantPut(apiFunction, 'api-logs/*');
