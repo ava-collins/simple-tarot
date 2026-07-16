@@ -112,3 +112,5 @@ CloudFormation outputs from infra stacks feed directly into `apps/api` env vars.
 ## Commit conventions
 
 Conventional commits enforced by commitlint. Semantic release runs per workspace to derive semver from commit messages. Use `fix:`, `feat:`, `chore:`, `docs:` prefixes.
+
+@AGENTS.md
