@@ -17,8 +17,9 @@ The backend is organized around two surfaces.
 2. `apps/infra` provisions AWS infrastructure with CDK, including Cognito auth
    and the Bedrock RAG stack for generated tarot readings.
 
-The current Bedrock path uses RAG with normalized tarot corpus documents in S3,
-an Amazon Bedrock Knowledge Base, and an Amazon S3 Vectors vector store.
+The current Bedrock path uses private corpus artifacts in S3, an Amazon Bedrock Knowledge Base,
+and an Amazon S3 Vectors vector store. Corpus sources, transformation code, relationship rules,
+and generated artifacts are maintained outside this public repository.
 
 ### UI
 
@@ -103,7 +104,7 @@ messages.
 
 ### Operations
 
--   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — normalize corpus, upload to S3, sync Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
+-   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — public infrastructure handoff for uploading an approved private artifact and syncing Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
 -   [Infrastructure Operations](./apps/infra/README.md#commands) — explicit CDK dev/prod environment selection, deployment, validation, and rollback
 
 ### Developer Workflow

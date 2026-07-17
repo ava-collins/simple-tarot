@@ -37,19 +37,12 @@ API response contract:
 - `citations`
 - `metadata`
 
-Corpus document contract:
+Corpus ownership contract:
 
-- `id`
-- `kind`
-- `text`
-- `metadata.cardIndex`
-- `metadata.cardName`
-- `metadata.keywords`
-- `metadata.orientation`
-- `metadata.position`
-- `metadata.sourceCollection`
-- `metadata.sourcePath`
-- `metadata.spread`
+- Corpus sources, transformation code, relationship rules, real fixtures, and generated artifacts
+  stay outside this public repository.
+- Public operations accept only an approved private artifact.
+- Public runtime and infrastructure changes must not reproduce private corpus behavior.
 
 Infrastructure output names:
 
@@ -115,11 +108,10 @@ When changing mobile reading history behavior:
 
 When changing corpus shape:
 
-- Edit `apps/api/src/corpus/normalize-corpus.ts` and
-  `apps/api/src/corpus/types.ts`.
-- Update `apps/api/src/corpus/normalize-corpus.test.ts`.
-- Run normalization and inspect generated JSONL.
-- Update human and agent docs if generated record semantics change.
+- Make the source, transformation, rule, and artifact changes through the private corpus workflow.
+- Do not copy private implementation, paths, real fixtures, or generated output into this repo.
+- Coordinate any public ingestion or compatibility change through an approved artifact contract.
+- Update human and agent docs if the public AWS or runtime handoff changes.
 
 When changing infra:
 
@@ -141,13 +133,13 @@ When changing infra:
 
 ## Upload And Sync Reality Check
 
-The repo does not currently contain corpus upload or Knowledge Base sync
-scripts. If a task needs live retrieval after corpus changes, account for
-these manual steps:
+The public repo does not contain corpus generation, upload, or Knowledge Base sync scripts. If a
+task needs live retrieval after an approved private artifact changes, account for these controlled
+operations:
 
 ```sh
-aws s3 cp apps/api/corpus/generated/tarot-corpus.jsonl \
-  s3://<BedrockCorpusBucketName>/<prefix>tarot-corpus.jsonl
+aws s3 cp <approved-private-artifact-path> \
+  s3://<BedrockCorpusBucketName>/<prefix>/<artifact-name>
 
 aws bedrock-agent start-ingestion-job \
   --knowledge-base-id <BedrockKnowledgeBaseId> \
@@ -160,16 +152,13 @@ Default prefix is `corpus/`.
 
 - Decide whether Bedrock successful readings need additional generation
   metadata beyond `modelId`, item count, and mode.
-- Add scripted corpus upload.
+- Design private artifact publication and the public compatibility handoff.
 - Add scripted ingestion start and status polling.
 - Consider a long-lived Bedrock runtime generator instead of creating one in
   the request path.
-- Reconsider `FIXED_SIZE` chunking at 200 max tokens: it operates on raw file
-  bytes, not JSONL record boundaries, so some retrieved chunks include a
-  trailing fragment of JSON syntax from the neighboring corpus record.
-  Generated response quality wasn't affected in testing, but a record-aware
-  corpus/chunking format (one S3 object per document, or `NONE` chunking with
-  pre-chunked input) would remove the artifact entirely.
+- Reconsider `FIXED_SIZE` chunking at 200 max tokens because it can split logical content
+  boundaries. Coordinate any change with the private artifact contract before altering public
+  ingestion infrastructure.
 
 ## Required Verification
 

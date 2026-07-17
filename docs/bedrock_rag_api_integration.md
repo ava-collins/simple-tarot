@@ -1,8 +1,7 @@
 # Bedrock RAG API Integration
 
 This document explains how the Simple Tarot API connects tarot reading
-requests to an Amazon Bedrock Knowledge Base backed by normalized corpus
-documents in S3.
+requests to an Amazon Bedrock Knowledge Base backed by private corpus artifacts in S3.
 
 ## Purpose
 
@@ -14,8 +13,8 @@ The Bedrock RAG work adds a REST API path for generated tarot readings:
 - `apps/infra` deploys the Bedrock Knowledge Base dependencies: S3, S3
   Vectors, IAM, Bedrock data source resources, the user-data table, the API
   log bucket, and the API Gateway/Lambda runtime.
-- A normalized corpus JSONL file is generated from the Firestore-shaped tarot
-  source export for Knowledge Base ingestion.
+- Approved corpus artifacts are produced through a private workflow and handed to public AWS
+  operations for Knowledge Base ingestion.
 
 The deployed API runs in Bedrock mode in `us-east-2`. Local placeholder mode
 remains available explicitly for offline development without AWS credentials.
@@ -168,8 +167,7 @@ are required — a single `bedrock:RetrieveAndGenerate` grant alone returns
 `AccessDeniedException` once the generation model is behind an application
 inference profile (required in `us-east-2`, where no Anthropic model
 currently supports on-demand invocation). Corpus upload and Knowledge Base
-ingestion must complete before retrieval can return the normalized tarot
-context.
+ingestion must complete before retrieval can return approved private context.
 
 ## Infrastructure Flow
 
@@ -213,7 +211,7 @@ flowchart TB
 
 The stack creates:
 
-- S3 bucket for normalized corpus artifacts.
+- private S3 bucket for approved corpus artifacts.
 - S3 Vectors vector bucket and index (`cosine` distance, `float32`, corpus
   metadata keys marked non-filterable to stay under S3 Vectors' 2048-byte
   filterable-metadata cap).
@@ -234,53 +232,33 @@ objects. Production uses retain removal policy.
 
 ```mermaid
 sequenceDiagram
-    participant Source as assets/ignore/corpus-source.json
-    participant Script as yarn workspace api corpus:normalize
-    participant JSONL as apps/api/corpus/generated/tarot-corpus.jsonl
+    participant Owner as Private corpus workflow
+    participant Artifact as Approved private artifact
     participant S3 as S3 corpus bucket / corpus/
     participant Sync as Bedrock data source sync
     participant KB as Bedrock Knowledge Base
     participant API as apps/api Bedrock mode
 
-    Source->>Script: read Firestore-shaped export
-    Script->>JSONL: write normalized JSONL documents
-    JSONL->>S3: upload manually or with external AWS CLI/script
+    Owner->>Artifact: build, validate, and approve
+    Artifact->>S3: upload through controlled operations
     S3->>Sync: start ingestion job manually or with AWS tooling
     Sync->>KB: embed and index chunks
     API->>KB: RetrieveAndGenerate
 ```
 
-Normalization is automated. Upload and ingestion sync are not currently
-implemented as repo scripts.
+Corpus sources, transformation code, relationship rules, and generated artifacts are private.
+The public repository owns Bedrock infrastructure and runtime integration only. The Bedrock stack
+creates the bucket and data source but does not upload artifacts or start an ingestion job.
 
-Current automated command:
-
-```sh
-yarn workspace api corpus:normalize
-```
-
-Default input:
-
-```text
-assets/ignore/corpus-source.json
-```
-
-Default output:
-
-```text
-apps/api/corpus/generated/tarot-corpus.jsonl
-```
-
-The Bedrock stack creates the bucket and data source but does not upload local
-documents into S3 and does not start a Knowledge Base ingestion job. Before API
-calls can retrieve real corpus context, upload the generated JSONL file under
-the configured prefix, then sync the Bedrock data source.
+Before API calls can retrieve updated context, obtain an approved artifact through the private
+workflow, upload it under the configured prefix, and sync the data source. Do not substitute a
+source or generated path from this public workspace.
 
 Example AWS CLI shape:
 
 ```sh
-aws s3 cp apps/api/corpus/generated/tarot-corpus.jsonl \
-  s3://<BedrockCorpusBucketName>/corpus/tarot-corpus.jsonl
+aws s3 cp <approved-private-artifact-path> \
+  s3://<BedrockCorpusBucketName>/corpus/<artifact-name>
 
 aws bedrock-agent start-ingestion-job \
   --knowledge-base-id <BedrockKnowledgeBaseId> \
@@ -320,13 +298,11 @@ stage path unless CloudFormation outputs one.
 
 ## Known Caveats
 
-- The repo currently has normalization automation only. Uploading corpus files
-  and starting Bedrock ingestion are manual or external-script operations.
-- `FIXED_SIZE` chunking (200 max tokens, 20% overlap) operates on raw file
-  bytes, not JSONL record boundaries, so some retrieved chunks include a
-  trailing fragment of JSON syntax from the neighboring corpus record.
-  Generated response quality wasn't affected in testing, but a record-aware
-  corpus/chunking format would remove the artifact.
+- The public repository contains no corpus-generation or upload automation. Artifact production is
+  private; upload and ingestion remain controlled AWS operations.
+- `FIXED_SIZE` chunking (200 max tokens, 20% overlap) can split logical content boundaries. Any
+  future chunking change must be coordinated with the private artifact contract and ingestion
+  behavior.
 - The API creates a Bedrock runtime client per request path invocation through
   `createBedrockReadingGenerator`. That is simple and testable, but not yet
   optimized as a long-lived singleton.

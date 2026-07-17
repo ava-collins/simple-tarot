@@ -93,6 +93,12 @@ BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn-output>
 `BEDROCK_INFERENCE_PROFILE_ARN` has highest precedence, followed by
 `BEDROCK_INFERENCE_PROFILE_ID`, `BEDROCK_MODEL_ARN`, then `BEDROCK_MODEL_ID`.
 
+Corpus sources, transformation code, relationship rules, and generated artifacts are private.
+This workspace consumes the configured Knowledge Base through Bedrock Agent Runtime; it does not
+generate corpus artifacts. See
+[Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) for the approved-artifact
+handoff and ingestion boundary.
+
 The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally
 (no deployed local-mode fallback), imports the Knowledge Base ID and
 application inference profile ARN from the same stage, and grants the Lambda

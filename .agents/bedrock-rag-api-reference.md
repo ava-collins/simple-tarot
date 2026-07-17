@@ -14,10 +14,8 @@ The Bedrock path spans:
 - `apps/api/src/bedrock/*`
 - `apps/api/src/config.ts`
 - `apps/api/src/auth/*`
-- `apps/api/src/corpus/*`
 - `apps/api/src/logging/*`
 - `apps/api/src/readings/persistence/*`
-- `apps/api/scripts/normalize-corpus.ts`
 - `apps/infra/lib/api-stack.ts`
 - `apps/infra/lib/bedrock-rag-stack.ts`
 - `apps/infra/lib/config.ts`
@@ -25,8 +23,9 @@ The Bedrock path spans:
 - `apps/tarot/src/api/tarot-api.ts`
 - `apps/tarot/src/readings/use-reading-history.ts`
 
-Do not assume the S3 corpus upload or Bedrock ingestion sync is automated.
-Only normalization is currently automated in this repo.
+Corpus sources, transformation code, relationship rules, and generated artifacts are private.
+The public repository owns Bedrock infrastructure and runtime integration only. Do not assume
+artifact upload or Bedrock ingestion sync is automated.
 
 The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally and
 receives the Knowledge Base ID, application inference profile ARN, and region
@@ -139,49 +138,19 @@ Tests are in `apps/api/src/bedrock/bedrock-client.test.ts`.
 
 ```mermaid
 flowchart TB
-    Source["assets/ignore/corpus-source.json"]
-    Reader["readFirestoreCorpusExport"]
-    Normalizer["normalizeFirestoreCorpus"]
-    Writer["writeNormalizedCorpus"]
-    Output["apps/api/corpus/generated/tarot-corpus.jsonl"]
+    Owner["Private corpus workflow"]
+    Artifact["Approved private artifact"]
     S3["S3 bucket created by BedrockRagStack"]
     Sync["Manual Bedrock ingestion job"]
 
-    Source --> Reader
-    Reader --> Normalizer
-    Normalizer --> Writer
-    Writer --> Output
-    Output --> S3
+    Owner --> Artifact
+    Artifact --> S3
     S3 --> Sync
 ```
 
-Command:
-
-```sh
-yarn workspace api corpus:normalize
-```
-
-The script accepts optional source and output directory args:
-
-```sh
-yarn workspace api corpus:normalize <source-json-path> <output-directory>
-```
-
-Generated record types:
-
-- `card-context`
-- `position-meaning`
-
-Generated metadata fields:
-
-- `cardIndex`
-- `cardName`
-- `keywords`
-- `orientation`
-- `position`
-- `sourceCollection`
-- `sourcePath`
-- `spread`
+Do not add corpus-generation commands, private paths, relationship rules, or real artifact examples
+to this public reference. Operations begin only after the corpus owner supplies an approved
+artifact. Follow `docs/bedrock_corpus_operations.md` for the public upload and ingestion boundary.
 
 ## Infra Path
 

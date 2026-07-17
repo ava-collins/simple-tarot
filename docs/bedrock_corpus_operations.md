@@ -1,113 +1,36 @@
 # Bedrock Corpus Operations
 
-This document covers the corpus side of the Bedrock Knowledge Base flow:
-normalizing source tarot content, placing it in S3, and syncing it into
-Bedrock.
+## Ownership boundary
 
-## Current State
+Corpus sources, transformation code, relationship rules, and generated artifacts are private.
+The public repository owns Bedrock infrastructure and runtime integration only. It does not
+contain commands for creating or modifying corpus artifacts.
 
-Implemented in the repo:
+Do not upload an artifact unless the corpus owner has supplied and approved it through the private
+workflow. This public runbook begins with an approved artifact and does not document its private
+location or construction.
 
-- Read a Firestore-shaped corpus export from `assets/ignore/corpus-source.json`.
-- Normalize cards and Celtic Cross position meanings into deterministic JSONL.
-- Write `apps/api/corpus/generated/tarot-corpus.jsonl`.
-- Provision the S3 bucket and Bedrock S3 data source with CDK.
+## Current deployed state
 
-Not implemented as repo scripts yet:
+`apps/infra/lib/bedrock-rag-stack.ts` provisions:
 
-- Upload normalized corpus files to the deployed S3 bucket.
-- Start or poll a Bedrock Knowledge Base ingestion job.
+- a private, versioned S3 corpus bucket
+- an Amazon S3 Vectors index
+- a Bedrock Knowledge Base
+- an S3 data source scoped to the configured corpus prefix
+- an application inference profile used by the API
 
-This means a deployed stack is necessary but not sufficient for retrieval.
-The S3 bucket must contain corpus objects under the data source inclusion
-prefix, and the Bedrock data source must be synced after upload.
+The data source currently uses `FIXED_SIZE` chunking at 200 maximum tokens with 20 percent
+overlap. The public API still calls Bedrock Agent Runtime `RetrieveAndGenerate`.
 
-## Normalized Document Shape
+Infrastructure deployment does not upload corpus objects or start a Knowledge Base ingestion job.
+The previously deployed objects remain in S3 until an operator deliberately replaces them.
 
-The normalizer lives in `apps/api/src/corpus/normalize-corpus.ts`.
+## Required outputs
 
-Each generated JSONL record has:
-
-```json
-{
-  "id": "card-fool-context",
-  "kind": "card-context",
-  "text": "Card: ...",
-  "metadata": {
-    "cardIndex": 0,
-    "cardName": "Fool",
-    "keywords": ["..."],
-    "orientation": "general",
-    "position": "general",
-    "sourceCollection": "cards",
-    "sourcePath": "cards/Fool",
-    "spread": "general"
-  }
-}
-```
-
-Document kinds:
-
-- `card-context`: one general card document when description or keywords are
-  present.
-- `position-meaning`: one document for each non-empty Celtic Cross position,
-  orientation, and card combination.
-
-Metadata is designed to preserve enough structure for citation inspection and
-future filtering, even though the current API relies on Bedrock's default
-Knowledge Base retrieval rather than explicit metadata filters.
-
-## Normalize Locally
-
-Default command:
-
-```sh
-yarn workspace api corpus:normalize
-```
-
-Default source:
-
-```text
-assets/ignore/corpus-source.json
-```
-
-Default output directory:
-
-```text
-apps/api/corpus/generated
-```
-
-The script also accepts optional source and output arguments:
-
-```sh
-yarn workspace api corpus:normalize <source-json-path> <output-directory>
-```
-
-The output file name is always:
-
-```text
-tarot-corpus.jsonl
-```
-
-## Deploy Infrastructure
-
-The Bedrock RAG stack is part of the CDK app in `apps/infra`.
-
-Required before synth or deploy:
-
-```sh
-cp apps/infra/.env.dev.example apps/infra/.env.dev
-```
-
-Populate `apps/infra/.env.dev`, then run CDK commands from the workspace. Diff
-and deploy remain approval-gated operations:
-
-```sh
-yarn workspace infra cdk synth -c environment=dev 'SimpleTarotDev/SimpleTarotBedrockRag-dev'
-yarn workspace infra cdk deploy -c environment=dev 'SimpleTarotDev/SimpleTarotBedrockRag-dev'
-```
-
-The stack outputs:
+Deploy or inspect the Bedrock stack through the commands in
+[`apps/infra/README.md`](../apps/infra/README.md#commands). Corpus operations use these
+CloudFormation outputs:
 
 - `BedrockCorpusBucketName`
 - `BedrockKnowledgeBaseId`
@@ -117,25 +40,25 @@ The stack outputs:
 - `BedrockGenerationModelId`
 - `BedrockEmbeddingModelId`
 
-## Upload And Sync
+The default S3 inclusion prefix is `corpus/`. If
+`SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX` changes, use the configured value instead.
 
-The stack creates an empty S3 bucket. Upload the generated corpus file under
-the configured inclusion prefix before expecting retrieval to work.
+## Upload an approved artifact
 
-Default prefix:
-
-```text
-corpus/
-```
-
-Example upload:
+Confirm the artifact and destination with the corpus owner before uploading. Use an explicit local
+artifact path supplied through the private workflow:
 
 ```sh
-aws s3 cp apps/api/corpus/generated/tarot-corpus.jsonl \
-  s3://<BedrockCorpusBucketName>/corpus/tarot-corpus.jsonl
+aws s3 cp <approved-private-artifact-path> \
+  s3://<BedrockCorpusBucketName>/<configured-prefix>/<artifact-name>
 ```
 
-Then start ingestion:
+Never substitute a source or generated path from this public repository. Do not upload an
+unreviewed artifact or a selective-RAG artifact to the legacy data source.
+
+## Start and inspect ingestion
+
+After the approved objects are present under the configured prefix, start ingestion:
 
 ```sh
 aws bedrock-agent start-ingestion-job \
@@ -143,24 +66,21 @@ aws bedrock-agent start-ingestion-job \
   --data-source-id <BedrockDataSourceId>
 ```
 
-If `SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX` is changed, upload into that prefix
-instead of `corpus/`.
+Use the returned ingestion job identifier to inspect status:
 
-The vector store is Amazon S3 Vectors (migrated from OpenSearch Serverless on
-2026-07-16). Ingestion chunks the corpus with `FIXED_SIZE` chunking at 200 max
-tokens / 20% overlap — smaller than a typical default because S3 Vectors caps
-*filterable* metadata at 2048 bytes per vector, and larger chunks push the
-chunk's own text over that cap (`Filterable metadata must have at most 2048
-bytes`, a 400 from the S3Vectors service during ingestion). The corpus's 8
-custom metadata keys are marked non-filterable on the index, which helps but
-wasn't the fix by itself — chunk size was the dominant factor. If ingestion
-ever fails with that error again after a corpus change, reducing `maxTokens`
-further (in `apps/infra/lib/bedrock-rag-stack.ts`) is the first thing to try.
+```sh
+aws bedrock-agent get-ingestion-job \
+  --knowledge-base-id <BedrockKnowledgeBaseId> \
+  --data-source-id <BedrockDataSourceId> \
+  --ingestion-job-id <IngestionJobId>
+```
 
-## API Handoff
+Do not treat upload success as ingestion success. Wait for a completed ingestion job before testing
+retrieval.
 
-After the corpus has been uploaded and synced, set API Bedrock mode for local
-API runs:
+## API handoff
+
+For a direct local API run in Bedrock mode, configure:
 
 ```sh
 BEDROCK_RUNTIME_MODE=bedrock
@@ -171,43 +91,28 @@ BEDROCK_RETRIEVAL_RESULTS=5
 BEDROCK_MAX_ATTEMPTS=5
 ```
 
-Then start the API:
+Then run:
 
 ```sh
 yarn api:dev
 ```
 
-The deployed `SimpleTarotApi-<environment>` Lambda runs in Bedrock mode
-unconditionally and receives the Knowledge Base ID, `us-east-2` region, and
-application inference profile ARN directly from the Bedrock stack. Its role
-can call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
-`bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required when the
-generation model sits behind an application inference profile, which is the
-case for every current-generation model in `us-east-2` (see
-`apps/infra/lib/api-stack.ts`).
+The deployed `SimpleTarotApi-<environment>` Lambda receives the Knowledge Base ID, region, and
+inference profile directly from the Bedrock stack. Its role can call
+`bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`, `bedrock:InvokeModel`, and
+`bedrock:Retrieve`.
 
-## Refresh Checklist
+## Verification checklist
 
-Use this flow whenever source corpus content changes:
+1. Confirm the artifact is approved through the private corpus workflow.
+2. Confirm the target bucket, prefix, Knowledge Base, and data source belong to the intended
+   environment.
+3. Upload only the approved artifact set.
+4. Start ingestion and wait for it to complete.
+5. Send a `POST /readings` request in Bedrock mode.
+6. Inspect generated text and citations without exposing private artifact content in logs or public
+   issues.
 
-1. Update `assets/ignore/corpus-source.json`.
-2. Run `yarn workspace api corpus:normalize`.
-3. Inspect a few lines in `apps/api/corpus/generated/tarot-corpus.jsonl`.
-4. Upload `tarot-corpus.jsonl` to the deployed S3 bucket under the inclusion
-   prefix.
-5. Start a Bedrock ingestion job for the Knowledge Base data source.
-6. Wait for ingestion to complete in AWS tooling.
-7. Send a `POST /readings` request in Bedrock mode and inspect citations.
-
-## Future Automation Candidates
-
-The previous implementation plan expected these scripts, but they are not yet
-present:
-
-- `apps/api/scripts/upload-corpus.ts`
-- `apps/api/scripts/sync-knowledge-base.ts`
-- upload configuration helpers and tests
-
-When adding them, preserve the current deterministic normalization output and
-use the CDK outputs as the source of bucket, Knowledge Base, data source,
-region, and prefix values.
+If ingestion fails with S3 Vectors' 2048-byte filterable-metadata limit, inspect the deployed
+chunking and metadata configuration before changing infrastructure. The current 200-token setting
+was selected to remain below that service limit.

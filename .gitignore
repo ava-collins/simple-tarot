@@ -155,6 +155,8 @@ storybook-static
 
 # Generated Bedrock corpus artifacts
 apps/api/corpus/generated/
+apps/api/corpus/compiled/
+assets/corpus/
 
 # Superpowers local workflow scratch files
 .superpowers/

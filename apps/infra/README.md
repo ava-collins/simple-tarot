@@ -112,7 +112,7 @@ SimpleTarotBedrockRag-<environment>
 
 The stack creates:
 
--   an S3 bucket for normalized corpus documents
+-   a private S3 bucket for approved corpus artifacts
 -   an Amazon S3 Vectors vector bucket and vector index
 -   a Bedrock Knowledge Base using the configured embedding model, backed by
     the S3 Vectors index
@@ -187,6 +187,10 @@ call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
 `bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required for a
 generation model behind an application inference profile. Corpus upload and
 ingestion must complete before generated readings can retrieve context.
+Corpus sources, transformation code, relationship rules, and generated artifacts are private;
+this public workspace provisions their AWS destination but does not build them. Follow
+[Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) only after the corpus owner
+provides an approved artifact.
 
 ## Environment Configuration
 
