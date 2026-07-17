@@ -16,6 +16,10 @@ The Bedrock RAG work adds a REST API path for generated tarot readings:
 - Approved corpus artifacts are produced through a private workflow and handed to public AWS
   operations for Knowledge Base ingestion.
 
+See [Private Corpus Artifact Boundary](private-corpus-artifact-boundary.md) for the durable
+ownership and compatibility contract. This integration document describes only the public AWS and
+runtime side of that boundary.
+
 The deployed API runs in Bedrock mode in `us-east-2`. Local placeholder mode
 remains available explicitly for offline development without AWS credentials.
 

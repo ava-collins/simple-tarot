@@ -6,6 +6,9 @@ Corpus sources, transformation code, relationship rules, and generated artifacts
 The public repository owns Bedrock infrastructure and runtime integration only. It does not
 contain commands for creating or modifying corpus artifacts.
 
+The durable ownership and compatibility contract is defined in
+[Private Corpus Artifact Boundary](private-corpus-artifact-boundary.md).
+
 Do not upload an artifact unless the corpus owner has supplied and approved it through the private
 workflow. This public runbook begins with an approved artifact and does not document its private
 location or construction.
