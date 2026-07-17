@@ -41,7 +41,7 @@ Corpus ownership contract:
 
 - Corpus sources, transformation code, relationship rules, real fixtures, and generated artifacts
   stay outside this public repository.
-- Public operations accept only an approved private artifact.
+- Private operations own release publication, development activation, ingestion, and rollback.
 - Public runtime and infrastructure changes must not reproduce private corpus behavior.
 
 Infrastructure output names:
@@ -131,34 +131,22 @@ When changing infra:
   or a direct `aws lambda get-function-configuration` /
   `aws iam get-role-policy` check rather than assuming.
 
-## Upload And Sync Reality Check
+## Activation And Sync Reality Check
 
-The public repo does not contain corpus generation, upload, or Knowledge Base sync scripts. If a
-task needs live retrieval after an approved private artifact changes, account for these controlled
-operations:
-
-```sh
-aws s3 cp <approved-private-artifact-path> \
-  s3://<BedrockCorpusBucketName>/<prefix>/<artifact-name>
-
-aws bedrock-agent start-ingestion-job \
-  --knowledge-base-id <BedrockKnowledgeBaseId> \
-  --data-source-id <BedrockDataSourceId>
-```
-
-Default prefix is `corpus/`.
+The public repository does not contain corpus generation, publication, activation, or Knowledge
+Base ingestion scripts. Development infrastructure owns the stable `corpus/active/` destination
+and a `NONE`-chunked data source; the private workflow owns the controlled operations that populate
+and ingest it. Production retains the legacy `corpus/` prefix and `FIXED_SIZE` chunking until a
+separately reviewed migration.
 
 ## Known Follow-Up Candidates
 
 - Decide whether Bedrock successful readings need additional generation
   metadata beyond `modelId`, item count, and mode.
-- Design private artifact publication and the public compatibility handoff.
-- Add scripted ingestion start and status polling.
 - Consider a long-lived Bedrock runtime generator instead of creating one in
   the request path.
-- Reconsider `FIXED_SIZE` chunking at 200 max tokens because it can split logical content
-  boundaries. Coordinate any change with the private artifact contract before altering public
-  ingestion infrastructure.
+- Design public runtime composer-artifact loading and compatibility enforcement.
+- Plan production migration separately if selective ingestion is promoted beyond development.
 
 ## Required Verification
 

@@ -23,9 +23,9 @@ The Bedrock path spans:
 - `apps/tarot/src/api/tarot-api.ts`
 - `apps/tarot/src/readings/use-reading-history.ts`
 
-Corpus sources, transformation code, relationship rules, and generated artifacts are private.
-The public repository owns Bedrock infrastructure and runtime integration only. Do not assume
-artifact upload or Bedrock ingestion sync is automated.
+Corpus sources, transformation code, relationship rules, generated artifacts, publication,
+activation, and ingestion are private. The public repository owns Bedrock infrastructure and
+runtime integration only.
 
 The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally and
 receives the Knowledge Base ID, application inference profile ARN, and region
@@ -139,18 +139,20 @@ Tests are in `apps/api/src/bedrock/bedrock-client.test.ts`.
 ```mermaid
 flowchart TB
     Owner["Private corpus workflow"]
-    Artifact["Approved private artifact"]
+    Release["Approved private release"]
     S3["S3 bucket created by BedrockRagStack"]
-    Sync["Manual Bedrock ingestion job"]
+    Active["Development corpus/active/"]
+    Sync["Controlled Bedrock ingestion"]
 
-    Owner --> Artifact
-    Artifact --> S3
+    Owner --> Release
+    Release --> Active
+    Active --> S3
     S3 --> Sync
 ```
 
 Do not add corpus-generation commands, private paths, relationship rules, or real artifact examples
-to this public reference. Operations begin only after the corpus owner supplies an approved
-artifact. Follow `docs/bedrock_corpus_operations.md` for the public upload and ingestion boundary.
+to this public reference. The private workflow owns release publication, activation, ingestion,
+and rollback. Follow `docs/bedrock_corpus_operations.md` for the public infrastructure boundary.
 
 ## Infra Path
 
@@ -165,8 +167,9 @@ artifact. Follow `docs/bedrock_corpus_operations.md` for the public upload and i
 - Bedrock Knowledge Base IAM role, granted `bedrock:InvokeModel` (embedding
   model) and the five `s3vectors:*` data-plane actions scoped to the index ARN
 - Bedrock Knowledge Base (`storageConfiguration.type: S3_VECTORS`)
-- S3 data source with configured inclusion prefix, `FIXED_SIZE` chunking at
-  200 max tokens / 20% overlap
+- environment-specific S3 data source: development uses `corpus/active/`, `NONE` chunking, and
+  `DELETE`; production retains `corpus/`, `FIXED_SIZE` chunking at 200 max tokens / 20% overlap,
+  and its existing logical identity
 - CloudFormation outputs for API and operations handoff
 
 OpenSearch Serverless (AOSS) was the original vector store and was fully
@@ -220,20 +223,18 @@ Defaults in `apps/infra/lib/config.ts`:
 
 - stack name: `SimpleTarotBedrockRag-<environment>`
 - KB name: `simple-tarot-<environment>-readings-v3`
-- data source name: `simple-tarot-<environment>-corpus-v2`
+- data source name: development `simple-tarot-dev-selective-corpus-v3`; production
+  `simple-tarot-prod-corpus-v2`
 - vector bucket name: `st-<environment>-vectors`
 - vector index: `tarot-readings-v2`
-- corpus prefix: `corpus/`
+- corpus prefix: development `corpus/active/`; production `corpus/`
 - embedding model: `amazon.titan-embed-text-v2:0`
 - embedding dimensions: `1024`
 - generation model: `amazon.nova-lite-v1:0`
 
-The `-v2`/`-v3` suffixes on the KB, data source, and index names are permanent
-artifacts of the 2026-07-16 S3 Vectors migration (each name had to change to
-avoid a CloudFormation create-before-delete collision with its predecessor
-during resource replacement) — not meaningful versioning. Nothing in the app
-references these names, only their IDs/ARNs, so don't "clean up" the suffixes
-without expecting another replacement cycle.
+The suffixes on the KB, data source, and index names reflect required replacement cycles, not an
+application compatibility contract. Nothing in the app references these names, only their
+IDs/ARNs, so do not change them without expecting another replacement cycle.
 
 ## Mobile Handoff
 

@@ -103,10 +103,25 @@ export class BedrockRagStack extends cdk.Stack {
     knowledgeBase.node.addDependency(knowledgeBaseRole);
     this.knowledgeBase = knowledgeBase;
 
-    const dataSource = new bedrock.CfnDataSource(this, 'CorpusDataSource', {
+    const isDevelopment = props.config.environmentName === 'dev';
+    const dataSourceConstructId = isDevelopment
+      ? 'SelectiveCorpusDataSource'
+      : 'CorpusDataSource';
+    const chunkingConfiguration = props.config.bedrockChunkingStrategy === 'NONE'
+      ? { chunkingStrategy: 'NONE' }
+      : {
+          chunkingStrategy: 'FIXED_SIZE',
+          fixedSizeChunkingConfiguration: {
+            maxTokens: 200,
+            overlapPercentage: 20
+          }
+        };
+
+    const dataSource = new bedrock.CfnDataSource(this, dataSourceConstructId, {
       name: props.config.bedrockDataSourceName,
       description: 'Simple Tarot normalized corpus documents in S3',
       knowledgeBaseId: knowledgeBase.attrKnowledgeBaseId,
+      dataDeletionPolicy: isDevelopment ? 'DELETE' : undefined,
       dataSourceConfiguration: {
         type: 'S3',
         s3Configuration: {
@@ -115,13 +130,7 @@ export class BedrockRagStack extends cdk.Stack {
         }
       },
       vectorIngestionConfiguration: {
-        chunkingConfiguration: {
-          chunkingStrategy: 'FIXED_SIZE',
-          fixedSizeChunkingConfiguration: {
-            maxTokens: 200,
-            overlapPercentage: 20
-          }
-        }
+        chunkingConfiguration
       }
     });
 

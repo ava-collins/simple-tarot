@@ -13,6 +13,7 @@ The private corpus workflow owns:
 - source material and canonical data
 - migration, validation, compilation, and relationship rules
 - real fixtures, generated artifacts, editorial review, and artifact approval
+- immutable release publication, active-prefix mirroring, ingestion, and rollback
 
 The public application repository owns:
 
@@ -26,20 +27,24 @@ The public repository must not reproduce private corpus behavior or import priva
 
 ## Artifact contract
 
-A future public consumer may accept only an approved, versioned, opaque artifact set. The handoff
+A future public runtime consumer may accept only an approved, versioned, opaque artifact set. The handoff
 must include schema and corpus compatibility metadata, object identities, and checksums sufficient
 to reject incomplete, incompatible, or corrupted input without interpreting how the corpus was
 constructed.
 
-Artifact publication and runtime loading are not implemented by this document. Their failure,
-retention, rollback, caching, and compatibility behavior require separately approved plans.
+Private artifact publication and development activation are implemented outside this repository.
+Public runtime loading, caching, and compatibility enforcement remain deferred.
 
-## Current deployed behavior
+## Target development definition
 
-The deployed development path continues to use its approved legacy artifact, fixed-size Knowledge
-Base chunking, and Bedrock Agent Runtime `RetrieveAndGenerate`. This remains the rollback-safe path
-until private selective-RAG publication, generic composer-artifact loading, explicit retrieval and
-generation, and saved-case verification are implemented and approved.
+The public development infrastructure definition uses a selective data source at
+`corpus/active/` with `NONE` chunking. It retains the existing corpus bucket, S3 Vectors index,
+Knowledge Base, and generation profile. Production retains the legacy `corpus/` and fixed-size
+definition.
+
+The API continues to use Bedrock Agent Runtime `RetrieveAndGenerate`. Generic composer-artifact
+loading, deterministic relationship composition, explicit retrieval and generation, and saved-case
+verification remain future work.
 
 ## Change coordination
 

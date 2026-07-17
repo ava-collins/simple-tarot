@@ -44,8 +44,9 @@ Function wrappers around shared package code.
 `apps/infra` is an AWS CDK v2 TypeScript app. It owns the Cognito auth
 infrastructure for Simple Tarot and the Bedrock RAG stack. Dev and prod are
 isolated by explicit CDK environment selection and distinct resources.
-Dev is deployed as the pre-production/test environment with a zero CDK diff;
-prod is defined but not deployed. The Bedrock stack creates the S3 corpus bucket,
+Dev is deployed as the pre-production/test environment; infrastructure changes are
+reviewed through an explicit CDK diff before deployment. Prod is defined but not
+deployed. The Bedrock stack creates the S3 corpus bucket,
 an S3 Vectors vector bucket and index, Bedrock Knowledge Base, S3 data
 source, IAM role, and CloudFormation outputs that hand off deployment values
 to the API and corpus operations.
@@ -105,7 +106,7 @@ messages.
 
 ### Operations
 
--   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — public infrastructure handoff for uploading an approved private artifact and syncing Knowledge Base ingestion; prerequisite for switching [REST API](./apps/api/README.md#bedrock-mode) to `BEDROCK_RUNTIME_MODE=bedrock`
+-   [Bedrock Corpus Operations](./docs/bedrock_corpus_operations.md) — public infrastructure boundary for the development selective data source; private activation and completed ingestion are prerequisites for useful [REST API](./apps/api/README.md#bedrock-mode) retrieval in `BEDROCK_RUNTIME_MODE=bedrock`
 -   [Infrastructure Operations](./apps/infra/README.md#commands) — explicit CDK dev/prod environment selection, deployment, validation, and rollback
 
 ### Developer Workflow

@@ -36,7 +36,7 @@ flowchart LR
     Runtime["Bedrock Agent Runtime<br/>RetrieveAndGenerate"]
     KB["Bedrock Knowledge Base"]
     Vectors["S3 Vectors<br/>vector index"]
-    S3["S3 corpus bucket<br/>corpus/ prefix"]
+    S3["S3 corpus bucket<br/>development: corpus/active/"]
     Mapper["Response mapper<br/>readings/response-mapper.ts"]
     DDB["DynamoDB user-data table<br/>profile, readings, failed attempts"]
     Logs["S3 API log bucket<br/>request diagnostics"]
@@ -221,7 +221,9 @@ The stack creates:
   filterable-metadata cap).
 - IAM role assumed by Bedrock.
 - Bedrock Knowledge Base using the configured embedding model.
-- S3 data source scoped to the configured corpus prefix.
+- Environment-specific S3 data source: development reads `corpus/active/`
+  with `NONE` chunking, while production retains the legacy `corpus/` prefix
+  and fixed-size chunking until a separate production migration.
 - Regional Bedrock application inference profile for generation in
   `us-east-2`.
 - DynamoDB user-data table for profile, reading history, and failed attempts.
@@ -237,15 +239,15 @@ objects. Production uses retain removal policy.
 ```mermaid
 sequenceDiagram
     participant Owner as Private corpus workflow
-    participant Artifact as Approved private artifact
-    participant S3 as S3 corpus bucket / corpus/
+    participant Release as Approved private release
+    participant S3 as S3 corpus bucket / corpus/active/
     participant Sync as Bedrock data source sync
     participant KB as Bedrock Knowledge Base
     participant API as apps/api Bedrock mode
 
-    Owner->>Artifact: build, validate, and approve
-    Artifact->>S3: upload through controlled operations
-    S3->>Sync: start ingestion job manually or with AWS tooling
+    Owner->>Release: build, validate, publish, and approve
+    Release->>S3: activate approved semantic objects
+    S3->>Sync: start controlled ingestion
     Sync->>KB: embed and index chunks
     API->>KB: RetrieveAndGenerate
 ```
@@ -254,23 +256,9 @@ Corpus sources, transformation code, relationship rules, and generated artifacts
 The public repository owns Bedrock infrastructure and runtime integration only. The Bedrock stack
 creates the bucket and data source but does not upload artifacts or start an ingestion job.
 
-Before API calls can retrieve updated context, obtain an approved artifact through the private
-workflow, upload it under the configured prefix, and sync the data source. Do not substitute a
-source or generated path from this public workspace.
-
-Example AWS CLI shape:
-
-```sh
-aws s3 cp <approved-private-artifact-path> \
-  s3://<BedrockCorpusBucketName>/corpus/<artifact-name>
-
-aws bedrock-agent start-ingestion-job \
-  --knowledge-base-id <BedrockKnowledgeBaseId> \
-  --data-source-id <BedrockDataSourceId>
-```
-
-Use the configured `SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX` instead of `corpus/`
-when that value is changed.
+Before API calls can retrieve updated context, the private workflow must activate an approved
+release under the configured development prefix and complete its controlled ingestion. Do not
+substitute source data or generated artifacts from this public workspace.
 
 ## Integration Outputs
 
@@ -302,11 +290,11 @@ stage path unless CloudFormation outputs one.
 
 ## Known Caveats
 
-- The public repository contains no corpus-generation or upload automation. Artifact production is
-  private; upload and ingestion remain controlled AWS operations.
-- `FIXED_SIZE` chunking (200 max tokens, 20% overlap) can split logical content boundaries. Any
-  future chunking change must be coordinated with the private artifact contract and ingestion
-  behavior.
+- The public repository contains no corpus-generation, publication, activation, or ingestion
+  automation. Those operations remain private.
+- Development uses `NONE` chunking because approved semantic objects already define retrieval
+  boundaries. Production retains `FIXED_SIZE` chunking (200 max tokens, 20% overlap) until a
+  separately reviewed production migration.
 - The API creates a Bedrock runtime client per request path invocation through
   `createBedrockReadingGenerator`. That is simple and testable, but not yet
   optimized as a long-lived singleton.

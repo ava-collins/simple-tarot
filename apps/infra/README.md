@@ -121,6 +121,12 @@ The stack creates:
     generation model
 -   CloudFormation outputs consumed by `apps/api`
 
+Development uses the selective corpus data source at `corpus/active/` with `NONE` chunking and a
+`DELETE` data deletion policy. Each approved semantic object is ingested as one document. Production
+retains the legacy `corpus/` prefix and fixed-size 200-token, 20-percent-overlap definition. The
+current API continues to use `RetrieveAndGenerate`; the private corpus workflow owns publication
+and activation for the development destination.
+
 S3 Vectors was chosen over OpenSearch Serverless for cost: OpenSearch
 Serverless carries a fixed OCU-hour floor even in non-redundant mode
 (~$174/mo), while S3 Vectors is pure pay-per-use with no fixed floor. The
@@ -185,8 +191,8 @@ Export/Import, not the CDK default `Fn::GetStackOutput` — needed so a plain
 inference profile from `SimpleTarotBedrockRag-<env>`). The Lambda role can
 call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
 `bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required for a
-generation model behind an application inference profile. Corpus upload and
-ingestion must complete before generated readings can retrieve context.
+generation model behind an application inference profile. Private corpus activation and ingestion
+must complete before generated readings can retrieve context.
 Corpus sources, transformation code, relationship rules, and generated artifacts are private;
 this public workspace provisions their AWS destination but does not build them. Follow
 [Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) only after the corpus owner
@@ -237,9 +243,9 @@ The example file lists required variable names only:
 
 Do not commit real environment values.
 
-The Bedrock values have safe defaults in both example files. Override
-them only when changing model choices, embedding dimensions, or the S3 object
-prefix used for corpus ingestion.
+The Bedrock values have environment-specific defaults in both example files. Development targets
+`corpus/active/`; production retains `corpus/`. Override them only when deliberately changing model
+choices, embedding dimensions, or the S3 object prefix used for corpus ingestion.
 
 ## API Contract
 
