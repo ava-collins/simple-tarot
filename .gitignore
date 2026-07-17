@@ -162,3 +162,6 @@ docs/superpowers/**/*
 
 # Generated tarot card components
 # packages/cards/src/cards/
+
+## Corpus assets & artifacts
+assets/corpus/

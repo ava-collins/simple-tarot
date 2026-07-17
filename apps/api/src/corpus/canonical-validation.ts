@@ -53,6 +53,7 @@ const ALLOWED_PREDICATE_FIELDS = new Set([
     'card.name',
     'card.number',
     'card.orientation',
+    'card.path',
     'card.positionId',
     'card.suit',
     'pair.fromPositionId',
@@ -77,6 +78,13 @@ const isNonEmptyString = (value: unknown): value is string =>
 
 const isStringArray = (value: unknown): value is string[] =>
     Array.isArray(value) && value.every(isNonEmptyString);
+
+const slugify = (value: string): string =>
+    value
+        .toLowerCase()
+        .replace(/&/g, ' and ')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
 
 const issue = (
     code: ValidationIssueCode,
@@ -448,7 +456,8 @@ export function validateCanonicalCorpus(input: unknown): ValidationResult<Canoni
 
             return;
         }
-        if (card.correspondenceIds.length === 0) {
+        const resolvedCorrespondenceIds = card.correspondenceIds;
+        if (resolvedCorrespondenceIds.length === 0) {
             warnings.push(
                 issue(
                     'missing_optional_correspondence',
@@ -457,7 +466,7 @@ export function validateCanonicalCorpus(input: unknown): ValidationResult<Canoni
                 )
             );
         }
-        card.correspondenceIds.forEach((correspondenceId, index) => {
+        resolvedCorrespondenceIds.forEach((correspondenceId, index) => {
             if (!correspondenceIds.has(correspondenceId)) {
                 errors.push(
                     issue(
@@ -468,6 +477,40 @@ export function validateCanonicalCorpus(input: unknown): ValidationResult<Canoni
                 );
             }
         });
+
+        if (isRecord(card.attributes)) {
+            const { attributes } = card;
+            const optionalAttributes = [
+                {
+                    field: 'element',
+                    kind: 'element',
+                    requiredWhenUnknown: card.arcana === 'minor'
+                },
+                { field: 'number', kind: 'number', requiredWhenUnknown: true },
+                { field: 'path', kind: 'sephiroth', requiredWhenUnknown: false },
+                { field: 'type', kind: 'suit', requiredWhenUnknown: false },
+                { field: 'decan', kind: 'alphabet', requiredWhenUnknown: false }
+            ];
+
+            optionalAttributes.forEach(({ field, kind, requiredWhenUnknown }) => {
+                const { [field]: value } = attributes;
+                if (!isNonEmptyString(value)) return;
+                const expectedId = `${kind}-${slugify(value)}`;
+                const isKnown = correspondenceIds.has(expectedId);
+                if (
+                    (requiredWhenUnknown || isKnown) &&
+                    !resolvedCorrespondenceIds.includes(expectedId)
+                ) {
+                    warnings.push(
+                        issue(
+                            'missing_optional_correspondence',
+                            `cards.items[${cardIndex}].attributes.${field}`,
+                            `Optional correspondence ${expectedId} is not available for this card.`
+                        )
+                    );
+                }
+            });
+        }
     });
 
     correspondences.forEach((correspondence, index) => {
@@ -505,7 +548,7 @@ export function validateCanonicalCorpus(input: unknown): ValidationResult<Canoni
                 issue(
                     'missing_optional_theme',
                     `correspondences.items[${index}].id`,
-                    'Correspondence has no approved theme fragment.'
+                    `Correspondence ${correspondence.id} has no approved theme fragment.`
                 )
             );
         }
