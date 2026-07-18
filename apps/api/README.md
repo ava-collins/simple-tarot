@@ -28,7 +28,7 @@ and calls Bedrock Knowledge Bases with an active-version filter. See
 [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md).
 
 Authenticated successful readings are persisted to DynamoDB with the full
-`ReadingResponse`, generated reading text/citations, original request/question,
+`ReadingResponse`, generated reading text, original request/question,
 and created timestamp. Authenticated failed generation attempts are persisted
 with sanitized failure fields and are excluded from user-facing history.
 
@@ -64,7 +64,8 @@ API_LOG_BUCKET_NAME=<api-log-bucket-name-output>
 
 ## Bedrock Mode
 
-Set these values to call Bedrock Agent Runtime `RetrieveAndGenerate`:
+Set these values to perform explicit Knowledge Base retrieval followed by
+Bedrock Converse generation:
 
 ```sh
 BEDROCK_RUNTIME_MODE=bedrock
@@ -103,26 +104,32 @@ generate corpus artifacts. See
 [Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) for the approved-artifact
 handoff and ingestion boundary.
 
-Development implements opaque composer-bundle loading and deterministic context composition while
-retaining `RetrieveAndGenerate`. The active pointer is read per enabled request; immutable bundles
-are size/checksum/schema validated and cached by complete pointer identity. Retrieval is filtered
-to the active corpus version, approved status, and correspondence-theme document kind. See
+Development implements opaque composer-bundle loading and deterministic context composition. The
+active pointer is read per enabled request; immutable bundles are size/checksum/schema validated
+and cached by complete pointer identity. One reading-level query requests five results with no
+reranker and filters to the active corpus version, approved status, and correspondence-theme
+document kind. Each non-empty result contributes at most 2,000 characters and total retrieved
+evidence is capped at 8,000 characters. Evidence remains internal to prompt assembly. See
 [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md).
 
-Set `COMPOSER_RUNTIME_MODE=disabled` for the legacy prompt path. Local mode disables composer
-automatically and does not create an S3 reader. Explicit retrieval followed by separate generation
-is not implemented and remains a later project.
+Local mode disables composer automatically and does not create an S3 reader. The configuration
+also accepts `COMPOSER_RUNTIME_MODE=disabled`, but deployed Bedrock generation requires composed
+context, so that setting is an operational shutdown rather than a live fallback. If retrieval
+succeeds with no usable text, Converse still generates from deterministic context alone; a
+retrieval failure prevents Converse and returns a safe retryable error.
 
 The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally
 (no deployed local-mode fallback), imports the Knowledge Base ID and
 application inference profile ARN from the same stage, and grants the Lambda
-permission to call `RetrieveAndGenerate`, `GetInferenceProfile`,
-`InvokeModel`, and `Retrieve` — all four are required once the generation
-model sits behind an application inference profile. Generated and failed
-reading metadata records the active generation mode.
+scoped `Retrieve` on the Knowledge Base, `GetInferenceProfile` on the profile,
+and `InvokeModel` on the profile and underlying foundation model. Converse uses
+the configured application inference profile. Generated and failed reading
+metadata records the active generation mode.
 Composer metadata is aggregate-only: mode, optional corpus version, and optional named-pair and
 whole-spread counts. Safe composer request errors return 400; artifact or load failures return a
-retryable 503.
+retryable 503. Retrieval and generation failures return distinct retryable 503 responses, and
+Bedrock throttling returns 429. Successful Bedrock responses retain the public response shape but
+return an empty `citations` array because retrieved evidence is private and internal.
 
 ## Commands
 

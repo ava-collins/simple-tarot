@@ -45,9 +45,10 @@ The public development infrastructure definition uses a selective data source at
 Knowledge Base, and generation profile. Production retains the legacy `corpus/` and fixed-size
 definition.
 
-The API continues to use Bedrock Agent Runtime `RetrieveAndGenerate`. The composer runtime retains
-that call while adding deterministic context and active-version filters. Explicit
-retrieval and generation remain a separate future project.
+The development API uses the opaque bundle for deterministic context, then performs one explicit
+Knowledge Base retrieval with an active-version filter and one Bedrock Converse call. Retrieved
+evidence remains internal and does not broaden the public artifact contract. Production retains
+the legacy corpus infrastructure definition but has not been deployed with this runtime.
 
 ## Change coordination
 

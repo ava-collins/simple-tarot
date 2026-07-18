@@ -132,6 +132,12 @@ Successful readings and failed attempts persist generation mode plus aggregate c
 composer mode, optional corpus version, and optional named-pair and whole-spread counts. They do
 not persist the composed prompt, themes, facts, supports, source IDs, or rule IDs.
 
+Explicit Knowledge Base retrieval evidence is also internal-only. It is not persisted in the
+`GeneratedReading`, `ReadingResponse`, DynamoDB records, or S3 request logs. Successful Bedrock
+responses preserve the public `citations` field as an empty array. Retrieval and Converse failures
+persist only their sanitized public error code, message, and status with the existing aggregate
+generation metadata.
+
 Production remains composer-disabled. See
 [Deterministic Composer Runtime](deterministic-composer-runtime.md) and
 [Bedrock Corpus Operations](bedrock_corpus_operations.md) for the current runtime and activation

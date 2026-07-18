@@ -39,8 +39,8 @@ composer runtime enabled.
     bucket used by authenticated reading persistence.
 -   `lib/api-stack.ts` defines the API Gateway HTTP API, Lambda runtime, Cognito
     JWT authorizer, and Lambda permissions for DynamoDB, S3 API logs, and
-    Bedrock (`RetrieveAndGenerate`, `GetInferenceProfile`, `InvokeModel`,
-    `Retrieve`). Consumes `BedrockRagStack`/`UserDataStack`/`CognitoStack`
+    Bedrock (`Retrieve`, `GetInferenceProfile`, and `InvokeModel`). Consumes
+    `BedrockRagStack`/`UserDataStack`/`CognitoStack`
     resources with `ReferenceStrength.STRONG`.
     Development also receives the corpus bucket/data-source identities and exact read-only
     composer artifact grants.
@@ -127,8 +127,8 @@ The stack creates:
 Development uses the selective corpus data source at `corpus/active/` with `NONE` chunking and a
 `DELETE` data deletion policy. Each approved semantic object is ingested as one document. Production
 retains the legacy `corpus/` prefix and fixed-size 200-token, 20-percent-overlap definition. The
-current API continues to use `RetrieveAndGenerate`; the private corpus workflow owns publication
-and activation for the development destination.
+development API performs explicit filtered Knowledge Base retrieval followed by Converse; the
+private corpus workflow owns publication and activation for the development destination.
 
 The implemented [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md)
 grants only the development API narrowly scoped reads for the active pointer, release manifest,
@@ -182,8 +182,9 @@ The stack creates:
 -   least-privilege grants for DynamoDB read/write and S3 API log writes
 -   development-only `s3:GetObject` for the active pointer, release manifests,
     and composer bundles
--   permission to call Bedrock Agent Runtime `RetrieveAndGenerate`,
-    `GetInferenceProfile`, `InvokeModel`, and `Retrieve`
+-   scoped permission to call Bedrock Agent Runtime `Retrieve` on the Knowledge Base,
+    `GetInferenceProfile` on the application inference profile, and `InvokeModel` on the profile
+    and underlying foundation model
 -   `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
 
 `ApiUrl` is the mobile app's `EXPO_PUBLIC_TAROT_API_URL`. The current API uses
@@ -198,10 +199,11 @@ region, and application inference profile ARN directly from the Bedrock stack
 via `ReferenceStrength.STRONG` cross-stack references (CloudFormation
 Export/Import, not the CDK default `Fn::GetStackOutput` — needed so a plain
 `cdk deploy` of this stack reliably picks up a replaced Knowledge Base or
-inference profile from `SimpleTarotBedrockRag-<env>`). The Lambda role can
-call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
-`bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required for a
-generation model behind an application inference profile. Private corpus activation and ingestion
+inference profile from `SimpleTarotBedrockRag-<env>`). The Lambda role can call
+`bedrock:Retrieve` on the Knowledge Base, `bedrock:GetInferenceProfile` on the
+application inference profile, and `bedrock:InvokeModel` on the profile and underlying foundation
+model. The API uses the profile for one Converse call after explicit retrieval. Private corpus
+activation and ingestion
 must complete before generated readings can retrieve context.
 Corpus sources, transformation code, relationship rules, and generated artifacts are private;
 this public workspace provisions their AWS destination but does not build them. Follow
@@ -367,7 +369,9 @@ deployed API authorizer is active.
 
 For composer-only rollback, review a development diff with composer mode disabled. It must remove
 `BEDROCK_CORPUS_BUCKET`, `BEDROCK_DATA_SOURCE_ID`, the three composer `s3:GetObject` patterns, and
-their dependent exports while preserving the legacy prompt path and Bedrock Knowledge Base. See
+their dependent exports. Because deployed Bedrock generation requires composed context, disabling
+composer is not a live Bedrock fallback; use local mode only for offline placeholder development.
+See
 [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md#rollback).
 
 For a general stack rollback, redeploy the last known-good revision for the target environment. From a

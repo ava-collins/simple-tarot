@@ -66,10 +66,12 @@ Infrastructure output names:
 
 When changing prompt behavior:
 
-- Edit `apps/api/src/readings/prompt-builder.ts` only for disabled/legacy behavior.
-- Edit `apps/api/src/composer/prompt-builder.ts` for enabled composer behavior.
-- Update the matching prompt-builder test.
+- Edit `apps/api/src/composer/prompt-builder.ts` for explicit Bedrock generation behavior.
+- Edit `apps/api/src/readings/local-generated-reading.ts` only for offline placeholder output.
+- Update the matching focused test.
 - Keep card order, position, and orientation explicit in the prompt.
+- Keep retrieved themes after authoritative deterministic context, escaped as untrusted data, and
+  absent from responses, persistence, logs, and safe errors.
 
 When changing composer runtime behavior:
 
@@ -83,10 +85,15 @@ When changing composer runtime behavior:
 
 When changing Bedrock runtime behavior:
 
-- Edit `apps/api/src/bedrock/bedrock-client.ts` or
+- Edit the smallest focused unit in `apps/api/src/bedrock/`: query builder, retrieval filter,
+  Knowledge Base retriever, evidence builder, explicit-RAG orchestrator, Converse client, or
   `apps/api/src/config.ts`.
-- Update `apps/api/src/bedrock/bedrock-client.test.ts` or
-  `apps/api/src/config.test.ts`.
+- Update the colocated focused test or `apps/api/src/config.test.ts`.
+- Preserve one reading-level `Retrieve`, five results by default, no reranker, 2,000 characters per
+  result, 8,000 total evidence characters, and one Converse call unless an approved design changes
+  those contracts.
+- Preserve zero-result generation from deterministic context and retrieval-failure prevention of
+  Converse.
 - Preserve inference profile precedence unless intentionally changing API env
   semantics.
 - The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally;
@@ -154,10 +161,9 @@ separately reviewed migration.
 
 ## Known Follow-Up Candidates
 
-- Consider a long-lived Bedrock runtime generator instead of creating one in
-  the request path.
-- Replace `RetrieveAndGenerate` with explicit retrieval, optional reranking, and separate model
-  generation only through a fresh approved design and implementation plan.
+- Consider additional Bedrock client lifecycle optimization only after measuring a need.
+- Add reranking or structured model output only through a fresh approved design and implementation
+  plan.
 - Plan production migration separately if selective ingestion is promoted beyond development.
 
 ## Required Verification

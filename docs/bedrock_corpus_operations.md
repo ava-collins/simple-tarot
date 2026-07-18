@@ -30,9 +30,9 @@ The development stack definition replaces only the legacy data source. The selec
 The production definition remains on `corpus/` with `FIXED_SIZE` chunking at 200 maximum tokens and
 20 percent overlap. Production is not part of this cutover.
 
-The development API loads the active opaque composer bundle and composes deterministic context
-before Bedrock Agent Runtime `RetrieveAndGenerate`. Explicit retrieval followed by separate
-generation remains a later implementation stage. See
+The development API loads the active opaque composer bundle, composes deterministic context,
+performs one filtered Knowledge Base retrieval, and then calls Bedrock Converse with bounded
+internal evidence. See
 [Deterministic Composer Runtime](deterministic-composer-runtime.md).
 
 ## Deployment boundary
@@ -91,11 +91,11 @@ BEDROCK_DATA_SOURCE_ID=<BedrockDataSourceId>
 ```
 
 The deployed `SimpleTarotApi-<environment>` Lambda receives the Knowledge Base ID, region, and
-inference profile directly from the Bedrock stack. Its current role can call
-`bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`, `bedrock:InvokeModel`, and
-`bedrock:Retrieve`. Development additionally receives `s3:GetObject` only for the active pointer,
-release manifests, and composer bundles. Production remains composer-disabled with no artifact
-read grant.
+inference profile directly from the Bedrock stack. Its role can call `bedrock:Retrieve` on the
+Knowledge Base, `bedrock:GetInferenceProfile` on the application inference profile, and
+`bedrock:InvokeModel` on the profile and underlying foundation model. Development additionally
+receives `s3:GetObject` only for the active pointer, release manifests, and composer bundles.
+Production remains composer-disabled with no artifact read grant.
 
 ## Verification checklist
 
@@ -105,7 +105,8 @@ read grant.
 3. After authorized deployment, confirm the bucket and Knowledge Base outputs did not change.
 4. Wait for the private workflow to report successful activation and completed ingestion.
 5. Confirm filtered retrieve-only results use approved selective metadata.
-6. Send a `POST /readings` request in Bedrock mode and inspect generated text and citations without
-   exposing private artifact content in logs or public issues.
+6. Send a `POST /readings` request in Bedrock mode and confirm one retrieval and one Converse event,
+   generated text, and an empty public citations array without exposing private artifact or
+   retrieval content in logs or public issues.
 7. Confirm response metadata reports composer mode, the active corpus version, and aggregate
    relationship counts only.

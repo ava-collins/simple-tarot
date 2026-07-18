@@ -31,10 +31,12 @@ flowchart LR
     Auth["Cognito JWT authorizer"]
     Route["POST /readings<br/>apps/api/src/routes/readings.ts"]
     Composer["Active bundle loader and<br/>deterministic composer"]
-    Prompt["Composed prompt and<br/>active-version filter"]
+    Query["Reading-level query and<br/>active-version filter"]
     Local["Local placeholder generator"]
-    BedrockClient["Bedrock client<br/>bedrock/bedrock-client.ts"]
-    Runtime["Bedrock Agent Runtime<br/>RetrieveAndGenerate"]
+    Retriever["Knowledge Base retriever<br/>bedrock/knowledge-base-retriever.ts"]
+    Evidence["Bounded internal evidence"]
+    Prompt["Explicit generation prompt"]
+    Converse["Bedrock Converse<br/>bedrock/converse-client.ts"]
     KB["Bedrock Knowledge Base"]
     Vectors["S3 Vectors<br/>vector index"]
     S3["S3 corpus bucket<br/>development: corpus/active/"]
@@ -44,17 +46,19 @@ flowchart LR
 
     Mobile --> Auth
     Auth --> Route
-    Route --> Composer
-    Composer --> Prompt
-    Prompt --> Route
     Route -->|"BEDROCK_RUNTIME_MODE != bedrock"| Local
-    Route -->|"BEDROCK_RUNTIME_MODE=bedrock"| BedrockClient
-    BedrockClient --> Runtime
-    Runtime --> KB
+    Route -->|"BEDROCK_RUNTIME_MODE=bedrock"| Composer
+    Composer --> Query
+    Query --> Retriever
+    Retriever --> KB
     KB --> Vectors
     KB --> S3
+    Retriever --> Evidence
+    Composer --> Prompt
+    Evidence --> Prompt
+    Prompt --> Converse
     Local --> Mapper
-    BedrockClient --> Mapper
+    Converse --> Mapper
     Route --> DDB
     Route --> Logs
     Mapper --> Mobile
@@ -67,16 +71,20 @@ flowchart LR
 The route:
 
 1. Validates the request body with `validateReadingRequest`.
-2. Uses the legacy prompt without S3 access when composer mode is disabled.
+2. Uses the offline placeholder generator without S3 access in local mode.
 3. In enabled mode, reads the active pointer, validates or reuses one immutable bundle snapshot,
    and composes exact card and relationship context.
-4. Builds the precedence-ordered composed prompt and exact active-version retrieval filter.
-5. Uses the local placeholder generator unless `BEDROCK_RUNTIME_MODE=bedrock`.
-6. Calls Bedrock `RetrieveAndGenerate` in Bedrock mode.
-7. Maps generated text and citations plus aggregate composer metadata into the public response.
-8. Persists authenticated successful readings and minimal profile updates.
-9. Persists authenticated failed generation attempts with sanitized failure fields.
-10. Writes request/diagnostic metadata to the S3 API log bucket when configured.
+4. Builds one reading-level retrieval query and the exact active-version retrieval filter.
+5. Requests five Knowledge Base results without a reranker and reduces usable text to bounded
+   internal evidence.
+6. Builds the precedence-ordered explicit generation prompt.
+7. Calls Bedrock Converse through the configured application inference profile. If retrieval
+   succeeds with zero usable results, this call still uses deterministic context alone.
+8. Maps generated text plus aggregate composer metadata into the public response; citations remain
+   an empty array because retrieval evidence is internal.
+9. Persists authenticated successful readings and minimal profile updates.
+10. Persists authenticated failed generation attempts with sanitized failure fields.
+11. Writes request/diagnostic metadata to the S3 API log bucket when configured.
 
 See [Deterministic Composer Runtime](deterministic-composer-runtime.md) for loader, composition,
 error, metadata, and rollback details.
@@ -99,44 +107,45 @@ Required request fields:
 
 ## Prompt Grounding
 
-Disabled mode uses `apps/api/src/readings/prompt-builder.ts`. Enabled development uses
-`apps/api/src/composer/prompt-builder.ts`, which orders:
+Enabled development uses `apps/api/src/composer/prompt-builder.ts`, which orders:
 
 - authority and non-contradiction instructions
 - active corpus and spread identity
 - ordered exact card, orientation, and position context
 - named positional relationships
 - whole-spread relationships
-- optional user intent
+- optional bounded retrieved themes
+- user intent
 - response requirements
 
 Retrieved text may enrich the exact context but cannot replace or contradict it. Private source and
 rule IDs are not rendered.
 
-## Bedrock Client
+## Explicit retrieval and generation
 
-`apps/api/src/bedrock/bedrock-client.ts` wraps
-`@aws-sdk/client-bedrock-agent-runtime`.
+`apps/api/src/bedrock/explicit-rag-generator.ts` coordinates small focused boundaries:
 
-It sends a `RetrieveAndGenerateCommand` with:
+- `retrieval-query-builder.ts` combines the user question or general intent with whole-spread and
+  named-position themes into one reading-level query.
+- `retrieval-filter.ts` requires the exact active corpus version, approved status, and
+  correspondence-theme document kind.
+- `knowledge-base-retriever.ts` sends one `RetrieveCommand` for five results by default. No
+  reranker is configured.
+- `retrieval-evidence.ts` omits empty text, caps each result at 2,000 characters, and caps total
+  evidence at 8,000 characters.
+- `composer/prompt-builder.ts` places authoritative deterministic context before escaped retrieved
+  themes and user intent.
+- `converse-client.ts` sends one `ConverseCommand` through the configured application inference
+  profile with a 3,072-token maximum and temperature `0.7`.
 
-- `type: KNOWLEDGE_BASE`
-- configured Knowledge Base ID
-- configured generation model ARN or inference profile ID/ARN
-- configured vector search result count
-- optional exact active-version/status/document-kind `andAll` filter
-- prompt text as `input.text`
+Retrieval evidence is untrusted, prompt-only data. It does not enter API responses, persistence,
+logs, or safe errors. Retrieval success with zero usable evidence still reaches Converse;
+retrieval failure does not. The Converse client returns generated text and an empty citations
+array.
 
-It maps Bedrock retrieved references into API citations:
-
-- `sourceId`: S3 URI, web URL, supported connector URL, location type, or
-  `bedrock-reference`
-- `text`: retrieved reference content text
-- `metadata`: Bedrock reference metadata
-
-The client logs start, success, and failure events with request ID, model,
-Knowledge Base ID, prompt length, retrieval count, citation count, and text
-length where available.
+Boundary logs contain request ID, timing, configured resource identity, counts, prompt lengths,
+token usage, output length, and stop reason. They do not contain queries, retrieved evidence,
+prompts, or generated text.
 
 ## Runtime Configuration
 
@@ -175,15 +184,11 @@ model ARN. Inference profile IDs and ARNs are passed through as provided.
 
 The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally,
 imports the Knowledge Base ID, `us-east-2` region, and application inference
-profile ARN from the Bedrock stack, and grants four IAM statements:
-`bedrock:RetrieveAndGenerate` (`*`), `bedrock:GetInferenceProfile` (inference
-profile ARN), `bedrock:InvokeModel` (inference profile ARN and the underlying
-foundation-model ARN), and `bedrock:Retrieve` (Knowledge Base ARN). All four
-are required — a single `bedrock:RetrieveAndGenerate` grant alone returns
-`AccessDeniedException` once the generation model is behind an application
-inference profile (required in `us-east-2`, where no Anthropic model
-currently supports on-demand invocation). Corpus upload and Knowledge Base
-ingestion must complete before retrieval can return approved private context.
+profile ARN from the Bedrock stack. The Lambda role has `bedrock:Retrieve` on
+the Knowledge Base ARN, `bedrock:GetInferenceProfile` on the application
+inference profile ARN, and `bedrock:InvokeModel` on the profile plus underlying
+foundation-model ARN. Corpus upload and Knowledge Base ingestion must complete
+before retrieval can return approved private context.
 
 Development sets composer mode enabled and grants only the three approved object-read patterns.
 Local mode disables composer automatically. Production is composer-disabled and has no composer
@@ -261,6 +266,7 @@ sequenceDiagram
     participant S3 as S3 corpus bucket / corpus/active/
     participant Sync as Bedrock data source sync
     participant KB as Bedrock Knowledge Base
+    participant Runtime as Bedrock Converse runtime
     participant API as apps/api Bedrock mode
 
     Owner->>Release: build, validate, publish, and approve
@@ -268,7 +274,11 @@ sequenceDiagram
     S3->>Sync: start controlled ingestion
     Sync->>KB: embed and index chunks
     API->>Release: read active pointer and opaque composer bundle
-    API->>KB: RetrieveAndGenerate
+    API->>KB: Retrieve with active-version filter
+    KB-->>API: bounded candidate text
+    API->>API: compose internal evidence and prompt
+    API->>Runtime: Converse through inference profile
+    Runtime-->>API: generated reading text
 ```
 
 Corpus sources, transformation code, relationship rules, and generated artifacts are private.
@@ -314,11 +324,11 @@ stage path unless CloudFormation outputs one.
 - Development uses `NONE` chunking because approved semantic objects already define retrieval
   boundaries. Production retains `FIXED_SIZE` chunking (200 max tokens, 20% overlap) until a
   separately reviewed production migration.
-- The API creates a Bedrock runtime client per request path invocation through
-  `createBedrockReadingGenerator`. That is simple and testable, but not yet
-  optimized as a long-lived singleton.
-- Explicit `Retrieve`, reranking, and separate model generation are not implemented; the current
-  composer runtime intentionally retains `RetrieveAndGenerate`.
+- The route creates one retriever and one Converse generator when its default options are resolved.
+  The current implementation favors focused testable boundaries over additional client lifecycle
+  abstraction.
+- Reranking and structured model output are not implemented. Change either only through a fresh
+  reviewed design and checkpointed plan.
 
 ## Verification Commands
 

@@ -66,23 +66,30 @@ flowchart LR
     Auth["Cognito user context"]
     Validate["validateReadingRequest"]
     Composer["load and compose active bundle"]
-    Prompt["buildComposedReadingPrompt"]
+    Query["buildRetrievalQuery"]
+    Retrieve["createKnowledgeBaseRetriever"]
+    Evidence["buildRetrievalEvidence"]
+    Prompt["buildExplicitGenerationPrompt"]
+    Converse["createConverseGenerator"]
     Mode["getApiConfig().bedrock.mode"]
     Local["createLocalGeneratedReading"]
-    Bedrock["createBedrockReadingGenerator"]
     Map["mapGeneratedReadingResponse"]
     Store["ReadingHistoryStore"]
     Logs["S3 API log sink"]
 
     Req --> Auth
     Auth --> Validate
-    Validate --> Composer
-    Composer --> Prompt
-    Prompt --> Mode
+    Validate --> Mode
     Mode --> Local
-    Mode --> Bedrock
+    Mode --> Composer
+    Composer --> Query
+    Query --> Retrieve
+    Retrieve --> Evidence
+    Evidence --> Prompt
+    Composer --> Prompt
+    Prompt --> Converse
     Local --> Map
-    Bedrock --> Map
+    Converse --> Map
     Map --> Store
     Req --> Logs
 ```
@@ -90,13 +97,17 @@ flowchart LR
 Important files:
 
 - Validation: `apps/api/src/readings/validation.ts`
-- Disabled prompt: `apps/api/src/readings/prompt-builder.ts`
+- Local placeholder: `apps/api/src/readings/local-generated-reading.ts`
 - Composer loading and deterministic context: `apps/api/src/composer/*`
 - Enabled prompt: `apps/api/src/composer/prompt-builder.ts`
-- Active retrieval filter: `apps/api/src/bedrock/retrieval-filter.ts`
 - Public contracts: `apps/api/src/readings/contracts.ts`
 - Response mapping: `apps/api/src/readings/response-mapper.ts`
-- Bedrock runtime call: `apps/api/src/bedrock/bedrock-client.ts`
+- Retrieval query: `apps/api/src/bedrock/retrieval-query-builder.ts`
+- Active retrieval filter: `apps/api/src/bedrock/retrieval-filter.ts`
+- Knowledge Base retrieval: `apps/api/src/bedrock/knowledge-base-retriever.ts`
+- Evidence budgets: `apps/api/src/bedrock/retrieval-evidence.ts`
+- Explicit RAG orchestration: `apps/api/src/bedrock/explicit-rag-generator.ts`
+- Bedrock Converse: `apps/api/src/bedrock/converse-client.ts`
 - Reading persistence: `apps/api/src/readings/persistence/*`
 - API log sink: `apps/api/src/logging/api-log-sink.ts`
 
@@ -128,29 +139,31 @@ Do not persist API metadata such as source IP, route, method, duration, or
 user agent in DynamoDB. Those belong in the S3 API log source. Do not log
 authorization headers, tokens, cookies, or full raw request bodies.
 
-## Bedrock Call
+## Bedrock calls
 
-`createBedrockReadingGenerator` sends `RetrieveAndGenerateCommand` with:
+`createExplicitRagReadingGenerator` performs exactly one retrieval and one generation boundary for
+each successful Bedrock reading:
 
-- `retrieveAndGenerateConfiguration.type = KNOWLEDGE_BASE`
-- `knowledgeBaseConfiguration.knowledgeBaseId`
-- `knowledgeBaseConfiguration.modelArn`
-- `vectorSearchConfiguration.numberOfResults`
-- optional `vectorSearchConfiguration.filter` for exact active corpus version, approved status,
-  and correspondence-theme document kind
-- `input.text = prompt`
+1. `buildRetrievalQuery` combines user intent with whole-spread and named-position themes.
+2. `createKnowledgeBaseRetriever` sends `RetrieveCommand` with the Knowledge Base ID, five results
+   by default, and an `andAll` filter for exact corpus version, approved status, and
+   correspondence-theme document kind. No reranker is configured.
+3. `buildRetrievalEvidence` omits empty text, caps each result at 2,000 characters, and caps the
+   total at 8,000 characters.
+4. `buildExplicitGenerationPrompt` places deterministic context before escaped, untrusted
+   retrieved themes and user intent.
+5. `createConverseGenerator` sends `ConverseCommand` through the configured inference profile with
+   a 3,072-token maximum and temperature `0.7`.
 
-It returns:
+Zero usable retrieval results still invoke Converse with deterministic context. Retrieval failure
+prevents Converse. Retrieved evidence never enters responses, persistence, logs, or safe errors.
+The generated result contains text, an empty citations array, and the configured model/profile ID.
 
-- `text`: `output.output?.text ?? ''`
-- `citations`: flattened retrieved references from `output.citations`
-- `modelId`: configured model ARN or inference profile value
-
-Tests are in `apps/api/src/bedrock/bedrock-client.test.ts`.
+Tests are colocated in `apps/api/src/bedrock/*.test.ts`.
 
 The route reads the active pointer on every enabled request and validates/caches one immutable
 bundle by complete pointer identity. It fails closed with safe 400/503 errors and never falls back
-to the legacy prompt while enabled. Response and persistence metadata contain aggregate composer
+to the local placeholder while enabled. Response and persistence metadata contain aggregate composer
 mode/version/counts only. See `docs/deterministic-composer-runtime.md`.
 
 ## Corpus Path
@@ -217,12 +230,10 @@ describing the pre-migration architecture.
 - development-only `COMPOSER_RUNTIME_MODE=enabled`, corpus bucket, and data-source identities
 - development-only `s3:GetObject` for the active pointer, release manifests, and composer bundles;
   production has none of these grants
-- least-privilege permissions for DynamoDB, S3 API logs, and four separate
-  Bedrock IAM statements (all required — verified against live
-  `AccessDeniedException`s, not just AWS's KB-permissions sample doc):
-  `bedrock:RetrieveAndGenerate` (`*`), `bedrock:GetInferenceProfile` +
-  `bedrock:InvokeModel` (inference profile ARN), `bedrock:InvokeModel`
-  (underlying foundation-model ARN), `bedrock:Retrieve` (Knowledge Base ARN)
+- least-privilege permissions for DynamoDB and S3 API logs plus scoped Bedrock actions:
+  `bedrock:Retrieve` on the Knowledge Base ARN, `bedrock:GetInferenceProfile` on the application
+  inference profile ARN, and `bedrock:InvokeModel` on the profile and underlying foundation-model
+  ARN
 - `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
 
 **`ApiStack` consumes `BedrockRagStack`/`UserDataStack`/`CognitoStack`

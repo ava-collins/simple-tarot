@@ -11,8 +11,8 @@ Corpus sources, compilation, editorial rules, real fixtures, publication, activa
 ingestion remain private. This public repository contains only the generic consumer contract,
 validation, composition, AWS loading boundary, and runtime integration.
 
-Explicit retrieval followed by a separate model invocation is not part of this implementation.
-The API still uses Bedrock Agent Runtime `RetrieveAndGenerate`.
+The deployed development path performs one explicit Knowledge Base retrieval and one separate
+Bedrock Converse invocation. Deterministic composer context is required for that Bedrock path.
 
 ## Runtime ownership
 
@@ -38,20 +38,27 @@ flowchart LR
     Pointer["Read active pointer"]
     Bundle["Validate manifest and immutable bundle"]
     Compose["Deterministic composition"]
-    Prompt["Controlled composed prompt"]
+    Query["Reading-level retrieval query"]
     Filter["Active-version metadata filter"]
-    Bedrock["Bedrock RetrieveAndGenerate"]
+    Retrieve["Bedrock Knowledge Base Retrieve"]
+    Evidence["Bounded internal evidence"]
+    Prompt["Controlled generation prompt"]
+    Converse["Bedrock Converse"]
     Response["Reading response and persistence"]
 
     Request --> Validate
     Validate --> Pointer
     Pointer --> Bundle
     Bundle --> Compose
-    Compose --> Prompt
+    Compose --> Query
     Compose --> Filter
-    Prompt --> Bedrock
-    Filter --> Bedrock
-    Bedrock --> Response
+    Query --> Retrieve
+    Filter --> Retrieve
+    Retrieve --> Evidence
+    Compose --> Prompt
+    Evidence --> Prompt
+    Prompt --> Converse
+    Converse --> Response
 ```
 
 When composer mode is enabled, the route:
@@ -62,12 +69,16 @@ When composer mode is enabled, the route:
 4. Loads or reuses one fully validated immutable bundle for the complete pointer identity.
 5. Normalizes supported single-card or Celtic Cross input against exact bundle identities.
 6. Composes card-local facts, declared named-position edges, and allowlisted whole-spread results.
-7. Builds a controlled prompt in the approved evidence order.
+7. Builds one reading-level query from user intent and composed relationship themes.
 8. Adds an `andAll` retrieval filter for the exact corpus version, approved status, and
    correspondence-theme document kind.
-9. Calls the existing `RetrieveAndGenerateCommand` and maps its output normally.
+9. Requests five Knowledge Base results without a reranker and reduces non-empty text to bounded
+   internal evidence.
+10. Builds a controlled generation prompt in the approved evidence order.
+11. Calls Bedrock Converse through the configured application inference profile and maps generated
+    text into the existing public response with an empty citations array.
 
-The enabled path never falls back to an old bundle or the legacy prompt after a compatibility,
+The enabled path never falls back to an old bundle or the local placeholder after a compatibility,
 load, or composition failure.
 
 ## Consumer compatibility
@@ -99,15 +110,22 @@ The composed prompt orders evidence as:
 3. ordered card, orientation, position, and exact-meaning context
 4. declared named positional relationships
 5. bounded whole-spread relationships
-6. optional user intent
-7. response-shape requirements
+6. optional bounded retrieved themes
+7. user intent
+8. response-shape requirements
 
 Retrieved text may enrich these exact facts but cannot replace or contradict them. Empty optional
 relationship sections are omitted. Private source IDs and rule IDs are not rendered.
 
-The Bedrock client still performs one `RetrieveAndGenerate` request per reading. Its optional
-retrieval filter is omitted in disabled mode and set to the exact active corpus version in enabled
-mode. Separate `Retrieve`, reranking, and independent model generation remain a future project.
+The retriever performs one `Retrieve` request per reading with five results by default and no
+reranker. Each result contributes at most 2,000 characters and the full evidence section is capped
+at 8,000 characters. Empty or whitespace-only results are omitted. If retrieval succeeds with no
+usable evidence, Converse still generates from deterministic context. If retrieval fails, Converse
+is not invoked.
+
+Retrieved evidence is treated as untrusted data, escaped inside explicit prompt boundaries, and
+kept out of public responses, persistence, logs, and safe errors. Converse uses a maximum of 3,072
+output tokens and temperature `0.7`. It returns no public citations.
 
 ## Configuration and deployment
 
@@ -121,8 +139,9 @@ BEDROCK_DATA_SOURCE_ID=<same-stage data source>
 BEDROCK_KNOWLEDGE_BASE_ID=<same-stage Knowledge Base>
 ```
 
-Production and local Bedrock-disabled operation use `COMPOSER_RUNTIME_MODE=disabled`. Local mode
-does not construct the composer S3 reader and continues to use the legacy prompt. Production has
+Production and local operation use `COMPOSER_RUNTIME_MODE=disabled`. Local mode does not construct
+the composer S3 reader and returns the offline placeholder reading. Deployed Bedrock generation
+requires composed context; disabled composer mode is not a live Bedrock fallback. Production has
 no composer object-read grant.
 
 The development Lambda role has `s3:GetObject` only for the three patterns listed under consumer
@@ -151,8 +170,13 @@ Responses and DynamoDB generation metadata expose only:
 - optional `wholeSpreadCount`
 
 They never persist composed cards, prompts, themes, relationship facts, support lists, source IDs,
-or rule IDs. Runtime logs use request IDs, timing, corpus version, prompt length, card count, and
-aggregate result/citation counts. Authorization is redacted and request bodies are not logged.
+or rule IDs. Runtime logs use request IDs, timing, corpus version, prompt lengths, card count, token
+usage, and aggregate retrieval/evidence counts. Retrieved text and generated text are not logged.
+Authorization is redacted and request bodies are not logged.
+
+Knowledge Base retrieval failures return a retryable HTTP 503 with
+`BEDROCK_RETRIEVAL_UNAVAILABLE`; generation failures return a retryable HTTP 503 with
+`BEDROCK_GENERATION_UNAVAILABLE`. Bedrock throttling returns HTTP 429 with `BEDROCK_THROTTLED`.
 
 ## Operations and verification
 
@@ -166,24 +190,33 @@ Before a development deployment:
 
 After deployment, inspect selected Lambda environment fields and the synthesized IAM statement,
 then run authenticated single-card and Celtic Cross cases. Record only request IDs, status,
-response-shape validity, composer mode, corpus version, item and relationship counts, and citation
-count. Compare the returned version with the active pointer without committing or printing artifact
-bodies.
+response-shape validity, composer mode, corpus version, item and relationship counts, empty
+citation count, aggregate retrieval/evidence counts, Converse completion, output length, and
+timings. Compare the returned version with the active pointer without committing or printing
+artifact bodies.
 
-The 2026-07-18 development activation verified both supported spreads, safe invalid-selection and
-invalid-order 400 responses, exact active-version metadata, aggregate-only logs, and continued
-`RetrieveAndGenerate` use. Production was not deployed.
+The 2026-07-18 development verification covered both supported spreads, exact active-version
+metadata, five retrieved and usable results for each controlled request, one retrieval and one
+Converse boundary event per request, non-empty generated positions, empty public citations, and
+aggregate-only logs. A mobile end-to-end check then exposed and verified a corrected public card
+name mismatch before this documentation checkpoint. Production and private corpus resources were
+not deployed or mutated.
 
 ## Rollback
 
-The runtime rollback is configuration-based:
+Rollback the explicit retrieval and Converse runtime by redeploying the last known-good reviewed
+application revision. Do not restore a combined retrieval-and-generation compatibility path.
+
+Composer mode can still be disabled through a reviewed infrastructure change, but this is an
+operational shutdown of deployed Bedrock reading generation rather than a legacy Bedrock fallback:
 
 1. Set development composer mode to disabled in the reviewed infrastructure definition.
 2. Generate and review the development CDK diff.
 3. Confirm it removes the bucket/data-source environment identities, the three S3 read patterns,
    and their dependent exports.
 4. Deploy only after exact-target authorization.
-5. Verify the legacy prompt path with the existing disabled-mode route tests and a valid reading.
+5. Verify the expected safe generation-unavailable response in Bedrock mode and the offline
+   placeholder path in local mode.
 
 Disabling composer mode does not mutate the active corpus release, delete the Knowledge Base, or
 change the vector data source. Restoring enabled mode requires a new reviewed diff and explicit
