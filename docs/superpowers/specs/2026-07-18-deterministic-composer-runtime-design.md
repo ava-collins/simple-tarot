@@ -2,8 +2,8 @@
 
 ## Status
 
-Approved section by section in design discussion on 2026-07-18. This written specification awaits
-final user review before implementation planning begins.
+Approved section by section in design discussion and accepted as the implementation-planning basis
+on 2026-07-18.
 
 ## Objective
 

@@ -117,6 +117,7 @@ messages.
 ### Planning
 
 -   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — approved next-stage design for opaque active-bundle loading, deterministic rule composition, development prompt integration, and rollback before explicit retrieval/generation
+-   [Deterministic Composer Runtime Implementation Plan](./docs/superpowers/plans/2026-07-18-deterministic-composer-runtime.md) — four user-verified checkpoints for the public composer consumer, active-bundle loading and IAM, runtime integration, and development verification/documentation
 
 
 # Copyright
