@@ -3,6 +3,11 @@ import {
     ComposerDomainError,
     ComposerUnavailableError
 } from './composer/errors';
+import {
+    BedrockGenerationUnavailableError,
+    BedrockRetrievalUnavailableError,
+    BedrockThrottledError
+} from './bedrock/errors';
 import { toApiError } from './errors';
 
 describe('toApiError', () => {
@@ -34,6 +39,59 @@ describe('toApiError', () => {
                     'Bedrock is throttling reading generation. Wait a moment and retry the request.'
             }
         });
+    });
+
+    it('maps the safe Bedrock throttling boundary error to the existing 429 response', () => {
+        const error = new BedrockThrottledError();
+        const mapped = toApiError(error);
+
+        expect(mapped).toEqual({
+            status: 429,
+            body: {
+                code: 'BEDROCK_THROTTLED',
+                message:
+                    'Bedrock is throttling reading generation. Wait a moment and retry the request.'
+            }
+        });
+        expect(JSON.stringify({ error: mapped })).not.toContain(
+            'private-throttling-marker'
+        );
+    });
+
+    it('maps retrieval boundary failures to a safe retryable 503 response', () => {
+        const mapped = toApiError(
+            new BedrockRetrievalUnavailableError({
+                cause: new Error('private-retrieval-marker')
+            })
+        );
+
+        expect(mapped).toEqual({
+            status: 503,
+            body: {
+                code: 'BEDROCK_RETRIEVAL_UNAVAILABLE',
+                message: 'Tarot reading themes are temporarily unavailable.',
+                retryable: true
+            }
+        });
+        expect(JSON.stringify(mapped)).not.toContain('private-retrieval-marker');
+    });
+
+    it('maps generation boundary failures to a safe retryable 503 response', () => {
+        const mapped = toApiError(
+            new BedrockGenerationUnavailableError({
+                cause: new Error('private-generation-marker')
+            })
+        );
+
+        expect(mapped).toEqual({
+            status: 503,
+            body: {
+                code: 'BEDROCK_GENERATION_UNAVAILABLE',
+                message: 'Tarot reading generation is temporarily unavailable.',
+                retryable: true
+            }
+        });
+        expect(JSON.stringify(mapped)).not.toContain('private-generation-marker');
     });
 
     it('maps unknown errors to a generic 500 response', () => {
