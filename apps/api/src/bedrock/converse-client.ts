@@ -34,6 +34,18 @@ const isThrottling = (error: unknown): boolean =>
     'name' in error &&
     error.name === 'ThrottlingException';
 
+const safeGenerationErrorFor = (error: unknown): Error => {
+    if (error instanceof BedrockGenerationUnavailableError) {
+        return error;
+    }
+
+    if (isThrottling(error)) {
+        return new BedrockThrottledError();
+    }
+
+    return new BedrockGenerationUnavailableError({ cause: error });
+};
+
 const responseTextFor = (output: ConverseCommandOutput): string =>
     (output.output?.message?.content ?? [])
         .flatMap(block =>
@@ -102,12 +114,7 @@ export function createConverseGenerator(
                     text
                 };
             } catch (error) {
-                const safeError =
-                    error instanceof BedrockGenerationUnavailableError
-                        ? error
-                        : isThrottling(error)
-                          ? new BedrockThrottledError()
-                          : new BedrockGenerationUnavailableError({ cause: error });
+                const safeError = safeGenerationErrorFor(error);
 
                 logError('Bedrock Converse failed.', safeError, {
                     durationMs: Math.max(0, now() - startedAt),

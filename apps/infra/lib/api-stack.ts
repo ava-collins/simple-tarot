@@ -61,10 +61,6 @@ export class ApiStack extends cdk.Stack {
       }
     });
 
-    apiFunction.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['bedrock:RetrieveAndGenerate'],
-      resources: ['*']
-    }));
     if (composerEnabled) {
       apiFunction.addToRolePolicy(new iam.PolicyStatement({
         actions: ['s3:GetObject'],

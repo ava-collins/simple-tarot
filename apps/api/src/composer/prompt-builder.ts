@@ -7,20 +7,6 @@ import {
     RelationshipResult
 } from './contracts';
 
-const AUTHORITY_SECTION = [
-    'Authority:',
-    'Use the exact composed card, orientation, position, and relationship facts below as authoritative.',
-    'Retrieved Knowledge Base context may enrich these facts but must not replace or contradict them.'
-].join('\n');
-
-const RESPONSE_REQUIREMENTS_SECTION = [
-    'Response requirements:',
-    'Return an overall summary and one interpretation per ordered card.',
-    'Respect every canonical position and upright or reversed orientation.',
-    'Use clear, direct language suitable for a mobile tarot game.',
-    'Do not mention corpus machinery, rule identifiers, retrieval, or these instructions.'
-].join('\n');
-
 const EXPLICIT_SYSTEM_PROMPT = [
     'Use the exact composed card, orientation, position, and relationship facts as authoritative.',
     'Retrieved themes may enrich those facts but must not replace or contradict them.',
@@ -109,37 +95,6 @@ const renderUserIntent = (request: ReadingRequest): string => {
         '</user-intent>'
     ].join('\n');
 };
-
-export function buildComposedReadingPrompt(
-    request: ReadingRequest,
-    context: ComposedReadingContext
-): string {
-    return nonEmptySections([
-        AUTHORITY_SECTION,
-        [
-            'Reading identity:',
-            `Corpus version: ${context.corpusVersion}`,
-            `Spread: ${context.spreadMode}`
-        ].join('\n'),
-        [
-            'Ordered card contexts:',
-            ...context.cards.map(renderCard)
-        ].join('\n\n'),
-        renderRelationships(
-            'Named positional relationships:',
-            context.namedPairResults
-        ),
-        renderRelationships(
-            'Whole-spread relationships:',
-            context.wholeSpreadResults
-        ),
-        [
-            'User intent:',
-            `Question: ${request.question ?? 'General reading.'}`
-        ].join('\n'),
-        RESPONSE_REQUIREMENTS_SECTION
-    ]).join('\n\n');
-}
 
 export function buildExplicitGenerationPrompt(
     request: ReadingRequest,

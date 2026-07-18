@@ -1,12 +1,14 @@
 import { Request, RequestHandler, Response, Router } from 'express';
-import { BedrockGenerationOptions } from '../bedrock/types';
-import { createBedrockReadingGenerator } from '../bedrock/bedrock-client';
-import { activeCorpusFilterFor } from '../bedrock/retrieval-filter';
+import { createConverseGenerator } from '../bedrock/converse-client';
+import { BedrockGenerationUnavailableError } from '../bedrock/errors';
+import { createExplicitRagReadingGenerator } from '../bedrock/explicit-rag-generator';
+import type { ExplicitRagReadingGenerator } from '../bedrock/explicit-rag-types';
+import { createKnowledgeBaseRetriever } from '../bedrock/knowledge-base-retriever';
 import { ComposerRuntimeConfig, getApiConfig } from '../config';
 import { UnauthorizedError } from '../auth/auth-context';
 import { createComposerBundleLoader } from '../composer/bundle-loader';
+import type { ComposedReadingContext } from '../composer/contracts';
 import { ComposerUnavailableError } from '../composer/errors';
-import { buildComposedReadingPrompt } from '../composer/prompt-builder';
 import { ComposerRuntime, createComposerRuntime } from '../composer/runtime';
 import { createS3ArtifactReader } from '../composer/s3-artifact-reader';
 import { toApiError } from '../errors';
@@ -23,15 +25,13 @@ import {
     ReadingHistoryRecord,
     ReadingHistoryStore
 } from '../readings/persistence/contracts';
-import { buildReadingPrompt } from '../readings/prompt-builder';
 import { mapGeneratedReadingResponse } from '../readings/response-mapper';
 import { validateReadingRequest } from '../readings/validation';
 
 type ReadingGenerator = (
     request: ReadingRequest,
-    prompt: string,
-    requestId?: string,
-    options?: BedrockGenerationOptions
+    context?: ComposedReadingContext,
+    requestId?: string
 ) => Promise<GeneratedReading>;
 
 export type ReadingsRouterOptions = {
@@ -44,21 +44,21 @@ export type ReadingsRouterOptions = {
     readingHistoryStore?: ReadingHistoryStore;
 };
 
-const defaultGenerateReading = async (
-    request: ReadingRequest,
-    prompt: string,
-    requestId?: string,
-    options?: BedrockGenerationOptions
-): Promise<GeneratedReading> => {
-    const config = getApiConfig().bedrock;
+const defaultGenerateReading: ReadingGenerator = async request =>
+    createLocalGeneratedReading(request);
 
-    if (config.mode === 'bedrock') {
-        return createBedrockReadingGenerator(config, undefined, {
-            requestId
-        }).generateReading(prompt, options);
+export const createBedrockRouteGenerator = (
+    explicitRagGenerator: ExplicitRagReadingGenerator
+): ReadingGenerator => async (request, context, requestId) => {
+    if (!context) {
+        throw new BedrockGenerationUnavailableError();
     }
 
-    return createLocalGeneratedReading(request);
+    return explicitRagGenerator.generateReading({
+        context,
+        request,
+        requestId
+    });
 };
 
 const authenticatedUserIdFor = (res: Response): string | undefined =>
@@ -152,6 +152,7 @@ export const createPostReadingHandler = ({
     const createdAt = now().toISOString();
     const userId = authenticatedUserIdFor(res);
     let generated: GeneratedReading;
+    let context: ComposedReadingContext | undefined;
     let composerMetadata: ComposerResponseMetadata = {
         composerMode
     };
@@ -164,7 +165,7 @@ export const createPostReadingHandler = ({
                 );
             }
 
-            const context = await composerRuntime.compose(
+            context = await composerRuntime.compose(
                 validation.value,
                 res.locals.requestId
             );
@@ -174,21 +175,13 @@ export const createPostReadingHandler = ({
                 namedPairCount: context.namedPairResults.length,
                 wholeSpreadCount: context.wholeSpreadResults.length
             };
-            generated = await generateReading(
-                validation.value,
-                buildComposedReadingPrompt(validation.value, context),
-                res.locals.requestId,
-                {
-                    retrievalFilter: activeCorpusFilterFor(context.corpusVersion)
-                }
-            );
-        } else {
-            generated = await generateReading(
-                validation.value,
-                buildReadingPrompt(validation.value),
-                res.locals.requestId
-            );
         }
+
+        generated = await generateReading(
+            validation.value,
+            context,
+            res.locals.requestId
+        );
     } catch (error) {
         const apiError = toApiError(error);
 
@@ -285,6 +278,13 @@ export const createListReadingsHandler = ({
 
 const defaultOptions = (): ReadingsRouterOptions => {
     const config = getApiConfig();
+    const explicitRagGenerator =
+        config.bedrock.mode === 'bedrock'
+            ? createExplicitRagReadingGenerator({
+                  converse: createConverseGenerator(config.bedrock),
+                  retriever: createKnowledgeBaseRetriever(config.bedrock)
+              })
+            : undefined;
     const composerRuntime =
         config.bedrock.mode === 'bedrock' && config.composer.mode === 'enabled'
             ? createComposerRuntime({
@@ -297,6 +297,9 @@ const defaultOptions = (): ReadingsRouterOptions => {
                   })
               })
             : undefined;
+    const generateReading: ReadingGenerator = explicitRagGenerator
+        ? createBedrockRouteGenerator(explicitRagGenerator)
+        : async request => createLocalGeneratedReading(request);
 
     return {
         apiLogSink: config.apiLog.bucketName
@@ -306,6 +309,7 @@ const defaultOptions = (): ReadingsRouterOptions => {
             : undefined,
         composerMode: config.composer.mode,
         composerRuntime,
+        generateReading,
         generationMode: config.bedrock.mode,
         readingHistoryStore: config.userData.tableName
             ? createDynamoDbReadingHistoryStore({
