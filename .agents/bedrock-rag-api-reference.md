@@ -5,6 +5,10 @@ Also use this when changing authenticated reading persistence, because the
 same `POST /readings` route now owns generation, DynamoDB writes, S3 API logs,
 and profile updates.
 
+Opaque composer loading and deterministic runtime composition are specified but not implemented.
+Follow `docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md`; do not infer a
+runtime contract from private artifact contents.
+
 ## Scope
 
 The Bedrock path spans:

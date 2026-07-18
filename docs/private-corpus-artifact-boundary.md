@@ -33,7 +33,9 @@ to reject incomplete, incompatible, or corrupted input without interpreting how 
 constructed.
 
 Private artifact publication and development activation are implemented outside this repository.
-Public runtime loading, caching, and compatibility enforcement remain deferred.
+Public runtime loading, caching, compatibility enforcement, and generic deterministic composition
+are approved for the next development stage but remain unimplemented. See
+[Deterministic Composer Runtime Design](superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md).
 
 ## Target development definition
 
@@ -42,9 +44,9 @@ The public development infrastructure definition uses a selective data source at
 Knowledge Base, and generation profile. Production retains the legacy `corpus/` and fixed-size
 definition.
 
-The API continues to use Bedrock Agent Runtime `RetrieveAndGenerate`. Generic composer-artifact
-loading, deterministic relationship composition, explicit retrieval and generation, and saved-case
-verification remain future work.
+The API continues to use Bedrock Agent Runtime `RetrieveAndGenerate`. The approved composer runtime
+stage retains that call while adding deterministic context and active-version filters. Explicit
+retrieval and generation remain a separate future project.
 
 ## Change coordination
 

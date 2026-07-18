@@ -114,6 +114,10 @@ messages.
 -   [Monorepository Orientation](./docs/yarn_workspace_dependency_goals.md) — workspace dependency rules, `workspace:*` protocol, peer/dev/runtime split
 -   [Commit Messages & Releases](./docs/semantic_release_commit_messages.md) — conventional commit format, type → semver mapping, valid scopes
 
+### Planning
+
+-   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — approved next-stage design for opaque active-bundle loading, deterministic rule composition, development prompt integration, and rollback before explicit retrieval/generation
+
 
 # Copyright
 

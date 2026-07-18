@@ -127,6 +127,11 @@ retains the legacy `corpus/` prefix and fixed-size 200-token, 20-percent-overlap
 current API continues to use `RetrieveAndGenerate`; the private corpus workflow owns publication
 and activation for the development destination.
 
+The approved next-stage [Deterministic Composer Runtime Design](../../docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md)
+will grant the development API narrowly scoped reads for the active pointer, release manifest, and
+composer bundle. Runtime loading and that IAM change are not implemented yet; production remains
+disabled.
+
 S3 Vectors was chosen over OpenSearch Serverless for cost: OpenSearch
 Serverless carries a fixed OCU-hour floor even in non-redundant mode
 (~$174/mo), while S3 Vectors is pure pay-per-use with no fixed floor. The

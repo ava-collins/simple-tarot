@@ -99,6 +99,11 @@ generate corpus artifacts. See
 [Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) for the approved-artifact
 handoff and ingestion boundary.
 
+The approved next stage adds development-only opaque composer-bundle loading and deterministic
+context composition while retaining `RetrieveAndGenerate`. See
+[Deterministic Composer Runtime Design](../../docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md).
+This behavior is not implemented yet.
+
 The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally
 (no deployed local-mode fallback), imports the Knowledge Base ID and
 application inference profile ARN from the same stage, and grants the Lambda

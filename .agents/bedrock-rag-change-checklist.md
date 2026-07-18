@@ -145,7 +145,9 @@ separately reviewed migration.
   metadata beyond `modelId`, item count, and mode.
 - Consider a long-lived Bedrock runtime generator instead of creating one in
   the request path.
-- Design public runtime composer-artifact loading and compatibility enforcement.
+- Implement public runtime composer-artifact loading and compatibility enforcement only through
+  `docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md` after its written
+  review and implementation plan are approved.
 - Plan production migration separately if selective ingestion is promoted beyond development.
 
 ## Required Verification
