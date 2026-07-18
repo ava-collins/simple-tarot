@@ -1,5 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { AuthenticatedUser } from '../auth/auth-context';
+import { composeReadingContext } from '../composer/compose-reading';
+import {
+    ComposerDomainError,
+    ComposerUnavailableError
+} from '../composer/errors';
+import { buildComposedReadingPrompt } from '../composer/prompt-builder';
+import {
+    sanitizedComposerBundle,
+    sanitizedSingleCardRequest
+} from '../composer/test-fixture';
+import { buildReadingPrompt } from '../readings/prompt-builder';
 import { GeneratedReading, ReadingRequest } from '../readings/contracts';
 import { ReadingHistoryRecord, ReadingHistoryStore } from '../readings/persistence/contracts';
 import {
@@ -84,6 +95,154 @@ const createRequest = (body: unknown = requestBody) =>
     }) as never;
 
 describe('createPostReadingHandler', () => {
+    it('keeps disabled mode on the legacy prompt without invoking composer', async () => {
+        const compose = vi.fn();
+        const generateReading = vi.fn().mockResolvedValue(generatedReading);
+        const handler = createPostReadingHandler({
+            composerMode: 'disabled',
+            composerRuntime: { compose },
+            generateReading
+        });
+
+        await handler(createRequest(), createResponse() as never, vi.fn());
+
+        expect(compose).not.toHaveBeenCalled();
+        expect(generateReading).toHaveBeenCalledWith(
+            requestBody,
+            buildReadingPrompt(requestBody),
+            'request-123'
+        );
+    });
+
+    it('composes enabled requests before generation and filters to that corpus version', async () => {
+        const context = composeReadingContext(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundle
+        );
+        const compose = vi.fn().mockResolvedValue(context);
+        const generateReading = vi.fn().mockResolvedValue(generatedReading);
+        const handler = createPostReadingHandler({
+            composerMode: 'enabled',
+            composerRuntime: { compose },
+            generateReading
+        });
+
+        const response = createResponse();
+
+        await handler(
+            createRequest(sanitizedSingleCardRequest),
+            response as never,
+            vi.fn()
+        );
+
+        expect(compose).toHaveBeenCalledWith(
+            sanitizedSingleCardRequest,
+            'request-123'
+        );
+        expect(generateReading).toHaveBeenCalledWith(
+            sanitizedSingleCardRequest,
+            buildComposedReadingPrompt(sanitizedSingleCardRequest, context),
+            'request-123',
+            {
+                retrievalFilter: {
+                    andAll: [
+                        {
+                            equals: {
+                                key: 'corpusVersion',
+                                value: context.corpusVersion
+                            }
+                        },
+                        {
+                            equals: {
+                                key: 'status',
+                                value: 'approved'
+                            }
+                        },
+                        {
+                            equals: {
+                                key: 'documentKind',
+                                value: 'correspondence-theme'
+                            }
+                        }
+                    ]
+                }
+            }
+        );
+        expect(response.json).toHaveBeenCalledWith(
+            expect.objectContaining({
+                metadata: expect.objectContaining({
+                    composerMode: 'enabled',
+                    corpusVersion: context.corpusVersion,
+                    namedPairCount: 0,
+                    wholeSpreadCount: 0
+                })
+            })
+        );
+    });
+
+    it.each([
+        new ComposerDomainError('INVALID_CARD_SELECTION'),
+        new ComposerUnavailableError('PRIVATE_REASON_MARKER')
+    ])('fails closed when enabled composition rejects', async error => {
+        const generateReading = vi.fn();
+        const handler = createPostReadingHandler({
+            composerMode: 'enabled',
+            composerRuntime: {
+                compose: vi.fn().mockRejectedValue(error)
+            },
+            generateReading
+        });
+        const next = vi.fn();
+
+        await handler(createRequest(), createResponse() as never, next);
+
+        expect(generateReading).not.toHaveBeenCalled();
+        expect(next).toHaveBeenCalledWith(error);
+    });
+
+    it('persists only aggregate composer metadata when enabled generation fails', async () => {
+        const context = composeReadingContext(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundle
+        );
+        const store = createStore();
+        const error = new Error('generation failed');
+        const handler = createPostReadingHandler({
+            composerMode: 'enabled',
+            composerRuntime: {
+                compose: vi.fn().mockResolvedValue(context)
+            },
+            generateReading: vi.fn().mockRejectedValue(error),
+            generationMode: 'bedrock',
+            readingHistoryStore: store
+        });
+
+        await handler(
+            createRequest(sanitizedSingleCardRequest),
+            createResponse() as never,
+            vi.fn()
+        );
+
+        expect(store.saveFailedReadingAttempt).toHaveBeenCalledWith(
+            expect.objectContaining({
+                generationMetadata: {
+                    composerMode: 'enabled',
+                    corpusVersion: context.corpusVersion,
+                    itemCount: 1,
+                    mode: 'bedrock',
+                    namedPairCount: 0,
+                    wholeSpreadCount: 0
+                }
+            })
+        );
+        expect(
+            JSON.stringify(
+                vi.mocked(store.saveFailedReadingAttempt).mock.calls[0]?.[0]
+                    .generationMetadata
+            )
+        ).not.toMatch(/prompt|theme|fact|support|sourceId|ruleId|cardName/);
+    });
+
     it('persists successful authenticated readings and emits an API log event', async () => {
         const store = createStore();
         const apiLogSink = {
@@ -104,6 +263,7 @@ describe('createPostReadingHandler', () => {
         expect(response.json).toHaveBeenCalledWith({
             citations: [],
             metadata: {
+                composerMode: 'disabled',
                 itemCount: 1,
                 mode: 'local',
                 modelId: 'local-test-variant-1'
@@ -175,6 +335,7 @@ describe('createPostReadingHandler', () => {
                 statusCode: 500
             },
             generationMetadata: {
+                composerMode: 'disabled',
                 itemCount: 1,
                 mode: 'local'
             },
@@ -214,6 +375,7 @@ describe('createPostReadingHandler', () => {
         expect(store.saveFailedReadingAttempt).toHaveBeenCalledWith(
             expect.objectContaining({
                 generationMetadata: {
+                    composerMode: 'disabled',
                     itemCount: 1,
                     mode: 'bedrock'
                 }
@@ -229,6 +391,7 @@ describe('createListReadingsHandler', () => {
             entityType: 'reading',
             generatedReading,
             generationMetadata: {
+                composerMode: 'disabled',
                 itemCount: 1,
                 mode: 'local',
                 modelId: 'local-test-variant-1'
@@ -239,6 +402,7 @@ describe('createListReadingsHandler', () => {
             readingResponse: {
                 citations: [],
                 metadata: {
+                    composerMode: 'disabled',
                     itemCount: 1,
                     mode: 'local',
                     modelId: 'local-test-variant-1'
@@ -285,6 +449,7 @@ describe('createListReadingsHandler', () => {
                 {
                     createdAt: '2026-07-02T14:00:00.000Z',
                     metadata: {
+                        composerMode: 'disabled',
                         itemCount: 1,
                         mode: 'local',
                         modelId: 'local-test-variant-1'
@@ -305,6 +470,7 @@ describe('createListReadingsHandler', () => {
             entityType: 'reading',
             generatedReading,
             generationMetadata: {
+                composerMode: 'disabled',
                 itemCount: 1,
                 mode: 'local'
             },
@@ -314,6 +480,7 @@ describe('createListReadingsHandler', () => {
             readingResponse: {
                 citations: [],
                 metadata: {
+                    composerMode: 'disabled',
                     itemCount: 1,
                     mode: 'local'
                 },

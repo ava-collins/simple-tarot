@@ -79,6 +79,7 @@ describe('mapGeneratedReadingResponse', () => {
                 }
             ],
             metadata: {
+                composerMode: 'disabled',
                 itemCount: 2,
                 mode: 'local',
                 modelId: 'placeholder-local-model'
@@ -113,10 +114,50 @@ describe('mapGeneratedReadingResponse', () => {
 
         expect(response.readingId).toBe('bedrock-single_card-0');
         expect(response.metadata).toEqual({
+            composerMode: 'disabled',
             itemCount: 1,
             mode: 'bedrock',
             modelId:
                 'arn:aws:bedrock:us-east-2:123456789012:application-inference-profile/profile-id'
         });
+    });
+
+    it('adds only aggregate enabled composer metadata', () => {
+        const response = mapGeneratedReadingResponse(
+            {
+                items: [
+                    {
+                        cardIndex: 42,
+                        cardName: 'Invented Card',
+                        position: 'focus',
+                        reversed: false
+                    }
+                ],
+                spread: 'single_card'
+            },
+            {
+                citations: [],
+                mode: 'bedrock',
+                text: 'Summary.\nInterpretation.'
+            },
+            {
+                composerMode: 'enabled',
+                corpusVersion: 'a'.repeat(64),
+                namedPairCount: 2,
+                wholeSpreadCount: 1
+            }
+        );
+
+        expect(response.metadata).toEqual({
+            composerMode: 'enabled',
+            corpusVersion: 'a'.repeat(64),
+            itemCount: 1,
+            mode: 'bedrock',
+            namedPairCount: 2,
+            wholeSpreadCount: 1
+        });
+        expect(JSON.stringify(response.metadata)).not.toMatch(
+            /prompt|theme|fact|support|sourceId|ruleId|cardName/
+        );
     });
 });

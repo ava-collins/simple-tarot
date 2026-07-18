@@ -1,6 +1,11 @@
-import { GeneratedReading, ReadingRequest, ReadingResponse } from '../contracts';
+import {
+    ComposerResponseMetadata,
+    GeneratedReading,
+    ReadingRequest,
+    ReadingResponse
+} from '../contracts';
 
-export type GenerationMetadata = {
+export type GenerationMetadata = ComposerResponseMetadata & {
     itemCount: number;
     mode: 'local' | 'bedrock';
     modelId?: string;

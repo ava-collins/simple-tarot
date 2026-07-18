@@ -25,13 +25,20 @@ export type ReadingCitation = {
     metadata: Record<string, unknown>;
 };
 
+export type ComposerResponseMetadata = {
+    composerMode: 'disabled' | 'enabled';
+    corpusVersion?: string;
+    namedPairCount?: number;
+    wholeSpreadCount?: number;
+};
+
 export type ReadingResponse = {
     readingId: string;
     spread: string;
     summary: string;
     positions: ReadingPositionResponse[];
     citations: ReadingCitation[];
-    metadata: {
+    metadata: ComposerResponseMetadata & {
         mode: 'local' | 'bedrock';
         itemCount: number;
         modelId?: string;

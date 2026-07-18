@@ -1,11 +1,22 @@
 import { Request, RequestHandler, Response, Router } from 'express';
+import { BedrockGenerationOptions } from '../bedrock/types';
 import { createBedrockReadingGenerator } from '../bedrock/bedrock-client';
-import { getApiConfig } from '../config';
+import { activeCorpusFilterFor } from '../bedrock/retrieval-filter';
+import { ComposerRuntimeConfig, getApiConfig } from '../config';
 import { UnauthorizedError } from '../auth/auth-context';
+import { createComposerBundleLoader } from '../composer/bundle-loader';
+import { ComposerUnavailableError } from '../composer/errors';
+import { buildComposedReadingPrompt } from '../composer/prompt-builder';
+import { ComposerRuntime, createComposerRuntime } from '../composer/runtime';
+import { createS3ArtifactReader } from '../composer/s3-artifact-reader';
 import { toApiError } from '../errors';
 import { ApiLogSink } from '../logging/api-log-sink';
 import { createS3ApiLogSink } from '../logging/api-log-sink';
-import { GeneratedReading, ReadingRequest } from '../readings/contracts';
+import {
+    ComposerResponseMetadata,
+    GeneratedReading,
+    ReadingRequest
+} from '../readings/contracts';
 import { createLocalGeneratedReading } from '../readings/local-generated-reading';
 import { createDynamoDbReadingHistoryStore } from '../readings/persistence/dynamodb-reading-history-store';
 import {
@@ -19,11 +30,14 @@ import { validateReadingRequest } from '../readings/validation';
 type ReadingGenerator = (
     request: ReadingRequest,
     prompt: string,
-    requestId?: string
+    requestId?: string,
+    options?: BedrockGenerationOptions
 ) => Promise<GeneratedReading>;
 
 export type ReadingsRouterOptions = {
     apiLogSink?: ApiLogSink;
+    composerMode?: ComposerRuntimeConfig['mode'];
+    composerRuntime?: ComposerRuntime;
     generateReading?: ReadingGenerator;
     generationMode?: GeneratedReading['mode'];
     now?: () => Date;
@@ -33,14 +47,15 @@ export type ReadingsRouterOptions = {
 const defaultGenerateReading = async (
     request: ReadingRequest,
     prompt: string,
-    requestId?: string
+    requestId?: string,
+    options?: BedrockGenerationOptions
 ): Promise<GeneratedReading> => {
     const config = getApiConfig().bedrock;
 
     if (config.mode === 'bedrock') {
         return createBedrockReadingGenerator(config, undefined, {
             requestId
-        }).generateReading(prompt);
+        }).generateReading(prompt, options);
     }
 
     return createLocalGeneratedReading(request);
@@ -87,8 +102,10 @@ const logEventBaseFor = (
 
 const generationMetadataFor = (
     request: ReadingRequest,
-    mode: GeneratedReading['mode']
+    mode: GeneratedReading['mode'],
+    composerMetadata: ComposerResponseMetadata
 ) => ({
+    ...composerMetadata,
     itemCount: request.items.length,
     mode
 });
@@ -114,6 +131,8 @@ const limitFor = (value: unknown): number | undefined => {
 
 export const createPostReadingHandler = ({
     apiLogSink,
+    composerMode = 'disabled',
+    composerRuntime,
     generateReading = defaultGenerateReading,
     generationMode = 'local',
     now = () => new Date(),
@@ -130,17 +149,46 @@ export const createPostReadingHandler = ({
         return;
     }
 
-    const prompt = buildReadingPrompt(validation.value);
     const createdAt = now().toISOString();
     const userId = authenticatedUserIdFor(res);
     let generated: GeneratedReading;
+    let composerMetadata: ComposerResponseMetadata = {
+        composerMode
+    };
 
     try {
-        generated = await generateReading(
-            validation.value,
-            prompt,
-            res.locals.requestId
-        );
+        if (composerMode === 'enabled') {
+            if (!composerRuntime) {
+                throw new ComposerUnavailableError(
+                    'COMPOSER_RUNTIME_NOT_CONFIGURED'
+                );
+            }
+
+            const context = await composerRuntime.compose(
+                validation.value,
+                res.locals.requestId
+            );
+            composerMetadata = {
+                composerMode: 'enabled',
+                corpusVersion: context.corpusVersion,
+                namedPairCount: context.namedPairResults.length,
+                wholeSpreadCount: context.wholeSpreadResults.length
+            };
+            generated = await generateReading(
+                validation.value,
+                buildComposedReadingPrompt(validation.value, context),
+                res.locals.requestId,
+                {
+                    retrievalFilter: activeCorpusFilterFor(context.corpusVersion)
+                }
+            );
+        } else {
+            generated = await generateReading(
+                validation.value,
+                buildReadingPrompt(validation.value),
+                res.locals.requestId
+            );
+        }
     } catch (error) {
         const apiError = toApiError(error);
 
@@ -154,7 +202,8 @@ export const createPostReadingHandler = ({
                 },
                 generationMetadata: generationMetadataFor(
                     validation.value,
-                    generationMode
+                    generationMode,
+                    composerMetadata
                 ),
                 request: validation.value,
                 requestId: res.locals.requestId,
@@ -173,7 +222,11 @@ export const createPostReadingHandler = ({
         return;
     }
 
-    const readingResponse = mapGeneratedReadingResponse(validation.value, generated);
+    const readingResponse = mapGeneratedReadingResponse(
+        validation.value,
+        generated,
+        composerMetadata
+    );
 
     try {
         if (readingHistoryStore && userId) {
@@ -232,6 +285,18 @@ export const createListReadingsHandler = ({
 
 const defaultOptions = (): ReadingsRouterOptions => {
     const config = getApiConfig();
+    const composerRuntime =
+        config.bedrock.mode === 'bedrock' && config.composer.mode === 'enabled'
+            ? createComposerRuntime({
+                  loader: createComposerBundleLoader({
+                      dataSourceId: config.composer.dataSourceId,
+                      knowledgeBaseId: config.bedrock.knowledgeBaseId,
+                      reader: createS3ArtifactReader({
+                          bucketName: config.composer.bucketName
+                      })
+                  })
+              })
+            : undefined;
 
     return {
         apiLogSink: config.apiLog.bucketName
@@ -239,6 +304,8 @@ const defaultOptions = (): ReadingsRouterOptions => {
                   bucketName: config.apiLog.bucketName
               })
             : undefined,
+        composerMode: config.composer.mode,
+        composerRuntime,
         generationMode: config.bedrock.mode,
         readingHistoryStore: config.userData.tableName
             ? createDynamoDbReadingHistoryStore({

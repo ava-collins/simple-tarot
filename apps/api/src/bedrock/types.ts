@@ -1,3 +1,4 @@
+import type { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import { GeneratedReading } from '../readings/contracts';
 
 export type BedrockReadingGeneratorConfig = {
@@ -8,6 +9,13 @@ export type BedrockReadingGeneratorConfig = {
     retrievalResults: number;
 };
 
+export type BedrockGenerationOptions = {
+    retrievalFilter?: RetrievalFilter;
+};
+
 export type BedrockReadingGenerator = {
-    generateReading(prompt: string): Promise<GeneratedReading>;
+    generateReading(
+        prompt: string,
+        options?: BedrockGenerationOptions
+    ): Promise<GeneratedReading>;
 };

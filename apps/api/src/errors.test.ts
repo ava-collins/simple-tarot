@@ -1,4 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import {
+    ComposerDomainError,
+    ComposerUnavailableError
+} from './composer/errors';
 import { toApiError } from './errors';
 
 describe('toApiError', () => {
@@ -40,5 +44,36 @@ describe('toApiError', () => {
                 message: 'Unexpected API error.'
             }
         });
+    });
+
+    it('maps composer domain errors to a safe 400 response', () => {
+        expect(toApiError(new ComposerDomainError('INVALID_CARD_SELECTION'))).toEqual({
+            status: 400,
+            body: {
+                code: 'INVALID_COMPOSER_REQUEST',
+                message:
+                    'The reading selection is not supported by the active tarot corpus.'
+            }
+        });
+    });
+
+    it('maps composer availability errors to a safe retryable 503 response', () => {
+        const mapped = toApiError(
+            new ComposerUnavailableError('PRIVATE_REASON_MARKER', {
+                cause: new Error('private-object-key-marker')
+            })
+        );
+
+        expect(mapped).toEqual({
+            status: 503,
+            body: {
+                code: 'COMPOSER_UNAVAILABLE',
+                message: 'Tarot reading context is temporarily unavailable.',
+                retryable: true
+            }
+        });
+        expect(JSON.stringify(mapped)).not.toMatch(
+            /PRIVATE_REASON_MARKER|private-object-key-marker/
+        );
     });
 });

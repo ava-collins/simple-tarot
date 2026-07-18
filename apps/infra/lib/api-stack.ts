@@ -35,7 +35,7 @@ export class ApiStack extends cdk.Stack {
     const composerEnvironment: Record<string, string> = composerEnabled
       ? {
           BEDROCK_CORPUS_BUCKET: props.corpusBucket.bucketName,
-          BEDROCK_DATA_SOURCE_ID: props.dataSource.attrDataSourceId,
+          BEDROCK_DATA_SOURCE_ID: props.dataSource.attrDataSourceId
         }
       : {};
 
