@@ -119,6 +119,7 @@ messages.
 ### Planning
 
 -   [Explicit Bedrock Retrieval and Converse Design](./docs/superpowers/specs/2026-07-18-explicit-retrieval-converse-design.md) — approved next-stage design for one selective `Retrieve`, private bounded evidence, explicit `Converse` generation, removal of `RetrieveAndGenerate`, and development-only verification
+-   [Explicit Bedrock Retrieval and Converse Implementation Plan](./docs/superpowers/plans/2026-07-18-explicit-retrieval-converse.md) — four user-committed checkpoints for pure query/evidence/prompt units, AWS boundaries, direct runtime/IAM replacement, authorized development verification, and durable public/private documentation
 -   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — historical approved design for the implemented composer runtime; use the durable [runtime architecture](./docs/deterministic-composer-runtime.md) for current behavior
 -   [Deterministic Composer Runtime Implementation Plan](./docs/superpowers/plans/2026-07-18-deterministic-composer-runtime.md) — historical checkpoint plan and rollout record; use the durable [runtime architecture](./docs/deterministic-composer-runtime.md) for current operations
 
