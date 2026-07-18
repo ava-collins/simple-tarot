@@ -1,0 +1,5 @@
+export const GENERAL_READING_INTENT = 'General tarot reading.';
+export const MAX_RETRIEVAL_RESULT_CHARACTERS = 2_000;
+export const MAX_RETRIEVAL_EVIDENCE_CHARACTERS = 8_000;
+export const MAX_GENERATION_TOKENS = 3_072;
+export const GENERATION_TEMPERATURE = 0.7;
