@@ -5,6 +5,7 @@ import { BedrockRagStack } from '../lib/bedrock-rag-stack';
 import { CognitoStack } from '../lib/cognito-stack';
 import { getInfraConfig } from '../lib/config';
 import { UserDataStack } from '../lib/user-data-stack';
+import type { SimpleTarotEnvironment } from '../lib/config';
 
 const expectedRegion = 'us-east-2';
 
@@ -18,12 +19,15 @@ const baseEnv = {
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
 };
 
-function synthesizeApiStack() {
+function synthesizeApiStack(environmentName: SimpleTarotEnvironment = 'dev') {
   const app = new cdk.App();
   const config = getInfraConfig({
     app,
-    environmentName: 'dev',
-    env: baseEnv,
+    environmentName,
+    env: {
+      ...baseEnv,
+      SIMPLE_TAROT_ENV: environmentName,
+    },
   });
 
   const cognitoStack = new CognitoStack(app, 'TestCognitoStack', {
@@ -50,6 +54,8 @@ function synthesizeApiStack() {
   const apiStack = new ApiStack(app, 'TestApiStack', {
     apiLogBucket: userDataStack.apiLogBucket,
     config,
+    corpusBucket: bedrockStack.corpusBucket,
+    dataSource: bedrockStack.dataSource,
     env: {
       account: '123456789012',
       region: config.awsRegion,
@@ -80,6 +86,9 @@ describe('ApiStack', () => {
           BEDROCK_KNOWLEDGE_BASE_ID: Match.anyValue(),
           BEDROCK_REGION: expectedRegion,
           BEDROCK_RUNTIME_MODE: 'bedrock',
+          COMPOSER_RUNTIME_MODE: 'enabled',
+          BEDROCK_CORPUS_BUCKET: Match.anyValue(),
+          BEDROCK_DATA_SOURCE_ID: Match.anyValue(),
           USER_DATA_TABLE_NAME: Match.anyValue(),
         }),
       },
@@ -129,6 +138,44 @@ describe('ApiStack', () => {
     expect(policies).toContain('dynamodb:Query');
     expect(policies).toContain('s3:PutObject');
     expect(policies).toContain('/api-logs/*');
+  });
+
+  it('grants development exactly the composer object read patterns without list or write access', () => {
+    const template = synthesizeApiStack('dev');
+    const policies = Object.values(template.findResources('AWS::IAM::Policy'));
+    const statements = policies.flatMap(
+      (policy) => policy.Properties.PolicyDocument.Statement
+    );
+    const composerRead = statements.find(
+      (statement) => statement.Action === 's3:GetObject'
+    );
+
+    expect(composerRead).toBeDefined();
+    expect(JSON.stringify(composerRead.Resource)).toContain(
+      '/state/dev/active-release.json'
+    );
+    expect(JSON.stringify(composerRead.Resource)).toContain(
+      '/releases/*/manifest.json'
+    );
+    expect(JSON.stringify(composerRead.Resource)).toContain(
+      '/releases/*/composer-bundle.json'
+    );
+    expect(JSON.stringify(composerRead.Resource)).not.toContain('corpus/active');
+    expect(JSON.stringify(statements)).not.toContain('s3:ListBucket');
+    expect(JSON.stringify(composerRead)).not.toMatch(/PutObject|DeleteObject|CopyObject/);
+  });
+
+  it('keeps production composer disabled without identities or corpus read access', () => {
+    const template = synthesizeApiStack('prod');
+    const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
+    const variables = fn.Properties.Environment.Variables;
+    const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
+
+    expect(variables.COMPOSER_RUNTIME_MODE).toBe('disabled');
+    expect(variables).not.toHaveProperty('BEDROCK_CORPUS_BUCKET');
+    expect(variables).not.toHaveProperty('BEDROCK_DATA_SOURCE_ID');
+    expect(policies).not.toContain('s3:GetObject');
+    expect(policies).not.toContain('/state/dev/active-release.json');
   });
 
   it('grants the Bedrock Agent Runtime generation, retrieval, and inference profile actions', () => {

@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { getApiConfig } from './config';
 
+const bedrockEnv = {
+    BEDROCK_RUNTIME_MODE: 'bedrock',
+    BEDROCK_REGION: 'us-east-1',
+    BEDROCK_KNOWLEDGE_BASE_ID: 'KB123',
+    BEDROCK_MODEL_ID: 'anthropic.claude-sonnet-4-5-20250929-v1:0'
+};
+
 describe('getApiConfig', () => {
     it('uses disabled auth and local Bedrock runtime mode by default', () => {
         expect(getApiConfig({})).toMatchObject({
@@ -11,6 +18,9 @@ describe('getApiConfig', () => {
                 mode: 'local',
                 maxAttempts: 5,
                 retrievalResults: 5
+            },
+            composer: {
+                mode: 'disabled'
             }
         });
     });
@@ -133,5 +143,61 @@ describe('getApiConfig', () => {
         ).toThrow(
             'Missing Bedrock runtime environment variables: BEDROCK_REGION, BEDROCK_KNOWLEDGE_BASE_ID, BEDROCK_MODEL_ID, BEDROCK_MODEL_ARN, BEDROCK_INFERENCE_PROFILE_ID, or BEDROCK_INFERENCE_PROFILE_ARN'
         );
+    });
+
+    it('keeps composer disabled in local mode even when enabled values are present', () => {
+        expect(
+            getApiConfig({
+                COMPOSER_RUNTIME_MODE: 'enabled',
+                BEDROCK_CORPUS_BUCKET: 'invented-bucket',
+                BEDROCK_DATA_SOURCE_ID: 'DS123'
+            }).composer
+        ).toEqual({ mode: 'disabled' });
+    });
+
+    it('defaults composer disabled in Bedrock mode', () => {
+        expect(getApiConfig(bedrockEnv).composer).toEqual({ mode: 'disabled' });
+    });
+
+    it('loads enabled composer identities in Bedrock mode', () => {
+        expect(
+            getApiConfig({
+                ...bedrockEnv,
+                COMPOSER_RUNTIME_MODE: 'enabled',
+                BEDROCK_CORPUS_BUCKET: ' invented-bucket ',
+                BEDROCK_DATA_SOURCE_ID: ' DS123 '
+            }).composer
+        ).toEqual({
+            mode: 'enabled',
+            bucketName: 'invented-bucket',
+            dataSourceId: 'DS123'
+        });
+    });
+
+    it('requires both composer identities only when enabled in Bedrock mode', () => {
+        expect(() =>
+            getApiConfig({
+                ...bedrockEnv,
+                COMPOSER_RUNTIME_MODE: 'enabled'
+            })
+        ).toThrow(
+            'Missing composer runtime environment variables: BEDROCK_CORPUS_BUCKET, BEDROCK_DATA_SOURCE_ID'
+        );
+
+        expect(() =>
+            getApiConfig({
+                ...bedrockEnv,
+                COMPOSER_RUNTIME_MODE: 'disabled'
+            })
+        ).not.toThrow();
+    });
+
+    it('rejects an unknown composer mode in Bedrock mode', () => {
+        expect(() =>
+            getApiConfig({
+                ...bedrockEnv,
+                COMPOSER_RUNTIME_MODE: 'sometimes'
+            })
+        ).toThrow('Invalid COMPOSER_RUNTIME_MODE value "sometimes".');
     });
 });

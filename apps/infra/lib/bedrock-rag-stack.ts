@@ -11,6 +11,8 @@ export interface BedrockRagStackProps extends cdk.StackProps {
 }
 
 export class BedrockRagStack extends cdk.Stack {
+  public readonly corpusBucket: s3.Bucket;
+  public readonly dataSource: bedrock.CfnDataSource;
   public readonly generationInferenceProfile: bedrock.CfnApplicationInferenceProfile;
   public readonly knowledgeBase: bedrock.CfnKnowledgeBase;
 
@@ -28,6 +30,7 @@ export class BedrockRagStack extends cdk.Stack {
       removalPolicy,
       autoDeleteObjects: props.config.environmentName !== 'prod'
     });
+    this.corpusBucket = corpusBucket;
 
     const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com')
@@ -133,6 +136,7 @@ export class BedrockRagStack extends cdk.Stack {
         chunkingConfiguration
       }
     });
+    this.dataSource = dataSource;
 
     const generationInferenceProfile = new bedrock.CfnApplicationInferenceProfile(
       this,

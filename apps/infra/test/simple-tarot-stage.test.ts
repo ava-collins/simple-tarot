@@ -90,6 +90,7 @@ describe('SimpleTarotStage', () => {
       'SimpleTarotUserData-dev'
     );
     expect(variables.BEDROCK_RUNTIME_MODE).toBe('bedrock');
+    expect(variables.COMPOSER_RUNTIME_MODE).toBe('enabled');
     expect(variables.BEDROCK_REGION).toBe('us-east-2');
     expect(JSON.stringify(variables.BEDROCK_KNOWLEDGE_BASE_ID)).toContain(
       'SimpleTarotBedrockRag-dev'
@@ -97,7 +98,23 @@ describe('SimpleTarotStage', () => {
     expect(JSON.stringify(variables.BEDROCK_INFERENCE_PROFILE_ARN)).toContain(
       'SimpleTarotBedrockRag-dev'
     );
+    expect(JSON.stringify(variables.BEDROCK_CORPUS_BUCKET)).toContain(
+      'SimpleTarotBedrockRag-dev'
+    );
+    expect(JSON.stringify(variables.BEDROCK_DATA_SOURCE_ID)).toContain(
+      'SimpleTarotBedrockRag-dev'
+    );
     expect(variables.USER_DATA_TABLE_NAME).toBe('simple-tarot-dev-user-data');
+  });
+
+  it('keeps production composer disabled without cross-stack artifact identities', () => {
+    const template = Template.fromStack(synthesize('prod').stage.apiStack);
+    const fn = Object.values(template.findResources('AWS::Lambda::Function'))[0];
+    const variables = fn.Properties.Environment.Variables;
+
+    expect(variables.COMPOSER_RUNTIME_MODE).toBe('disabled');
+    expect(variables).not.toHaveProperty('BEDROCK_CORPUS_BUCKET');
+    expect(variables).not.toHaveProperty('BEDROCK_DATA_SOURCE_ID');
   });
 
   it('tags owned resources', () => {

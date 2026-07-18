@@ -194,3 +194,32 @@ export type ComposeReadingContext = (
     bundle: ComposerBundle
 ) => ComposedReadingContext;
 
+export type ActiveReleaseState = {
+    stateSchemaVersion: 1;
+    environment: 'dev';
+    corpusVersion: string;
+    releasePrefix: string;
+    knowledgeBaseId: string;
+    dataSourceId: string;
+    ingestionJobId: string;
+    completedAt: string;
+};
+
+export type ReleaseManifestEntry = {
+    path: string;
+    role: 'composer' | 'coverage' | 'rag-document' | 'rag-metadata';
+    mediaType: string;
+    byteSize: number;
+    sha256: string;
+};
+
+export type ReleaseManifest = {
+    manifestSchemaVersion: 1;
+    corpusSchemaVersion: 1;
+    corpusVersion: string;
+    artifacts: ReleaseManifestEntry[];
+    runtimeObjects: string[];
+    coverageObjects: string[];
+    ingestibleObjects: string[];
+};
+
