@@ -16,6 +16,8 @@ import { InfraConfig } from './config';
 export interface ApiStackProps extends cdk.StackProps {
   apiLogBucket: s3.Bucket;
   config: InfraConfig;
+  corpusBucket: s3.Bucket;
+  dataSource: bedrock.CfnDataSource;
   generationInferenceProfile: bedrock.CfnApplicationInferenceProfile;
   knowledgeBase: bedrock.CfnKnowledgeBase;
   userDataTable: dynamodb.Table;
@@ -28,6 +30,14 @@ export class ApiStack extends cdk.Stack {
     super(scope, id, props);
 
     cdk.CrossStackReferences.of(this).consume(cdk.ReferenceStrength.STRONG);
+
+    const composerEnabled = props.config.environmentName === 'dev';
+    const composerEnvironment: Record<string, string> = composerEnabled
+      ? {
+          BEDROCK_CORPUS_BUCKET: props.corpusBucket.bucketName,
+          BEDROCK_DATA_SOURCE_ID: props.dataSource.attrDataSourceId
+        }
+      : {};
 
     const apiFunction = new nodejs.NodejsFunction(this, 'ApiFunction', {
       entry: join(__dirname, '..', '..', 'api', 'src', 'lambda.ts'),
@@ -42,6 +52,8 @@ export class ApiStack extends cdk.Stack {
         BEDROCK_KNOWLEDGE_BASE_ID: props.knowledgeBase.attrKnowledgeBaseId,
         BEDROCK_REGION: props.config.awsRegion,
         BEDROCK_RUNTIME_MODE: 'bedrock',
+        COMPOSER_RUNTIME_MODE: composerEnabled ? 'enabled' : 'disabled',
+        ...composerEnvironment,
         USER_DATA_TABLE_NAME: props.config.userDataTableName
       },
       bundling: {
@@ -53,6 +65,16 @@ export class ApiStack extends cdk.Stack {
       actions: ['bedrock:RetrieveAndGenerate'],
       resources: ['*']
     }));
+    if (composerEnabled) {
+      apiFunction.addToRolePolicy(new iam.PolicyStatement({
+        actions: ['s3:GetObject'],
+        resources: [
+          props.corpusBucket.arnForObjects('state/dev/active-release.json'),
+          props.corpusBucket.arnForObjects('releases/*/manifest.json'),
+          props.corpusBucket.arnForObjects('releases/*/composer-bundle.json')
+        ]
+      }));
+    }
     apiFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['bedrock:GetInferenceProfile'],
       resources: [props.generationInferenceProfile.attrInferenceProfileArn]

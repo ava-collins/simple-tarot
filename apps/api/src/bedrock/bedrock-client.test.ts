@@ -133,4 +133,55 @@ describe('createBedrockReadingGenerator', () => {
             }
         ]);
     });
+
+    it('adds an explicitly supplied retrieval filter to vector search', async () => {
+        const sentInputs: unknown[] = [];
+        const generator = createBedrockReadingGenerator(
+            {
+                knowledgeBaseId: 'KB123',
+                modelArn:
+                    'global.anthropic.claude-sonnet-4-5-20250929-v1:0',
+                maxAttempts: 5,
+                region: 'us-east-1',
+                retrievalResults: 3
+            },
+            {
+                send: async command => {
+                    sentInputs.push(command.input);
+
+                    return {
+                        output: {
+                            text: 'Generated reading text.'
+                        }
+                    };
+                }
+            },
+            {
+                logError: () => {},
+                logInfo: () => {}
+            }
+        );
+        const retrievalFilter = {
+            equals: {
+                key: 'corpusVersion',
+                value: 'a'.repeat(64)
+            }
+        } as const;
+
+        await generator.generateReading('Prompt text', { retrievalFilter });
+
+        expect(sentInputs).toHaveLength(1);
+        expect(sentInputs[0]).toMatchObject({
+            retrieveAndGenerateConfiguration: {
+                knowledgeBaseConfiguration: {
+                    retrievalConfiguration: {
+                        vectorSearchConfiguration: {
+                            filter: retrievalFilter,
+                            numberOfResults: 3
+                        }
+                    }
+                }
+            }
+        });
+    });
 });

@@ -2,6 +2,7 @@ export type ApiConfig = {
     apiLog: ApiLogConfig;
     auth: AuthConfig;
     bedrock: BedrockRuntimeConfig;
+    composer: ComposerRuntimeConfig;
     hostname: string;
     port: number;
     userData: UserDataConfig;
@@ -43,6 +44,16 @@ export type AwsBedrockRuntimeConfig = {
 };
 
 export type BedrockRuntimeConfig = LocalBedrockRuntimeConfig | AwsBedrockRuntimeConfig;
+
+export type ComposerRuntimeConfig =
+    | {
+          mode: 'disabled';
+      }
+    | {
+          bucketName: string;
+          dataSourceId: string;
+          mode: 'enabled';
+      };
 
 const parsePort = (value: string | undefined): number => {
     if (value === undefined || value.length === 0) {
@@ -188,11 +199,56 @@ const getBedrockRuntimeConfig = (env: typeof process.env): BedrockRuntimeConfig 
     };
 };
 
+const getComposerRuntimeConfig = (
+    env: typeof process.env,
+    bedrock: BedrockRuntimeConfig
+): ComposerRuntimeConfig => {
+    if (
+        bedrock.mode === 'local' ||
+        env.COMPOSER_RUNTIME_MODE === undefined ||
+        env.COMPOSER_RUNTIME_MODE === 'disabled'
+    ) {
+        return { mode: 'disabled' };
+    }
+
+    if (env.COMPOSER_RUNTIME_MODE !== 'enabled') {
+        throw new Error(
+            `Invalid COMPOSER_RUNTIME_MODE value "${env.COMPOSER_RUNTIME_MODE}".`
+        );
+    }
+
+    const bucketName = nonEmpty(env.BEDROCK_CORPUS_BUCKET);
+    const dataSourceId = nonEmpty(env.BEDROCK_DATA_SOURCE_ID);
+    const missing = [
+        bucketName ? undefined : 'BEDROCK_CORPUS_BUCKET',
+        dataSourceId ? undefined : 'BEDROCK_DATA_SOURCE_ID'
+    ].filter((value): value is string => value !== undefined);
+
+    if (missing.length > 0) {
+        throw new Error(
+            `Missing composer runtime environment variables: ${missing.join(', ')}`
+        );
+    }
+
+    if (!bucketName || !dataSourceId) {
+        throw new Error('Invalid composer runtime configuration.');
+    }
+
+    return {
+        bucketName,
+        dataSourceId,
+        mode: 'enabled'
+    };
+};
+
 export function getApiConfig(env = process.env): ApiConfig {
+    const bedrock = getBedrockRuntimeConfig(env);
+
     return {
         apiLog: getApiLogConfig(env),
         auth: getAuthConfig(env),
-        bedrock: getBedrockRuntimeConfig(env),
+        bedrock,
+        composer: getComposerRuntimeConfig(env, bedrock),
         hostname: env.HOST ?? 'localhost',
         port: parsePort(env.PORT),
         userData: getUserDataConfig(env)

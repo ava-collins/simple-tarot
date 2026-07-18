@@ -5,7 +5,11 @@ import {
 } from '@aws-sdk/client-bedrock-agent-runtime';
 import { AppLogger, logger } from '../logger';
 import { GeneratedReading, ReadingCitation } from '../readings/contracts';
-import { BedrockReadingGenerator, BedrockReadingGeneratorConfig } from './types';
+import {
+    BedrockGenerationOptions,
+    BedrockReadingGenerator,
+    BedrockReadingGeneratorConfig
+} from './types';
 
 type BedrockRuntimeSender = {
     send(command: RetrieveAndGenerateCommand): Promise<RetrieveAndGenerateCommandOutput>;
@@ -58,7 +62,10 @@ export function createBedrockReadingGenerator(
     const logError = options.logError ?? logger.logError;
 
     return {
-        async generateReading(prompt: string): Promise<GeneratedReading> {
+        async generateReading(
+            prompt: string,
+            generationOptions: BedrockGenerationOptions = {}
+        ): Promise<GeneratedReading> {
             logInfo('Bedrock RetrieveAndGenerate request started.', {
                 knowledgeBaseId: config.knowledgeBaseId,
                 modelArn: config.modelArn,
@@ -79,7 +86,12 @@ export function createBedrockReadingGenerator(
                                 modelArn: config.modelArn,
                                 retrievalConfiguration: {
                                     vectorSearchConfiguration: {
-                                        numberOfResults: config.retrievalResults
+                                        numberOfResults: config.retrievalResults,
+                                        ...(generationOptions.retrievalFilter
+                                            ? {
+                                                  filter: generationOptions.retrievalFilter
+                                              }
+                                            : {})
                                     }
                                 }
                             },

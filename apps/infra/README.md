@@ -20,7 +20,8 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 
 `dev` is the pre-production/test environment and `prod` is the production
 definition. The dev deployment targets `us-east-2` and provisions the
-full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation enabled.
+full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation and deterministic
+composer runtime enabled.
 
 ## App Structure
 
@@ -41,6 +42,8 @@ full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation enabl
     Bedrock (`RetrieveAndGenerate`, `GetInferenceProfile`, `InvokeModel`,
     `Retrieve`). Consumes `BedrockRagStack`/`UserDataStack`/`CognitoStack`
     resources with `ReferenceStrength.STRONG`.
+    Development also receives the corpus bucket/data-source identities and exact read-only
+    composer artifact grants.
 -   `test/cognito-stack.test.ts` contains CDK assertion tests for the stack
     contract.
 -   `test/bedrock-rag-stack.test.ts` contains CDK assertion tests for the
@@ -121,6 +124,16 @@ The stack creates:
     generation model
 -   CloudFormation outputs consumed by `apps/api`
 
+Development uses the selective corpus data source at `corpus/active/` with `NONE` chunking and a
+`DELETE` data deletion policy. Each approved semantic object is ingested as one document. Production
+retains the legacy `corpus/` prefix and fixed-size 200-token, 20-percent-overlap definition. The
+current API continues to use `RetrieveAndGenerate`; the private corpus workflow owns publication
+and activation for the development destination.
+
+The implemented [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md)
+grants only the development API narrowly scoped reads for the active pointer, release manifest,
+and composer bundle. Production remains composer-disabled and receives no artifact-read grant.
+
 S3 Vectors was chosen over OpenSearch Serverless for cost: OpenSearch
 Serverless carries a fixed OCU-hour floor even in non-redundant mode
 (~$174/mo), while S3 Vectors is pure pay-per-use with no fixed floor. The
@@ -165,7 +178,10 @@ The stack creates:
 -   Lambda environment variables for Bedrock runtime mode, the `us-east-2`
     Knowledge Base and application inference profile, user-data table, and API
     log bucket
+-   development-only composer mode, corpus bucket, and data-source identities
 -   least-privilege grants for DynamoDB read/write and S3 API log writes
+-   development-only `s3:GetObject` for the active pointer, release manifests,
+    and composer bundles
 -   permission to call Bedrock Agent Runtime `RetrieveAndGenerate`,
     `GetInferenceProfile`, `InvokeModel`, and `Retrieve`
 -   `ApiUrl`, `ApiFunctionName`, and `ApiFunctionArn` outputs
@@ -185,12 +201,18 @@ Export/Import, not the CDK default `Fn::GetStackOutput` — needed so a plain
 inference profile from `SimpleTarotBedrockRag-<env>`). The Lambda role can
 call `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`,
 `bedrock:InvokeModel`, and `bedrock:Retrieve` — all four are required for a
-generation model behind an application inference profile. Corpus upload and
-ingestion must complete before generated readings can retrieve context.
+generation model behind an application inference profile. Private corpus activation and ingestion
+must complete before generated readings can retrieve context.
 Corpus sources, transformation code, relationship rules, and generated artifacts are private;
 this public workspace provisions their AWS destination but does not build them. Follow
 [Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) only after the corpus owner
 provides an approved artifact.
+
+Development sets `COMPOSER_RUNTIME_MODE=enabled` and consumes
+`BEDROCK_CORPUS_BUCKET` plus `BEDROCK_DATA_SOURCE_ID` through strong same-stage references.
+Production sets composer mode disabled and has no composer S3 grant. See
+[Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md) for loading,
+compatibility, verification, and rollback.
 
 ## Environment Configuration
 
@@ -237,9 +259,9 @@ The example file lists required variable names only:
 
 Do not commit real environment values.
 
-The Bedrock values have safe defaults in both example files. Override
-them only when changing model choices, embedding dimensions, or the S3 object
-prefix used for corpus ingestion.
+The Bedrock values have environment-specific defaults in both example files. Development targets
+`corpus/active/`; production retains `corpus/`. Override them only when deliberately changing model
+choices, embedding dimensions, or the S3 object prefix used for corpus ingestion.
 
 ## API Contract
 
@@ -257,6 +279,12 @@ Bedrock outputs:
 -   `BedrockRegion` -> `BEDROCK_REGION`
 -   `BedrockInferenceProfileArn` -> `BEDROCK_INFERENCE_PROFILE_ARN`
 -   `BedrockGenerationModelId` -> informational source-model identifier
+
+Development composer handoff:
+
+-   `BedrockCorpusBucketName` -> `BEDROCK_CORPUS_BUCKET`
+-   `BedrockDataSourceId` -> `BEDROCK_DATA_SOURCE_ID`
+-   environment definition -> `COMPOSER_RUNTIME_MODE=enabled`
 
 User-data outputs:
 
@@ -337,7 +365,12 @@ deployed API authorizer is active.
 
 ## Rollback
 
-Redeploy the last known-good revision for the target environment. From a
+For composer-only rollback, review a development diff with composer mode disabled. It must remove
+`BEDROCK_CORPUS_BUCKET`, `BEDROCK_DATA_SOURCE_ID`, the three composer `s3:GetObject` patterns, and
+their dependent exports while preserving the legacy prompt path and Bedrock Knowledge Base. See
+[Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md#rollback).
+
+For a general stack rollback, redeploy the last known-good revision for the target environment. From a
 checkout of that reviewed revision, run the matching application command:
 
 ```sh

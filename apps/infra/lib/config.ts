@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 export type SimpleTarotEnvironment = 'dev' | 'prod';
+export type BedrockChunkingStrategy = 'FIXED_SIZE' | 'NONE';
 type InfraEnvironment = Record<string, string | undefined>;
 
 export interface InfraConfigInput {
@@ -33,6 +34,7 @@ export interface InfraConfig {
     bedrockVectorBucketName: string;
     bedrockVectorIndexName: string;
     bedrockCorpusPrefix: string;
+    bedrockChunkingStrategy: BedrockChunkingStrategy;
     bedrockEmbeddingModelId: string;
     bedrockEmbeddingDimensions: number;
     bedrockGenerationInferenceProfileName: string;
@@ -40,6 +42,25 @@ export interface InfraConfig {
 }
 
 const DEFAULT_ENV_DIRECTORY = join(__dirname, '..');
+const BEDROCK_DATA_SOURCE_DEFAULTS: Record<
+    SimpleTarotEnvironment,
+    {
+        name: string;
+        corpusPrefix: string;
+        chunkingStrategy: BedrockChunkingStrategy;
+    }
+> = {
+    dev: {
+        name: 'simple-tarot-dev-selective-corpus-v3',
+        corpusPrefix: 'corpus/active/',
+        chunkingStrategy: 'NONE'
+    },
+    prod: {
+        name: 'simple-tarot-prod-corpus-v2',
+        corpusPrefix: 'corpus/',
+        chunkingStrategy: 'FIXED_SIZE'
+    }
+};
 
 export function loadInfraEnv(
     environmentName: SimpleTarotEnvironment,
@@ -137,6 +158,7 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         );
     }
     const awsRegion = requiredEnvValue(env, 'SIMPLE_TAROT_AWS_REGION');
+    const bedrockDataSourceDefaults = BEDROCK_DATA_SOURCE_DEFAULTS[environmentName];
 
     return {
         environmentName,
@@ -155,15 +177,16 @@ export function getInfraConfig(input: InfraConfigInput): InfraConfig {
         userDataTableName: `simple-tarot-${environmentName}-user-data`,
         bedrockStackName: `SimpleTarotBedrockRag-${environmentName}`,
         bedrockKnowledgeBaseName: `simple-tarot-${environmentName}-readings-v3`,
-        bedrockDataSourceName: `simple-tarot-${environmentName}-corpus-v2`,
+        bedrockDataSourceName: bedrockDataSourceDefaults.name,
         bedrockVectorBucketName: `st-${environmentName}-vectors`,
         bedrockVectorIndexName: 'tarot-readings-v2',
         bedrockGenerationInferenceProfileName: `simple-tarot-${environmentName}-generation`,
         bedrockCorpusPrefix: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX',
-            'corpus/'
+            bedrockDataSourceDefaults.corpusPrefix
         ),
+        bedrockChunkingStrategy: bedrockDataSourceDefaults.chunkingStrategy,
         bedrockEmbeddingModelId: optionalEnvValue(
             env,
             'SIMPLE_TAROT_BEDROCK_EMBEDDING_MODEL_ID',

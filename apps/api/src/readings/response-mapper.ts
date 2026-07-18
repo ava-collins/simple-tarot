@@ -1,4 +1,13 @@
-import { GeneratedReading, ReadingRequest, ReadingResponse } from './contracts';
+import {
+    ComposerResponseMetadata,
+    GeneratedReading,
+    ReadingRequest,
+    ReadingResponse
+} from './contracts';
+
+const DISABLED_COMPOSER_METADATA: ComposerResponseMetadata = {
+    composerMode: 'disabled'
+};
 
 const nonEmptyLines = (text: string): string[] =>
     text
@@ -14,7 +23,8 @@ const readingIdFor = (
 
 export function mapGeneratedReadingResponse(
     request: ReadingRequest,
-    generated: GeneratedReading
+    generated: GeneratedReading,
+    composerMetadata: ComposerResponseMetadata = DISABLED_COMPOSER_METADATA
 ): ReadingResponse {
     const lines = nonEmptyLines(generated.text);
     const [summary = '', ...positionLines] = lines;
@@ -36,6 +46,7 @@ export function mapGeneratedReadingResponse(
         })),
         citations: generated.citations,
         metadata: {
+            ...composerMetadata,
             itemCount: request.items.length,
             mode: generated.mode,
             ...(generated.modelId ? { modelId: generated.modelId } : {})

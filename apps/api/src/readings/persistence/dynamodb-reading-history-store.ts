@@ -34,8 +34,21 @@ const metadataFromSuccessfulReading = (
     const modelId = input.readingResponse.metadata.modelId ?? input.generatedReading.modelId;
 
     return {
+        composerMode: input.readingResponse.metadata.composerMode,
         itemCount: input.readingResponse.metadata.itemCount,
         mode: input.readingResponse.metadata.mode,
+        ...(input.readingResponse.metadata.corpusVersion
+            ? { corpusVersion: input.readingResponse.metadata.corpusVersion }
+            : {}),
+        ...(input.readingResponse.metadata.namedPairCount !== undefined
+            ? { namedPairCount: input.readingResponse.metadata.namedPairCount }
+            : {}),
+        ...(input.readingResponse.metadata.wholeSpreadCount !== undefined
+            ? {
+                  wholeSpreadCount:
+                      input.readingResponse.metadata.wholeSpreadCount
+              }
+            : {}),
         ...(modelId ? { modelId } : {})
     };
 };

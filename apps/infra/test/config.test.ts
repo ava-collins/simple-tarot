@@ -14,6 +14,12 @@ const devEnv = {
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-dev',
 };
 
+const prodEnv = {
+  ...devEnv,
+  SIMPLE_TAROT_ENV: 'prod',
+  SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-prod',
+};
+
 describe('infrastructure environment configuration', () => {
   it.each(['dev', 'prod'] as const)('selects %s from CDK context', (environment) => {
     expect(getSelectedEnvironment(new cdk.App({ context: { environment } }))).toBe(environment);
@@ -74,5 +80,40 @@ describe('infrastructure environment configuration', () => {
       bedrockGenerationInferenceProfileName: 'simple-tarot-dev-generation',
       bedrockGenerationModelId: 'amazon.nova-lite-v1:0',
     });
+  });
+
+  it('uses the selective active corpus data source in development', () => {
+    expect(getInfraConfig({
+      app: new cdk.App(),
+      environmentName: 'dev',
+      env: devEnv,
+    })).toMatchObject({
+      bedrockDataSourceName: 'simple-tarot-dev-selective-corpus-v3',
+      bedrockCorpusPrefix: 'corpus/active/',
+      bedrockChunkingStrategy: 'NONE',
+    });
+  });
+
+  it('preserves the legacy corpus data source defaults in production', () => {
+    expect(getInfraConfig({
+      app: new cdk.App(),
+      environmentName: 'prod',
+      env: prodEnv,
+    })).toMatchObject({
+      bedrockDataSourceName: 'simple-tarot-prod-corpus-v2',
+      bedrockCorpusPrefix: 'corpus/',
+      bedrockChunkingStrategy: 'FIXED_SIZE',
+    });
+  });
+
+  it('preserves an explicit corpus prefix override', () => {
+    expect(getInfraConfig({
+      app: new cdk.App(),
+      environmentName: 'dev',
+      env: {
+        ...devEnv,
+        SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX: 'custom/active/',
+      },
+    }).bedrockCorpusPrefix).toBe('custom/active/');
   });
 });

@@ -2,35 +2,66 @@
 
 ## Ownership boundary
 
-Corpus sources, transformation code, relationship rules, and generated artifacts are private.
-The public repository owns Bedrock infrastructure and runtime integration only. It does not
-contain commands for creating or modifying corpus artifacts.
+Corpus sources, transformation code, relationship rules, generated artifacts, publication, and
+activation are private. The public repository owns Bedrock infrastructure and runtime integration
+only. It does not contain corpus construction, publication, or activation commands.
 
-Do not upload an artifact unless the corpus owner has supplied and approved it through the private
-workflow. This public runbook begins with an approved artifact and does not document its private
-location or construction.
+The durable ownership and compatibility contract is defined in
+[Private Corpus Artifact Boundary](private-corpus-artifact-boundary.md).
 
-## Current deployed state
+## Development data-source definition
 
-`apps/infra/lib/bedrock-rag-stack.ts` provisions:
+`apps/infra/lib/bedrock-rag-stack.ts` retains the development:
 
-- a private, versioned S3 corpus bucket
-- an Amazon S3 Vectors index
-- a Bedrock Knowledge Base
-- an S3 data source scoped to the configured corpus prefix
-- an application inference profile used by the API
+- private, versioned S3 corpus bucket
+- Amazon S3 Vectors bucket and index
+- Bedrock Knowledge Base
+- embedding model and generation inference profile
+- CloudFormation handoff outputs
 
-The data source currently uses `FIXED_SIZE` chunking at 200 maximum tokens with 20 percent
-overlap. The public API still calls Bedrock Agent Runtime `RetrieveAndGenerate`.
+The development stack definition replaces only the legacy data source. The selective data source:
 
-Infrastructure deployment does not upload corpus objects or start a Knowledge Base ingestion job.
-The previously deployed objects remain in S3 until an operator deliberately replaces them.
+- reads the stable `corpus/active/` prefix populated by the private workflow
+- uses `NONE` chunking so each approved semantic text object is one ingestion document
+- uses the `DELETE` data deletion policy
+- has a new logical identity and versioned name because Bedrock cannot change chunking strategy on
+  an existing data source
+
+The production definition remains on `corpus/` with `FIXED_SIZE` chunking at 200 maximum tokens and
+20 percent overlap. Production is not part of this cutover.
+
+The development API loads the active opaque composer bundle and composes deterministic context
+before Bedrock Agent Runtime `RetrieveAndGenerate`. Explicit retrieval followed by separate
+generation remains a later implementation stage. See
+[Deterministic Composer Runtime](deterministic-composer-runtime.md).
+
+## Deployment boundary
+
+Infrastructure deployment does not publish or activate corpus objects. Before deploying the
+development data-source replacement:
+
+1. Run the focused infrastructure tests and type build.
+2. Generate the exact development Bedrock stack diff.
+3. Confirm that the bucket, vector bucket/index, Knowledge Base, and inference profile are retained.
+4. Confirm that only the development data source and its output reference are replaced.
+5. Obtain explicit authorization for the temporary development retrieval interruption.
+
+Replacing the legacy development data source deletes its indexed vector data under Bedrock's
+`DELETE` policy; it does not delete the vector store. Development retrieval is therefore empty
+until the private workflow activates the approved release and Bedrock completes ingestion. If
+replacement fails, inspect the data source for `DELETE_UNSUCCESSFUL` before retrying or assuming
+the legacy embeddings were removed.
+
+After deployment, the private corpus owner resolves the new data source output and performs the
+separately authorized activation. Do not treat infrastructure deployment, object publication, or
+copy completion as ingestion success; activation is successful only when Bedrock reports a
+completed ingestion job.
 
 ## Required outputs
 
-Deploy or inspect the Bedrock stack through the commands in
-[`apps/infra/README.md`](../apps/infra/README.md#commands). Corpus operations use these
-CloudFormation outputs:
+Inspect the Bedrock stack through the commands in
+[`apps/infra/README.md`](../apps/infra/README.md#commands). The private operational workflow uses
+these CloudFormation outputs without exposing corpus implementation details here:
 
 - `BedrockCorpusBucketName`
 - `BedrockKnowledgeBaseId`
@@ -40,43 +71,8 @@ CloudFormation outputs:
 - `BedrockGenerationModelId`
 - `BedrockEmbeddingModelId`
 
-The default S3 inclusion prefix is `corpus/`. If
-`SIMPLE_TAROT_BEDROCK_CORPUS_PREFIX` changes, use the configured value instead.
-
-## Upload an approved artifact
-
-Confirm the artifact and destination with the corpus owner before uploading. Use an explicit local
-artifact path supplied through the private workflow:
-
-```sh
-aws s3 cp <approved-private-artifact-path> \
-  s3://<BedrockCorpusBucketName>/<configured-prefix>/<artifact-name>
-```
-
-Never substitute a source or generated path from this public repository. Do not upload an
-unreviewed artifact or a selective-RAG artifact to the legacy data source.
-
-## Start and inspect ingestion
-
-After the approved objects are present under the configured prefix, start ingestion:
-
-```sh
-aws bedrock-agent start-ingestion-job \
-  --knowledge-base-id <BedrockKnowledgeBaseId> \
-  --data-source-id <BedrockDataSourceId>
-```
-
-Use the returned ingestion job identifier to inspect status:
-
-```sh
-aws bedrock-agent get-ingestion-job \
-  --knowledge-base-id <BedrockKnowledgeBaseId> \
-  --data-source-id <BedrockDataSourceId> \
-  --ingestion-job-id <IngestionJobId>
-```
-
-Do not treat upload success as ingestion success. Wait for a completed ingestion job before testing
-retrieval.
+For development, `BedrockDataSourceId` changes when the selective data source is deployed. The
+bucket and Knowledge Base outputs must remain unchanged.
 
 ## API handoff
 
@@ -89,30 +85,27 @@ BEDROCK_KNOWLEDGE_BASE_ID=<BedrockKnowledgeBaseId>
 BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn>
 BEDROCK_RETRIEVAL_RESULTS=5
 BEDROCK_MAX_ATTEMPTS=5
-```
-
-Then run:
-
-```sh
-yarn api:dev
+COMPOSER_RUNTIME_MODE=enabled
+BEDROCK_CORPUS_BUCKET=<BedrockCorpusBucketName>
+BEDROCK_DATA_SOURCE_ID=<BedrockDataSourceId>
 ```
 
 The deployed `SimpleTarotApi-<environment>` Lambda receives the Knowledge Base ID, region, and
-inference profile directly from the Bedrock stack. Its role can call
+inference profile directly from the Bedrock stack. Its current role can call
 `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`, `bedrock:InvokeModel`, and
-`bedrock:Retrieve`.
+`bedrock:Retrieve`. Development additionally receives `s3:GetObject` only for the active pointer,
+release manifests, and composer bundles. Production remains composer-disabled with no artifact
+read grant.
 
 ## Verification checklist
 
-1. Confirm the artifact is approved through the private corpus workflow.
-2. Confirm the target bucket, prefix, Knowledge Base, and data source belong to the intended
-   environment.
-3. Upload only the approved artifact set.
-4. Start ingestion and wait for it to complete.
-5. Send a `POST /readings` request in Bedrock mode.
-6. Inspect generated text and citations without exposing private artifact content in logs or public
-   issues.
-
-If ingestion fails with S3 Vectors' 2048-byte filterable-metadata limit, inspect the deployed
-chunking and metadata configuration before changing infrastructure. The current 200-token setting
-was selected to remain below that service limit.
+1. Confirm the stack, account, Region, bucket, Knowledge Base, and data source are development
+   resources.
+2. Confirm the CDK diff replaces only the approved development data source.
+3. After authorized deployment, confirm the bucket and Knowledge Base outputs did not change.
+4. Wait for the private workflow to report successful activation and completed ingestion.
+5. Confirm filtered retrieve-only results use approved selective metadata.
+6. Send a `POST /readings` request in Bedrock mode and inspect generated text and citations without
+   exposing private artifact content in logs or public issues.
+7. Confirm response metadata reports composer mode, the active corpus version, and aggregate
+   relationship counts only.

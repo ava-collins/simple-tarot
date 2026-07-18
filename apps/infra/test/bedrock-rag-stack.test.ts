@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib/core';
 import { Match, Template } from 'aws-cdk-lib/assertions';
 import { BedrockRagStack } from '../lib/bedrock-rag-stack';
-import { getInfraConfig } from '../lib/config';
+import { getInfraConfig, SimpleTarotEnvironment } from '../lib/config';
 
 const expectedRegion = 'us-east-2';
 
@@ -15,12 +15,16 @@ const baseEnv = {
   SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: 'simple-tarot-test',
 };
 
-function synthesizeBedrockStack() {
+function synthesizeBedrockStack(environmentName: SimpleTarotEnvironment = 'dev') {
   const app = new cdk.App();
   const config = getInfraConfig({
     app,
-    environmentName: 'dev',
-    env: baseEnv,
+    environmentName,
+    env: {
+      ...baseEnv,
+      SIMPLE_TAROT_ENV: environmentName,
+      SIMPLE_TAROT_COGNITO_DOMAIN_PREFIX: `simple-tarot-${environmentName}`,
+    },
   });
 
   const stack = new BedrockRagStack(app, 'TestBedrockRagStack', {
@@ -93,6 +97,7 @@ describe('BedrockRagStack', () => {
 
   it('creates the Bedrock Knowledge Base and S3 data source', () => {
     const template = synthesizeBedrockStack();
+    const resources = template.toJSON().Resources;
 
     template.hasResourceProperties('AWS::Bedrock::KnowledgeBase', {
       Name: 'simple-tarot-dev-readings-v3',
@@ -116,7 +121,46 @@ describe('BedrockRagStack', () => {
     });
 
     template.hasResourceProperties('AWS::Bedrock::DataSource', {
-      Name: 'simple-tarot-dev-corpus-v2',
+      Name: 'simple-tarot-dev-selective-corpus-v3',
+      DataDeletionPolicy: 'DELETE',
+      DataSourceConfiguration: {
+        Type: 'S3',
+        S3Configuration: {
+          InclusionPrefixes: ['corpus/active/'],
+        },
+      },
+      VectorIngestionConfiguration: {
+        ChunkingConfiguration: {
+          ChunkingStrategy: 'NONE',
+        },
+      },
+    });
+
+    expect(resources.SelectiveCorpusDataSource).toBeDefined();
+    expect(resources.CorpusDataSource).toBeUndefined();
+    expect(
+      resources.SelectiveCorpusDataSource.Properties.VectorIngestionConfiguration
+        .ChunkingConfiguration,
+    ).toEqual({ ChunkingStrategy: 'NONE' });
+
+    for (const resourceType of [
+      'AWS::S3::Bucket',
+      'AWS::S3Vectors::VectorBucket',
+      'AWS::S3Vectors::Index',
+      'AWS::Bedrock::KnowledgeBase',
+      'AWS::Bedrock::DataSource',
+      'AWS::Bedrock::ApplicationInferenceProfile',
+    ]) {
+      template.resourceCountIs(resourceType, 1);
+    }
+  });
+
+  it('preserves the production corpus data source definition', () => {
+    const template = synthesizeBedrockStack('prod');
+    const resources = template.toJSON().Resources;
+
+    template.hasResourceProperties('AWS::Bedrock::DataSource', {
+      Name: 'simple-tarot-prod-corpus-v2',
       DataSourceConfiguration: {
         Type: 'S3',
         S3Configuration: {
@@ -133,6 +177,31 @@ describe('BedrockRagStack', () => {
         },
       },
     });
+
+    expect(resources.CorpusDataSource).toBeDefined();
+    expect(resources.SelectiveCorpusDataSource).toBeUndefined();
+    expect(resources.CorpusDataSource.Properties.DataDeletionPolicy).toBeUndefined();
+    expect(
+      resources.CorpusDataSource.Properties.VectorIngestionConfiguration
+        .ChunkingConfiguration,
+    ).toEqual({
+      ChunkingStrategy: 'FIXED_SIZE',
+      FixedSizeChunkingConfiguration: {
+        MaxTokens: 200,
+        OverlapPercentage: 20,
+      },
+    });
+
+    for (const resourceType of [
+      'AWS::S3::Bucket',
+      'AWS::S3Vectors::VectorBucket',
+      'AWS::S3Vectors::Index',
+      'AWS::Bedrock::KnowledgeBase',
+      'AWS::Bedrock::DataSource',
+      'AWS::Bedrock::ApplicationInferenceProfile',
+    ]) {
+      template.resourceCountIs(resourceType, 1);
+    }
   });
 
   it('emits API handoff outputs for runtime configuration', () => {

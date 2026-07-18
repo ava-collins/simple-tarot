@@ -3,6 +3,7 @@ import { ErrorRequestHandler } from 'express';
 export type ApiErrorBody = {
     code: string;
     message: string;
+    retryable?: boolean;
 };
 
 export type ApiError = {
@@ -38,6 +39,28 @@ export function toApiError(error: unknown): ApiError {
                 code: 'BEDROCK_THROTTLED',
                 message:
                     'Bedrock is throttling reading generation. Wait a moment and retry the request.'
+            }
+        };
+    }
+
+    if (errorName(error) === 'ComposerDomainError') {
+        return {
+            status: 400,
+            body: {
+                code: 'INVALID_COMPOSER_REQUEST',
+                message:
+                    'The reading selection is not supported by the active tarot corpus.'
+            }
+        };
+    }
+
+    if (errorName(error) === 'ComposerUnavailableError') {
+        return {
+            status: 503,
+            body: {
+                code: 'COMPOSER_UNAVAILABLE',
+                message: 'Tarot reading context is temporarily unavailable.',
+                retryable: true
             }
         };
     }

@@ -32,6 +32,7 @@ const readingResponse: ReadingResponse = {
         }
     ],
     metadata: {
+        composerMode: 'disabled',
         itemCount: 1,
         mode: 'local',
         modelId: 'local-test-variant-1'
@@ -72,6 +73,7 @@ describe('toSuccessfulReadingItem', () => {
             entityType: 'reading',
             generatedReading,
             generationMetadata: {
+                composerMode: 'disabled',
                 itemCount: 1,
                 mode: 'local',
                 modelId: 'local-test-variant-1'
@@ -100,6 +102,7 @@ describe('toSuccessfulReadingItem', () => {
             readingResponse: {
                 ...readingResponse,
                 metadata: {
+                    composerMode: 'disabled',
                     itemCount: 1,
                     mode: 'local'
                 }
@@ -115,6 +118,40 @@ describe('toSuccessfulReadingItem', () => {
         expect(item).not.toHaveProperty('requestId');
         expect(item.generationMetadata).not.toHaveProperty('modelId');
     });
+
+    it('persists aggregate enabled composer metadata without composed context', () => {
+        const enabledResponse: ReadingResponse = {
+            ...readingResponse,
+            metadata: {
+                composerMode: 'enabled',
+                corpusVersion: 'a'.repeat(64),
+                itemCount: 1,
+                mode: 'local',
+                namedPairCount: 2,
+                wholeSpreadCount: 1
+            }
+        };
+        const item = toSuccessfulReadingItem({
+            createdAt: '2026-07-02T14:00:00.000Z',
+            generatedReading,
+            readingResponse: enabledResponse,
+            request,
+            userId: 'user-sub-123'
+        });
+
+        expect(item.generationMetadata).toEqual({
+            composerMode: 'enabled',
+            corpusVersion: 'a'.repeat(64),
+            itemCount: 1,
+            mode: 'local',
+            modelId: 'local-test-variant-1',
+            namedPairCount: 2,
+            wholeSpreadCount: 1
+        });
+        expect(JSON.stringify(item.generationMetadata)).not.toMatch(
+            /prompt|theme|fact|support|sourceId|ruleId|cardName/
+        );
+    });
 });
 
 describe('toFailedReadingAttemptItem', () => {
@@ -129,6 +166,7 @@ describe('toFailedReadingAttemptItem', () => {
                     statusCode: 429
                 },
                 generationMetadata: {
+                    composerMode: 'disabled',
                     itemCount: 1,
                     mode: 'local',
                     modelId: 'local-test-variant-1'
@@ -147,6 +185,7 @@ describe('toFailedReadingAttemptItem', () => {
                 statusCode: 429
             },
             generationMetadata: {
+                composerMode: 'disabled',
                 itemCount: 1,
                 mode: 'local',
                 modelId: 'local-test-variant-1'

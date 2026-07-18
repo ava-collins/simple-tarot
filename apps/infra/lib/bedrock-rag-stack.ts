@@ -11,6 +11,8 @@ export interface BedrockRagStackProps extends cdk.StackProps {
 }
 
 export class BedrockRagStack extends cdk.Stack {
+  public readonly corpusBucket: s3.Bucket;
+  public readonly dataSource: bedrock.CfnDataSource;
   public readonly generationInferenceProfile: bedrock.CfnApplicationInferenceProfile;
   public readonly knowledgeBase: bedrock.CfnKnowledgeBase;
 
@@ -28,6 +30,7 @@ export class BedrockRagStack extends cdk.Stack {
       removalPolicy,
       autoDeleteObjects: props.config.environmentName !== 'prod'
     });
+    this.corpusBucket = corpusBucket;
 
     const knowledgeBaseRole = new iam.Role(this, 'KnowledgeBaseRole', {
       assumedBy: new iam.ServicePrincipal('bedrock.amazonaws.com')
@@ -103,10 +106,25 @@ export class BedrockRagStack extends cdk.Stack {
     knowledgeBase.node.addDependency(knowledgeBaseRole);
     this.knowledgeBase = knowledgeBase;
 
-    const dataSource = new bedrock.CfnDataSource(this, 'CorpusDataSource', {
+    const isDevelopment = props.config.environmentName === 'dev';
+    const dataSourceConstructId = isDevelopment
+      ? 'SelectiveCorpusDataSource'
+      : 'CorpusDataSource';
+    const chunkingConfiguration = props.config.bedrockChunkingStrategy === 'NONE'
+      ? { chunkingStrategy: 'NONE' }
+      : {
+          chunkingStrategy: 'FIXED_SIZE',
+          fixedSizeChunkingConfiguration: {
+            maxTokens: 200,
+            overlapPercentage: 20
+          }
+        };
+
+    const dataSource = new bedrock.CfnDataSource(this, dataSourceConstructId, {
       name: props.config.bedrockDataSourceName,
       description: 'Simple Tarot normalized corpus documents in S3',
       knowledgeBaseId: knowledgeBase.attrKnowledgeBaseId,
+      dataDeletionPolicy: isDevelopment ? 'DELETE' : undefined,
       dataSourceConfiguration: {
         type: 'S3',
         s3Configuration: {
@@ -115,15 +133,10 @@ export class BedrockRagStack extends cdk.Stack {
         }
       },
       vectorIngestionConfiguration: {
-        chunkingConfiguration: {
-          chunkingStrategy: 'FIXED_SIZE',
-          fixedSizeChunkingConfiguration: {
-            maxTokens: 200,
-            overlapPercentage: 20
-          }
-        }
+        chunkingConfiguration
       }
     });
+    this.dataSource = dataSource;
 
     const generationInferenceProfile = new bedrock.CfnApplicationInferenceProfile(
       this,
