@@ -139,7 +139,7 @@ describe('useReadingHistory', () => {
             items: [
                 {
                     cardIndex: 0,
-                    cardName: 'The Fool',
+                    cardName: 'Fool',
                     position: 'guidance',
                     reversed: false
                 }

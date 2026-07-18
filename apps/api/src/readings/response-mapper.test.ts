@@ -9,7 +9,7 @@ describe('mapGeneratedReadingResponse', () => {
                 items: [
                     {
                         cardIndex: 0,
-                        cardName: 'The Fool',
+                        cardName: 'Fool',
                         position: 'situation',
                         reversed: false
                     },
@@ -34,7 +34,7 @@ describe('mapGeneratedReadingResponse', () => {
                         sourceId: 'card-fool-celtic-cross-situation-upright',
                         text: 'A new opening is available.',
                         metadata: {
-                            cardName: 'The Fool',
+                            cardName: 'Fool',
                             orientation: 'upright',
                             position: 'situation',
                             spread: 'celtic_cross'
@@ -53,7 +53,7 @@ describe('mapGeneratedReadingResponse', () => {
             positions: [
                 {
                     cardIndex: 0,
-                    cardName: 'The Fool',
+                    cardName: 'Fool',
                     position: 'situation',
                     reversed: false,
                     text: 'Situation: The Fool opens a fresh path.'
@@ -71,7 +71,7 @@ describe('mapGeneratedReadingResponse', () => {
                     sourceId: 'card-fool-celtic-cross-situation-upright',
                     text: 'A new opening is available.',
                     metadata: {
-                        cardName: 'The Fool',
+                        cardName: 'Fool',
                         orientation: 'upright',
                         position: 'situation',
                         spread: 'celtic_cross'

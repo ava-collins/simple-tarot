@@ -12,7 +12,7 @@ const readingRequest: ReadingRequest = {
     items: [
         {
             cardIndex: 0,
-            cardName: 'The Fool',
+            cardName: 'Fool',
             position: 'guidance',
             reversed: false
         }
@@ -56,7 +56,7 @@ describe('createOneCardReadingRequest', () => {
             items: [
                 {
                     cardIndex: 0,
-                    cardName: 'The Fool',
+                    cardName: 'Fool',
                     position: 'guidance',
                     reversed: false
                 }

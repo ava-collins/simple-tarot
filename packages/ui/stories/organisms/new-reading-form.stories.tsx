@@ -7,7 +7,7 @@ const latestReading = {
     positions: [
         {
             cardIndex: 0,
-            cardName: 'The Fool',
+            cardName: 'Fool',
             position: 'guidance',
             text: 'Begin with a lighter grip and let the first step teach you.'
         }

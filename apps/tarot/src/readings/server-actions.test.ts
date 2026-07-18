@@ -70,7 +70,7 @@ describe('reading server actions', () => {
             items: [
                 {
                     cardIndex: 0,
-                    cardName: 'The Fool',
+                    cardName: 'Fool',
                     position: 'guidance',
                     reversed: false
                 }
@@ -102,7 +102,7 @@ describe('reading server actions', () => {
             items: [
                 {
                     cardIndex: 0,
-                    cardName: 'The Fool',
+                    cardName: 'Fool',
                     position: 'guidance',
                     reversed: false
                 }

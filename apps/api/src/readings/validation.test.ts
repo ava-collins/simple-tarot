@@ -8,7 +8,7 @@ describe('validateReadingRequest', () => {
             items: [
                 {
                     cardIndex: 0,
-                    cardName: 'The Fool',
+                    cardName: 'Fool',
                     position: 'situation',
                     reversed: false
                 }
@@ -23,7 +23,7 @@ describe('validateReadingRequest', () => {
                 items: [
                     {
                         cardIndex: 0,
-                        cardName: 'The Fool',
+                        cardName: 'Fool',
                         position: 'situation',
                         reversed: false
                     }

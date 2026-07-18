@@ -9,7 +9,7 @@ export const SINGLE_CARD_SPREAD = 'single_card';
 export const GUIDANCE_POSITION = 'guidance';
 const DEFAULT_SINGLE_CARD_ITEM = {
     cardIndex: 0,
-    cardName: 'The Fool',
+    cardName: 'Fool',
     position: GUIDANCE_POSITION,
     reversed: false
 } as const;
