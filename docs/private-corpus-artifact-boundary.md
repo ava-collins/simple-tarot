@@ -20,22 +20,23 @@ The public application repository owns:
 - the private S3 destination and Bedrock Knowledge Base data source
 - the S3 Vectors index and Bedrock runtime infrastructure
 - runtime IAM and environment configuration
-- compatibility checks and generic loading for an approved artifact when those capabilities are
-  implemented
+- compatibility checks, bounded loading, immutable caching, and deterministic composition for an
+  approved artifact
 
 The public repository must not reproduce private corpus behavior or import private build tooling.
 
 ## Artifact contract
 
-A future public runtime consumer may accept only an approved, versioned, opaque artifact set. The handoff
-must include schema and corpus compatibility metadata, object identities, and checksums sufficient
-to reject incomplete, incompatible, or corrupted input without interpreting how the corpus was
-constructed.
+The implemented public runtime consumer accepts only an approved, versioned, opaque artifact set.
+The handoff includes schema and corpus compatibility metadata, object identities, and checksums
+sufficient to reject incomplete, incompatible, or corrupted input without interpreting how the
+corpus was constructed. Spread positions use zero-based sequential order values as part of the
+consumer compatibility contract.
 
 Private artifact publication and development activation are implemented outside this repository.
 Public runtime loading, caching, compatibility enforcement, and generic deterministic composition
-are approved for the next development stage but remain unimplemented. See
-[Deterministic Composer Runtime Design](superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md).
+are implemented for development. See
+[Deterministic Composer Runtime](deterministic-composer-runtime.md).
 
 ## Target development definition
 
@@ -44,8 +45,8 @@ The public development infrastructure definition uses a selective data source at
 Knowledge Base, and generation profile. Production retains the legacy `corpus/` and fixed-size
 definition.
 
-The API continues to use Bedrock Agent Runtime `RetrieveAndGenerate`. The approved composer runtime
-stage retains that call while adding deterministic context and active-version filters. Explicit
+The API continues to use Bedrock Agent Runtime `RetrieveAndGenerate`. The composer runtime retains
+that call while adding deterministic context and active-version filters. Explicit
 retrieval and generation remain a separate future project.
 
 ## Change coordination

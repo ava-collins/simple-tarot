@@ -125,23 +125,14 @@ aws dynamodb query \
   }'
 ```
 
-## Bedrock Availability Follow-Ups
+## Bedrock and composer metadata
 
-The deployed API stack currently sets `BEDROCK_RUNTIME_MODE=local` without
-Bedrock identifiers/model settings or IAM permission. The full authenticated
-persistence flow remains available while the Bedrock stack is managed
-independently.
+The deployed development API runs in Bedrock mode with deterministic composer loading enabled.
+Successful readings and failed attempts persist generation mode plus aggregate composer metadata:
+composer mode, optional corpus version, and optional named-pair and whole-spread counts. They do
+not persist the composed prompt, themes, facts, supports, source IDs, or rule IDs.
 
-When Bedrock access is approved:
-
-1. Upload and sync the corpus as described in
-   `docs/bedrock_corpus_operations.md`.
-2. Restore the API stack handoff for `BEDROCK_KNOWLEDGE_BASE_ID`,
-   `BEDROCK_REGION`, and a usable model or inference profile value.
-3. Restore a scoped `bedrock:RetrieveAndGenerate` permission for the Lambda and
-   change `BEDROCK_RUNTIME_MODE` to `bedrock`.
-4. Update `apps/api/src/readings/response-mapper.ts` so persisted
-   `ReadingResponse.metadata.mode` records `bedrock` for Bedrock-generated
-   readings.
-5. Deploy `SimpleTarotApi-<environment>` and verify `POST /readings` persists
-   successful Bedrock readings with citations and profile updates.
+Production remains composer-disabled. See
+[Deterministic Composer Runtime](deterministic-composer-runtime.md) and
+[Bedrock Corpus Operations](bedrock_corpus_operations.md) for the current runtime and activation
+boundaries.

@@ -381,7 +381,7 @@ const validateSpreads = (value: unknown): void => {
         expectString(spread.displayName);
         const positions = expectArray(spread.positions).map(expectRecord);
         expectUniqueIds(positions);
-        for (const position of positions) {
+        for (const [positionIndex, position] of positions.entries()) {
             expectExactKeys(position, [
                 'id',
                 'displayName',
@@ -393,7 +393,7 @@ const validateSpreads = (value: unknown): void => {
             expectString(position.displayName);
             expectString(position.description);
             expectString(position.lens);
-            expectInteger(position.order, true);
+            if (expectInteger(position.order) !== positionIndex) invalid();
         }
         const edges = expectArray(spread.narrativeEdges).map(expectRecord);
         expectUniqueIds(edges);

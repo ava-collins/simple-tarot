@@ -43,6 +43,8 @@ Corpus ownership contract:
   stay outside this public repository.
 - Private operations own release publication, development activation, ingestion, and rollback.
 - Public runtime and infrastructure changes must not reproduce private corpus behavior.
+- Development runtime accepts only the documented opaque composer consumer projection; do not add
+  real artifacts or infer new behavior from private contents.
 
 Infrastructure output names:
 
@@ -64,9 +66,20 @@ Infrastructure output names:
 
 When changing prompt behavior:
 
-- Edit `apps/api/src/readings/prompt-builder.ts`.
-- Update `apps/api/src/readings/prompt-builder.test.ts`.
+- Edit `apps/api/src/readings/prompt-builder.ts` only for disabled/legacy behavior.
+- Edit `apps/api/src/composer/prompt-builder.ts` for enabled composer behavior.
+- Update the matching prompt-builder test.
 - Keep card order, position, and orientation explicit in the prompt.
+
+When changing composer runtime behavior:
+
+- Read `docs/deterministic-composer-runtime.md` and
+  `docs/private-corpus-artifact-boundary.md` first.
+- Keep S3 access bounded to the active pointer, release manifests, and composer bundles.
+- Preserve zero-based sequential spread-position order compatibility.
+- Preserve per-request pointer reads, immutable checksum/schema validation, one-entry cache, and
+  fail-closed behavior.
+- Keep responses, persistence, errors, and logs aggregate-only; never add composed content.
 
 When changing Bedrock runtime behavior:
 
@@ -141,13 +154,10 @@ separately reviewed migration.
 
 ## Known Follow-Up Candidates
 
-- Decide whether Bedrock successful readings need additional generation
-  metadata beyond `modelId`, item count, and mode.
 - Consider a long-lived Bedrock runtime generator instead of creating one in
   the request path.
-- Implement public runtime composer-artifact loading and compatibility enforcement only through
-  `docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md` after its written
-  review and implementation plan are approved.
+- Replace `RetrieveAndGenerate` with explicit retrieval, optional reranking, and separate model
+  generation only through a fresh approved design and implementation plan.
 - Plan production migration separately if selective ingestion is promoted beyond development.
 
 ## Required Verification

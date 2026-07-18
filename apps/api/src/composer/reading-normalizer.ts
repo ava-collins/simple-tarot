@@ -65,7 +65,7 @@ const orderedPositionsFor = (spread: ComposerSpread): SpreadPosition[] => {
     const ordered = [...spread.positions].sort((left, right) => left.order - right.order);
     const ids = new Set(ordered.map(position => position.id));
     const hasExpectedOrders = ordered.every(
-        (position, index) => position.order === index + 1
+        (position, index) => position.order === index
     );
 
     if (ids.size !== ordered.length || !hasExpectedOrders) {

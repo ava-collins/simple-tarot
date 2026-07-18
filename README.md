@@ -10,9 +10,10 @@ readings using highly customized AI generated content.
 The backend is organized around two surfaces.
 
 1. `apps/api` is the REST API for generated readings. It validates reading
-   requests, builds deterministic prompts, and can either return local
-   placeholder responses or call Amazon Bedrock Knowledge Bases through
-   Bedrock Agent Runtime `RetrieveAndGenerate`.
+   requests, loads the approved active composer bundle in development, builds
+   deterministic context and prompts, and can either return local placeholder
+   responses or call Amazon Bedrock Knowledge Bases through Bedrock Agent
+   Runtime `RetrieveAndGenerate`.
 
 2. `apps/infra` provisions AWS infrastructure with CDK, including Cognito auth
    and the Bedrock RAG stack for generated tarot readings.
@@ -69,7 +70,7 @@ atoms, molecules, organisms, and mobile screen components consumed by the app.
 
 [Build and Deploy](https://github.com/avacollins/simple-tarot/actions/workflows/sb.yml)
 builds static storybook and deploys to
-[github pages](<(https://avacollins.github.io/simple-tarot)>).
+[github pages](https://avacollins.github.io/simple-tarot).
 
 [Release](https://github.com/avacollins/simple-tarot/actions/workflows/semantic-release.yml)
 Runs [semantic-release](https://github.com/semantic-release/semantic-release)
@@ -100,6 +101,7 @@ messages.
 
 -   [RSC Readings and Avatars Pilot](./docs/rsc-readings-and-avatars-pilot.md) — package boundaries for Expo Server Function wrappers, shared reading/avatar clients and hooks, UI screens, and rollback; linked from [Tarot App](./apps/tarot/README.md#rsc-pilot), [REST API](./apps/api/README.md#endpoints), and [Infrastructure](./apps/infra/README.md#expo-contract)
 -   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — end-to-end flow from mobile request to Bedrock Knowledge Base retrieval, module map, and CloudFormation output wiring
+-   [Deterministic Composer Runtime](./docs/deterministic-composer-runtime.md) — implemented opaque active-bundle loading, deterministic card and relationship composition, prompt/filter precedence, safe metadata, development rollout, and rollback
 -   [Private Corpus Artifact Boundary](./docs/private-corpus-artifact-boundary.md) — public ownership and compatibility contract for approved opaque corpus artifacts without private source, compiler, or rule details
 -   [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
 -   [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) — CDK output → `EXPO_PUBLIC_*` mapping and EAS delivery; used by [Infrastructure](./apps/infra/README.md#expo-contract) and [Tarot App](./apps/tarot/README.md)
@@ -116,8 +118,8 @@ messages.
 
 ### Planning
 
--   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — approved next-stage design for opaque active-bundle loading, deterministic rule composition, development prompt integration, and rollback before explicit retrieval/generation
--   [Deterministic Composer Runtime Implementation Plan](./docs/superpowers/plans/2026-07-18-deterministic-composer-runtime.md) — four user-verified checkpoints for the public composer consumer, active-bundle loading and IAM, runtime integration, and development verification/documentation
+-   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — historical approved design for the implemented composer runtime; use the durable [runtime architecture](./docs/deterministic-composer-runtime.md) for current behavior
+-   [Deterministic Composer Runtime Implementation Plan](./docs/superpowers/plans/2026-07-18-deterministic-composer-runtime.md) — historical checkpoint plan and rollout record; use the durable [runtime architecture](./docs/deterministic-composer-runtime.md) for current operations
 
 
 # Copyright

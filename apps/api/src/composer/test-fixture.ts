@@ -42,70 +42,70 @@ export const sanitizedComposerBundle: ComposerBundle = {
                     displayName: 'Origin',
                     description: 'What is already present.',
                     lens: 'Read as the starting condition.',
-                    order: 1
+                    order: 0
                 },
                 {
                     id: 'response',
                     displayName: 'Response',
                     description: 'What answers the starting condition.',
                     lens: 'Read as the immediate response.',
-                    order: 2
+                    order: 1
                 },
                 {
                     id: 'foundation',
                     displayName: 'Foundation',
                     description: 'What supports the situation.',
                     lens: 'Read as the underlying support.',
-                    order: 3
+                    order: 2
                 },
                 {
                     id: 'recent',
                     displayName: 'Recent',
                     description: 'What has just shifted.',
                     lens: 'Read as the recent influence.',
-                    order: 4
+                    order: 3
                 },
                 {
                     id: 'aim',
                     displayName: 'Aim',
                     description: 'What the selection reaches toward.',
                     lens: 'Read as the conscious aim.',
-                    order: 5
+                    order: 4
                 },
                 {
                     id: 'near',
                     displayName: 'Near',
                     description: 'What is approaching.',
                     lens: 'Read as the near development.',
-                    order: 6
+                    order: 5
                 },
                 {
                     id: 'self',
                     displayName: 'Self',
                     description: 'How the reader participates.',
                     lens: 'Read as the reader stance.',
-                    order: 7
+                    order: 6
                 },
                 {
                     id: 'setting',
                     displayName: 'Setting',
                     description: 'What the surroundings contribute.',
                     lens: 'Read as the surrounding setting.',
-                    order: 8
+                    order: 7
                 },
                 {
                     id: 'hope',
                     displayName: 'Hope',
                     description: 'What is desired or feared.',
                     lens: 'Read as the emotional expectation.',
-                    order: 9
+                    order: 8
                 },
                 {
                     id: 'outcome',
                     displayName: 'Outcome',
                     description: 'What follows the current pattern.',
                     lens: 'Read as the likely outcome.',
-                    order: 10
+                    order: 9
                 }
             ],
             narrativeEdges: [

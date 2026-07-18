@@ -158,6 +158,19 @@ describe('parseComposerBundle', () => {
         ).toEqual(sanitizedComposerBundle);
     });
 
+    it('accepts the compiler contract zero-based spread position order', () => {
+        const bundle = structuredClone(sanitizedComposerBundle);
+        bundle.spreadsById['celtic-cross'].positions.forEach(
+            (position, index) => {
+                position.order = index;
+            }
+        );
+
+        expect(
+            parseComposerBundle(bundle, SANITIZED_CORPUS_VERSION)
+        ).toEqual(bundle);
+    });
+
     it.each([
         ['schema', { schemaVersion: 2 }],
         ['corpus version', { corpusVersion: 'd'.repeat(64) }],

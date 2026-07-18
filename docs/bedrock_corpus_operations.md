@@ -30,8 +30,10 @@ The development stack definition replaces only the legacy data source. The selec
 The production definition remains on `corpus/` with `FIXED_SIZE` chunking at 200 maximum tokens and
 20 percent overlap. Production is not part of this cutover.
 
-The public API remains on Bedrock Agent Runtime `RetrieveAndGenerate`. Deterministic composer-bundle
-loading and explicit retrieval plus generation are later implementation stages.
+The development API loads the active opaque composer bundle and composes deterministic context
+before Bedrock Agent Runtime `RetrieveAndGenerate`. Explicit retrieval followed by separate
+generation remains a later implementation stage. See
+[Deterministic Composer Runtime](deterministic-composer-runtime.md).
 
 ## Deployment boundary
 
@@ -83,12 +85,17 @@ BEDROCK_KNOWLEDGE_BASE_ID=<BedrockKnowledgeBaseId>
 BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn>
 BEDROCK_RETRIEVAL_RESULTS=5
 BEDROCK_MAX_ATTEMPTS=5
+COMPOSER_RUNTIME_MODE=enabled
+BEDROCK_CORPUS_BUCKET=<BedrockCorpusBucketName>
+BEDROCK_DATA_SOURCE_ID=<BedrockDataSourceId>
 ```
 
 The deployed `SimpleTarotApi-<environment>` Lambda receives the Knowledge Base ID, region, and
 inference profile directly from the Bedrock stack. Its current role can call
 `bedrock:RetrieveAndGenerate`, `bedrock:GetInferenceProfile`, `bedrock:InvokeModel`, and
-`bedrock:Retrieve`.
+`bedrock:Retrieve`. Development additionally receives `s3:GetObject` only for the active pointer,
+release manifests, and composer bundles. Production remains composer-disabled with no artifact
+read grant.
 
 ## Verification checklist
 
@@ -100,3 +107,5 @@ inference profile directly from the Bedrock stack. Its current role can call
 5. Confirm filtered retrieve-only results use approved selective metadata.
 6. Send a `POST /readings` request in Bedrock mode and inspect generated text and citations without
    exposing private artifact content in logs or public issues.
+7. Confirm response metadata reports composer mode, the active corpus version, and aggregate
+   relationship counts only.

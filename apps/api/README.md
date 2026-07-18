@@ -22,9 +22,10 @@ an RSC Server Function; see
 [RSC Readings and Avatars Pilot](../../docs/rsc-readings-and-avatars-pilot.md).
 
 `POST /readings` accepts a spread, ordered card items, reversed flags, and an
-optional question. The route validates input, builds a deterministic retrieval
-prompt, then either returns a local placeholder response or calls Bedrock
-Knowledge Bases depending on runtime configuration.
+optional question. The route validates input, then either uses the legacy local
+prompt or loads the approved active composer bundle, composes exact context,
+and calls Bedrock Knowledge Bases with an active-version filter. See
+[Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md).
 
 Authenticated successful readings are persisted to DynamoDB with the full
 `ReadingResponse`, generated reading text/citations, original request/question,
@@ -74,6 +75,9 @@ BEDROCK_INFERENCE_PROFILE_ID=
 BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn-output>
 BEDROCK_MAX_ATTEMPTS=5
 BEDROCK_RETRIEVAL_RESULTS=5
+COMPOSER_RUNTIME_MODE=enabled
+BEDROCK_CORPUS_BUCKET=<cloudformation-output>
+BEDROCK_DATA_SOURCE_ID=<cloudformation-output>
 ```
 
 These can live in `apps/api/.env`; the API loads them through `dotenv` at
@@ -99,10 +103,15 @@ generate corpus artifacts. See
 [Bedrock Corpus Operations](../../docs/bedrock_corpus_operations.md) for the approved-artifact
 handoff and ingestion boundary.
 
-The approved next stage adds development-only opaque composer-bundle loading and deterministic
-context composition while retaining `RetrieveAndGenerate`. See
-[Deterministic Composer Runtime Design](../../docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md).
-This behavior is not implemented yet.
+Development implements opaque composer-bundle loading and deterministic context composition while
+retaining `RetrieveAndGenerate`. The active pointer is read per enabled request; immutable bundles
+are size/checksum/schema validated and cached by complete pointer identity. Retrieval is filtered
+to the active corpus version, approved status, and correspondence-theme document kind. See
+[Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md).
+
+Set `COMPOSER_RUNTIME_MODE=disabled` for the legacy prompt path. Local mode disables composer
+automatically and does not create an S3 reader. Explicit retrieval followed by separate generation
+is not implemented and remains a later project.
 
 The deployed API CDK stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally
 (no deployed local-mode fallback), imports the Knowledge Base ID and
@@ -111,6 +120,9 @@ permission to call `RetrieveAndGenerate`, `GetInferenceProfile`,
 `InvokeModel`, and `Retrieve` — all four are required once the generation
 model sits behind an application inference profile. Generated and failed
 reading metadata records the active generation mode.
+Composer metadata is aggregate-only: mode, optional corpus version, and optional named-pair and
+whole-spread counts. Safe composer request errors return 400; artifact or load failures return a
+retryable 503.
 
 ## Commands
 

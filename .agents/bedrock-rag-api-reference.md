@@ -5,9 +5,9 @@ Also use this when changing authenticated reading persistence, because the
 same `POST /readings` route now owns generation, DynamoDB writes, S3 API logs,
 and profile updates.
 
-Opaque composer loading and deterministic runtime composition are specified but not implemented.
-Follow `docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md`; do not infer a
-runtime contract from private artifact contents.
+Opaque composer loading and deterministic runtime composition are implemented for development.
+Follow `docs/deterministic-composer-runtime.md`; do not infer or expand the runtime contract from
+private artifact contents.
 
 ## Scope
 
@@ -16,6 +16,7 @@ The Bedrock path spans:
 - `apps/api/src/routes/readings.ts`
 - `apps/api/src/readings/*`
 - `apps/api/src/bedrock/*`
+- `apps/api/src/composer/*`
 - `apps/api/src/config.ts`
 - `apps/api/src/auth/*`
 - `apps/api/src/logging/*`
@@ -34,6 +35,8 @@ runtime integration only.
 The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally and
 receives the Knowledge Base ID, application inference profile ARN, and region
 directly from `SimpleTarotBedrockRag-<env>` via CDK cross-stack references.
+Development also receives the corpus bucket/data-source identities and runs with composer enabled.
+Production is composer-disabled with no artifact-read grant.
 There is no local-mode fallback in the deployed Lambda; local mode exists only
 for offline API development (`yarn api:dev` without Bedrock env vars set).
 
@@ -62,7 +65,8 @@ flowchart LR
     Req["POST /readings"]
     Auth["Cognito user context"]
     Validate["validateReadingRequest"]
-    Prompt["buildReadingPrompt"]
+    Composer["load and compose active bundle"]
+    Prompt["buildComposedReadingPrompt"]
     Mode["getApiConfig().bedrock.mode"]
     Local["createLocalGeneratedReading"]
     Bedrock["createBedrockReadingGenerator"]
@@ -72,7 +76,8 @@ flowchart LR
 
     Req --> Auth
     Auth --> Validate
-    Validate --> Prompt
+    Validate --> Composer
+    Composer --> Prompt
     Prompt --> Mode
     Mode --> Local
     Mode --> Bedrock
@@ -85,7 +90,10 @@ flowchart LR
 Important files:
 
 - Validation: `apps/api/src/readings/validation.ts`
-- Prompt: `apps/api/src/readings/prompt-builder.ts`
+- Disabled prompt: `apps/api/src/readings/prompt-builder.ts`
+- Composer loading and deterministic context: `apps/api/src/composer/*`
+- Enabled prompt: `apps/api/src/composer/prompt-builder.ts`
+- Active retrieval filter: `apps/api/src/bedrock/retrieval-filter.ts`
 - Public contracts: `apps/api/src/readings/contracts.ts`
 - Response mapping: `apps/api/src/readings/response-mapper.ts`
 - Bedrock runtime call: `apps/api/src/bedrock/bedrock-client.ts`
@@ -128,6 +136,8 @@ authorization headers, tokens, cookies, or full raw request bodies.
 - `knowledgeBaseConfiguration.knowledgeBaseId`
 - `knowledgeBaseConfiguration.modelArn`
 - `vectorSearchConfiguration.numberOfResults`
+- optional `vectorSearchConfiguration.filter` for exact active corpus version, approved status,
+  and correspondence-theme document kind
 - `input.text = prompt`
 
 It returns:
@@ -137,6 +147,11 @@ It returns:
 - `modelId`: configured model ARN or inference profile value
 
 Tests are in `apps/api/src/bedrock/bedrock-client.test.ts`.
+
+The route reads the active pointer on every enabled request and validates/caches one immutable
+bundle by complete pointer identity. It fails closed with safe 400/503 errors and never falls back
+to the legacy prompt while enabled. Response and persistence metadata contain aggregate composer
+mode/version/counts only. See `docs/deterministic-composer-runtime.md`.
 
 ## Corpus Path
 
@@ -152,6 +167,7 @@ flowchart TB
     Release --> Active
     Active --> S3
     S3 --> Sync
+    Active --> Runtime["Development composer runtime"]
 ```
 
 Do not add corpus-generation commands, private paths, relationship rules, or real artifact examples
@@ -198,6 +214,9 @@ describing the pre-migration architecture.
   permitted" logic is unreachable through the deployed URL, only via a direct
   Express run
 - Lambda environment for Bedrock, user-data table, and API log bucket
+- development-only `COMPOSER_RUNTIME_MODE=enabled`, corpus bucket, and data-source identities
+- development-only `s3:GetObject` for the active pointer, release manifests, and composer bundles;
+  production has none of these grants
 - least-privilege permissions for DynamoDB, S3 API logs, and four separate
   Bedrock IAM statements (all required — verified against live
   `AccessDeniedException`s, not just AWS's KB-permissions sample doc):

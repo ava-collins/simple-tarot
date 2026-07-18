@@ -7,9 +7,9 @@ requests to an Amazon Bedrock Knowledge Base backed by private corpus artifacts 
 
 The Bedrock RAG work adds a REST API path for generated tarot readings:
 
-- `apps/api` receives reading requests and builds a deterministic retrieval
-  prompt. Authenticated requests also persist reading history through the API's
-  user-data store.
+- `apps/api` receives reading requests, loads the approved active composer bundle in development,
+  composes exact context, and builds a deterministic prompt. Authenticated requests also persist
+  reading history through the API's user-data store.
 - `apps/infra` deploys the Bedrock Knowledge Base dependencies: S3, S3
   Vectors, IAM, Bedrock data source resources, the user-data table, the API
   log bucket, and the API Gateway/Lambda runtime.
@@ -30,7 +30,8 @@ flowchart LR
     Mobile["Tarot app or API client"]
     Auth["Cognito JWT authorizer"]
     Route["POST /readings<br/>apps/api/src/routes/readings.ts"]
-    Prompt["Prompt builder<br/>readings/prompt-builder.ts"]
+    Composer["Active bundle loader and<br/>deterministic composer"]
+    Prompt["Composed prompt and<br/>active-version filter"]
     Local["Local placeholder generator"]
     BedrockClient["Bedrock client<br/>bedrock/bedrock-client.ts"]
     Runtime["Bedrock Agent Runtime<br/>RetrieveAndGenerate"]
@@ -43,7 +44,8 @@ flowchart LR
 
     Mobile --> Auth
     Auth --> Route
-    Route --> Prompt
+    Route --> Composer
+    Composer --> Prompt
     Prompt --> Route
     Route -->|"BEDROCK_RUNTIME_MODE != bedrock"| Local
     Route -->|"BEDROCK_RUNTIME_MODE=bedrock"| BedrockClient
@@ -65,15 +67,19 @@ flowchart LR
 The route:
 
 1. Validates the request body with `validateReadingRequest`.
-2. Builds a prompt with `buildReadingPrompt`.
-3. Reads `getApiConfig().bedrock`.
-4. Uses the local placeholder generator unless `BEDROCK_RUNTIME_MODE=bedrock`.
-5. Calls Bedrock `RetrieveAndGenerate` in Bedrock mode.
-6. Maps generated text and citations into the public reading response.
-7. Persists authenticated successful readings and minimal profile updates.
-8. Persists authenticated failed generation attempts with sanitized failure
-   fields.
-9. Writes request/diagnostic metadata to the S3 API log bucket when configured.
+2. Uses the legacy prompt without S3 access when composer mode is disabled.
+3. In enabled mode, reads the active pointer, validates or reuses one immutable bundle snapshot,
+   and composes exact card and relationship context.
+4. Builds the precedence-ordered composed prompt and exact active-version retrieval filter.
+5. Uses the local placeholder generator unless `BEDROCK_RUNTIME_MODE=bedrock`.
+6. Calls Bedrock `RetrieveAndGenerate` in Bedrock mode.
+7. Maps generated text and citations plus aggregate composer metadata into the public response.
+8. Persists authenticated successful readings and minimal profile updates.
+9. Persists authenticated failed generation attempts with sanitized failure fields.
+10. Writes request/diagnostic metadata to the S3 API log bucket when configured.
+
+See [Deterministic Composer Runtime](deterministic-composer-runtime.md) for loader, composition,
+error, metadata, and rollback details.
 
 `GET /readings` returns only the signed-in user's successful readings, newest
 first. Failed generation attempts are persisted for support/admin use but are
@@ -93,17 +99,19 @@ Required request fields:
 
 ## Prompt Grounding
 
-`apps/api/src/readings/prompt-builder.ts` builds a prompt that includes:
+Disabled mode uses `apps/api/src/readings/prompt-builder.ts`. Enabled development uses
+`apps/api/src/composer/prompt-builder.ts`, which orders:
 
-- spread name
-- optional user question
-- ordered card list
-- card index
-- card position
-- upright or reversed orientation
+- authority and non-contradiction instructions
+- active corpus and spread identity
+- ordered exact card, orientation, and position context
+- named positional relationships
+- whole-spread relationships
+- optional user intent
+- response requirements
 
-The prompt instructs Bedrock to ground the reading only in retrieved corpus
-context, respect position and orientation, and avoid inventing source material.
+Retrieved text may enrich the exact context but cannot replace or contradict it. Private source and
+rule IDs are not rendered.
 
 ## Bedrock Client
 
@@ -116,6 +124,7 @@ It sends a `RetrieveAndGenerateCommand` with:
 - configured Knowledge Base ID
 - configured generation model ARN or inference profile ID/ARN
 - configured vector search result count
+- optional exact active-version/status/document-kind `andAll` filter
 - prompt text as `input.text`
 
 It maps Bedrock retrieved references into API citations:
@@ -149,6 +158,9 @@ BEDROCK_KNOWLEDGE_BASE_ID=<BedrockKnowledgeBaseId output>
 BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn output>
 BEDROCK_MAX_ATTEMPTS=5
 BEDROCK_RETRIEVAL_RESULTS=5
+COMPOSER_RUNTIME_MODE=enabled
+BEDROCK_CORPUS_BUCKET=<BedrockCorpusBucketName output>
+BEDROCK_DATA_SOURCE_ID=<BedrockDataSourceId output>
 ```
 
 Model selection precedence:
@@ -172,6 +184,10 @@ are required — a single `bedrock:RetrieveAndGenerate` grant alone returns
 inference profile (required in `us-east-2`, where no Anthropic model
 currently supports on-demand invocation). Corpus upload and Knowledge Base
 ingestion must complete before retrieval can return approved private context.
+
+Development sets composer mode enabled and grants only the three approved object-read patterns.
+Local mode disables composer automatically. Production is composer-disabled and has no composer
+artifact-read grant.
 
 ## Infrastructure Flow
 
@@ -209,6 +225,8 @@ flowchart TB
     UserData --> APIStack
     KB --> APIStack
     Profile --> APIStack
+    Bucket --> APIStack
+    DS --> APIStack
     APIStack --> Outputs
     DS --> Outputs
 ```
@@ -249,6 +267,7 @@ sequenceDiagram
     Release->>S3: activate approved semantic objects
     S3->>Sync: start controlled ingestion
     Sync->>KB: embed and index chunks
+    API->>Release: read active pointer and opaque composer bundle
     API->>KB: RetrieveAndGenerate
 ```
 
@@ -272,8 +291,8 @@ direct local API runtime in Bedrock mode:
 | `BedrockRegion` | `BEDROCK_REGION` |
 | `BedrockInferenceProfileArn` | `BEDROCK_INFERENCE_PROFILE_ARN` |
 | `BedrockGenerationModelId` | informational source-model identifier |
-| `BedrockCorpusBucketName` | upload target, not read by current API |
-| `BedrockDataSourceId` | ingestion sync target, not read by current API |
+| `BedrockCorpusBucketName` | `BEDROCK_CORPUS_BUCKET` in enabled development composer mode |
+| `BedrockDataSourceId` | `BEDROCK_DATA_SOURCE_ID` and ingestion sync target |
 
 For local authenticated persistence runs, also copy:
 
@@ -298,6 +317,8 @@ stage path unless CloudFormation outputs one.
 - The API creates a Bedrock runtime client per request path invocation through
   `createBedrockReadingGenerator`. That is simple and testable, but not yet
   optimized as a long-lived singleton.
+- Explicit `Retrieve`, reranking, and separate model generation are not implemented; the current
+  composer runtime intentionally retains `RetrieveAndGenerate`.
 
 ## Verification Commands
 

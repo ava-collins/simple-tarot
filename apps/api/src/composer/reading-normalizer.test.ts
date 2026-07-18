@@ -106,11 +106,10 @@ describe('normalizeComposerRequest', () => {
 
     it('rejects an incompatible spread definition as unavailable', () => {
         const bundle = structuredClone(sanitizedComposerBundle);
-        bundle.spreadsById['celtic-cross'].positions[9].order = 9;
+        bundle.spreadsById['celtic-cross'].positions[9].order = 8;
 
         expect(() =>
             normalizeComposerRequest(sanitizedCelticCrossRequest, bundle)
         ).toThrow(ComposerUnavailableError);
     });
 });
-

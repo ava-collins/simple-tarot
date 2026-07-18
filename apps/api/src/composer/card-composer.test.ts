@@ -54,14 +54,14 @@ describe('composeCardContexts', () => {
             exactMeaning: 'A new possibility is already present.',
             orientation: 'upright',
             orientationKeywords: ['beginning', 'wonder'],
-            position: { id: 'origin', order: 1 }
+            position: { id: 'origin', order: 0 }
         });
         expect(contexts[1]).toMatchObject({
             cardId: 'tide-weaver',
             exactMeaning: 'Resistance slows the available response.',
             orientation: 'reversed',
             orientationKeywords: ['stagnation', 'resistance'],
-            position: { id: 'response', order: 2 }
+            position: { id: 'response', order: 1 }
         });
         expect(contexts[2]).not.toHaveProperty('exactMeaning');
     });
