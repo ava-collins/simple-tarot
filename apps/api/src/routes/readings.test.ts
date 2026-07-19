@@ -1,19 +1,19 @@
 import { describe, expect, it, vi } from 'vitest';
 import { AuthenticatedUser } from '../auth/auth-context';
+import { BedrockGenerationUnavailableError } from '../bedrock/errors';
 import { composeReadingContext } from '../composer/compose-reading';
 import {
     ComposerDomainError,
     ComposerUnavailableError
 } from '../composer/errors';
-import { buildComposedReadingPrompt } from '../composer/prompt-builder';
 import {
     sanitizedComposerBundle,
     sanitizedSingleCardRequest
 } from '../composer/test-fixture';
-import { buildReadingPrompt } from '../readings/prompt-builder';
 import { GeneratedReading, ReadingRequest } from '../readings/contracts';
 import { ReadingHistoryRecord, ReadingHistoryStore } from '../readings/persistence/contracts';
 import {
+    createBedrockRouteGenerator,
     createListReadingsHandler,
     createPostReadingHandler
 } from './readings';
@@ -95,7 +95,7 @@ const createRequest = (body: unknown = requestBody) =>
     }) as never;
 
 describe('createPostReadingHandler', () => {
-    it('keeps disabled mode on the legacy prompt without invoking composer', async () => {
+    it('keeps disabled mode local without invoking composer', async () => {
         const compose = vi.fn();
         const generateReading = vi.fn().mockResolvedValue(generatedReading);
         const handler = createPostReadingHandler({
@@ -109,22 +109,24 @@ describe('createPostReadingHandler', () => {
         expect(compose).not.toHaveBeenCalled();
         expect(generateReading).toHaveBeenCalledWith(
             requestBody,
-            buildReadingPrompt(requestBody),
+            undefined,
             'request-123'
         );
     });
 
-    it('composes enabled requests before generation and filters to that corpus version', async () => {
+    it('composes enabled requests before generation and persists no evidence', async () => {
         const context = composeReadingContext(
             sanitizedSingleCardRequest,
             sanitizedComposerBundle
         );
         const compose = vi.fn().mockResolvedValue(context);
         const generateReading = vi.fn().mockResolvedValue(generatedReading);
+        const store = createStore();
         const handler = createPostReadingHandler({
             composerMode: 'enabled',
             composerRuntime: { compose },
-            generateReading
+            generateReading,
+            readingHistoryStore: store
         });
 
         const response = createResponse();
@@ -141,32 +143,8 @@ describe('createPostReadingHandler', () => {
         );
         expect(generateReading).toHaveBeenCalledWith(
             sanitizedSingleCardRequest,
-            buildComposedReadingPrompt(sanitizedSingleCardRequest, context),
-            'request-123',
-            {
-                retrievalFilter: {
-                    andAll: [
-                        {
-                            equals: {
-                                key: 'corpusVersion',
-                                value: context.corpusVersion
-                            }
-                        },
-                        {
-                            equals: {
-                                key: 'status',
-                                value: 'approved'
-                            }
-                        },
-                        {
-                            equals: {
-                                key: 'documentKind',
-                                value: 'correspondence-theme'
-                            }
-                        }
-                    ]
-                }
-            }
+            context,
+            'request-123'
         );
         expect(response.json).toHaveBeenCalledWith(
             expect.objectContaining({
@@ -177,6 +155,13 @@ describe('createPostReadingHandler', () => {
                     wholeSpreadCount: 0
                 })
             })
+        );
+        expect(
+            JSON.stringify(
+                vi.mocked(store.saveSuccessfulReading).mock.calls[0]?.[0]
+            )
+        ).not.toMatch(
+            /retrieved|evidence|theme|fact|score|location|sourceId|ruleId/
         );
     });
 
@@ -381,6 +366,37 @@ describe('createPostReadingHandler', () => {
                 }
             })
         );
+    });
+});
+
+describe('createBedrockRouteGenerator', () => {
+    it('fails closed without composed context', async () => {
+        const generateReading = vi.fn();
+        const routeGenerator = createBedrockRouteGenerator({ generateReading });
+
+        await expect(
+            routeGenerator(sanitizedSingleCardRequest, undefined, 'request-123')
+        ).rejects.toBeInstanceOf(BedrockGenerationUnavailableError);
+        expect(generateReading).not.toHaveBeenCalled();
+    });
+
+    it('forwards request, context, and request ID exactly once', async () => {
+        const context = composeReadingContext(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundle
+        );
+        const generateReading = vi.fn().mockResolvedValue(generatedReading);
+        const routeGenerator = createBedrockRouteGenerator({ generateReading });
+
+        await expect(
+            routeGenerator(sanitizedSingleCardRequest, context, 'request-123')
+        ).resolves.toEqual(generatedReading);
+        expect(generateReading).toHaveBeenCalledTimes(1);
+        expect(generateReading).toHaveBeenCalledWith({
+            context,
+            request: sanitizedSingleCardRequest,
+            requestId: 'request-123'
+        });
     });
 });
 

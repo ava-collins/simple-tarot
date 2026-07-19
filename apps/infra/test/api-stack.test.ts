@@ -178,11 +178,11 @@ describe('ApiStack', () => {
     expect(policies).not.toContain('/state/dev/active-release.json');
   });
 
-  it('grants the Bedrock Agent Runtime generation, retrieval, and inference profile actions', () => {
+  it('grants only the explicit Bedrock retrieval and generation actions', () => {
     const template = synthesizeApiStack();
     const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
 
-    expect(policies).toContain('bedrock:RetrieveAndGenerate');
+    expect(policies).not.toContain('bedrock:RetrieveAndGenerate');
     expect(policies).toContain('bedrock:GetInferenceProfile');
     expect(policies).toContain('"bedrock:Retrieve"');
     expect(policies).toContain('bedrock:InvokeModel');

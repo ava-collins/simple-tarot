@@ -24,7 +24,7 @@ const multiCardRequest: ReadingRequest = {
     items: [
         {
             cardIndex: 0,
-            cardName: 'The Fool',
+            cardName: 'Fool',
             position: 'past',
             reversed: false
         },
@@ -75,7 +75,7 @@ describe('createLocalGeneratedReading', () => {
             modelId: 'local-test-variant-2',
             text: [
                 'Local test reading variant 2: the cards form a short progression.',
-                'past: The Fool upright marks the starting pattern.',
+                'past: Fool upright marks the starting pattern.',
                 'present: The Magician reversed asks for careful attention.'
             ].join('\n')
         });

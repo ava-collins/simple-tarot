@@ -65,6 +65,28 @@ export function toApiError(error: unknown): ApiError {
         };
     }
 
+    if (errorName(error) === 'BedrockRetrievalUnavailableError') {
+        return {
+            status: 503,
+            body: {
+                code: 'BEDROCK_RETRIEVAL_UNAVAILABLE',
+                message: 'Tarot reading themes are temporarily unavailable.',
+                retryable: true
+            }
+        };
+    }
+
+    if (errorName(error) === 'BedrockGenerationUnavailableError') {
+        return {
+            status: 503,
+            body: {
+                code: 'BEDROCK_GENERATION_UNAVAILABLE',
+                message: 'Tarot reading generation is temporarily unavailable.',
+                retryable: true
+            }
+        };
+    }
+
     return {
         status: 500,
         body: {

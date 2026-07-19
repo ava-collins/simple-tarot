@@ -1,0 +1,47 @@
+import { buildExplicitGenerationPrompt } from '../composer/prompt-builder';
+import type { AppLogger } from '../logger';
+import { logger } from '../logger';
+import { activeCorpusFilterFor } from './retrieval-filter';
+import { buildRetrievalEvidence } from './retrieval-evidence';
+import { buildRetrievalQuery } from './retrieval-query-builder';
+import type {
+    ConverseGenerator,
+    ExplicitRagReadingGenerator,
+    KnowledgeBaseRetriever
+} from './explicit-rag-types';
+
+type ExplicitRagGeneratorOptions = {
+    converse: ConverseGenerator;
+    logInfo?: AppLogger['logInfo'];
+    retriever: KnowledgeBaseRetriever;
+};
+
+export function createExplicitRagReadingGenerator({
+    converse,
+    logInfo = logger.logInfo,
+    retriever
+}: ExplicitRagGeneratorOptions): ExplicitRagReadingGenerator {
+    return {
+        async generateReading(input) {
+            const query = buildRetrievalQuery(input.request, input.context);
+            const results = await retriever.retrieve({
+                filter: activeCorpusFilterFor(input.context.corpusVersion),
+                query,
+                requestId: input.requestId
+            });
+            const evidence = buildRetrievalEvidence(results);
+            logInfo('Retrieval evidence prepared.', {
+                requestId: input.requestId,
+                usableResultCount: evidence.usableResultCount,
+                zeroUsableResults: evidence.usableResultCount === 0
+            });
+            const prompt = buildExplicitGenerationPrompt(
+                input.request,
+                input.context,
+                evidence.chunks
+            );
+
+            return converse.generate(prompt, input.requestId);
+        }
+    };
+}
