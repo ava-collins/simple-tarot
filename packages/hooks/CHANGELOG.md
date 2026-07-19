@@ -1,3 +1,10 @@
+# [@simpletarot/hooks-v2.1.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v2.1.0...@simpletarot/hooks-v2.1.1) (2026-07-19)
+
+
+### Bug Fixes
+
+* card name the fool is only fool ([5369486](https://github.com/ava-collins/simple-tarot/commit/536948684e7f1f5d61756a6483f1c6901d0766cd))
+
 # [@simpletarot/hooks-v2.1.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v2.0.0...@simpletarot/hooks-v2.1.0) (2026-07-08)
 
 
