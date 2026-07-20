@@ -28,8 +28,11 @@ remains available explicitly for offline development without AWS credentials.
 ```mermaid
 flowchart LR
     Mobile["Tarot app or API client"]
+    Harness["Private evaluation harness"]
     Auth["Cognito JWT authorizer"]
     Route["POST /readings<br/>apps/api/src/routes/readings.ts"]
+    EvalRoute["Development POST /reading-evaluations"]
+    Executor["Shared reading executor"]
     Composer["Active bundle loader and<br/>deterministic composer"]
     Query["Reading-level query and<br/>active-version filter"]
     Local["Local placeholder generator"]
@@ -45,9 +48,13 @@ flowchart LR
     Logs["S3 API log bucket<br/>request diagnostics"]
 
     Mobile --> Auth
+    Harness --> Auth
     Auth --> Route
-    Route -->|"BEDROCK_RUNTIME_MODE != bedrock"| Local
-    Route -->|"BEDROCK_RUNTIME_MODE=bedrock"| Composer
+    Auth --> EvalRoute
+    Route --> Executor
+    EvalRoute --> Executor
+    Executor -->|"BEDROCK_RUNTIME_MODE != bedrock"| Local
+    Executor -->|"BEDROCK_RUNTIME_MODE=bedrock"| Composer
     Composer --> Query
     Query --> Retriever
     Retriever --> KB
@@ -61,12 +68,15 @@ flowchart LR
     Converse --> Mapper
     Route --> DDB
     Route --> Logs
+    EvalRoute --> Logs
     Mapper --> Mobile
+    Mapper --> Harness
 ```
 
 ## API Runtime Flow
 
-`POST /readings` is defined in `apps/api/src/routes/readings.ts`.
+`POST /readings` is defined in `apps/api/src/routes/readings.ts`. It delegates composition and
+generation to the shared `apps/api/src/readings/reading-executor.ts` boundary.
 
 The route:
 
@@ -92,6 +102,29 @@ error, metadata, and rollback details.
 `GET /readings` returns only the signed-in user's successful readings, newest
 first. Failed generation attempts are persisted for support/admin use but are
 not returned to the mobile app history screen.
+
+## Development Evaluation Flow
+
+`POST /reading-evaluations` is defined in `apps/api/src/routes/reading-evaluations.ts`. It is
+mounted only when `EVALUATION_RUNTIME_MODE=enabled`; startup also requires Cognito auth, Bedrock
+generation, and composer mode. The development CDK definition supplies those values on the next
+authorized API deployment. Production omits the evaluation setting, and disabled/local
+configurations do not mount the route.
+
+The evaluation route accepts the same reading request and invokes the same shared executor, so it
+adds no second composition, retrieval, or Converse call. It returns schema version 1 with:
+
+- the normal `ReadingResponse`, request ID, evaluation time, and active corpus version
+- only the resolved `ComposedReadingContext` used for that reading, never the complete bundle
+- retrieval query/filter/counts and up to five ranked candidates, capped at 2,000 characters each
+- the exact admitted evidence under the existing 8,000-character total limit and truncation flags
+- the exact system and user prompts sent to Converse
+- safe generation duration, model, token-count, stop-reason, and output-length metrics
+
+The route does not write successful reading history, failed attempts, profile state, corpus state,
+or evaluation records. Its S3 application log is aggregate-only. Prompt, evidence, resolved
+context, generated output, access tokens, and credential-bearing headers are never logged. The
+private corpus repository owns interactive review and create-only human-rated records.
 
 The request contract lives in `apps/api/src/readings/contracts.ts`.
 
@@ -138,10 +171,12 @@ rule IDs are not rendered.
 - `converse-client.ts` sends one `ConverseCommand` through the configured application inference
   profile with a 3,072-token maximum and temperature `0.7`.
 
-Retrieval evidence is untrusted, prompt-only data. It does not enter API responses, persistence,
-logs, or safe errors. Retrieval success with zero usable evidence still reaches Converse;
-retrieval failure does not. The Converse client returns generated text and an empty citations
-array.
+Retrieval evidence is untrusted, prompt-only data for normal readings. It does not enter the normal
+response, persistence, logs, or safe errors. The authenticated development evaluation response is
+the deliberate exception: it exposes only bounded ranked candidates and exact admitted evidence
+for private review, without persistence or content-bearing logs. Retrieval success with zero usable
+evidence still reaches Converse; retrieval failure does not. The Converse client returns generated
+text and an empty citations array.
 
 Boundary logs contain request ID, timing, configured resource identity, counts, prompt lengths,
 token usage, output length, and stop reason. They do not contain queries, retrieved evidence,
@@ -168,6 +203,7 @@ BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn output>
 BEDROCK_MAX_ATTEMPTS=5
 BEDROCK_RETRIEVAL_RESULTS=5
 COMPOSER_RUNTIME_MODE=enabled
+EVALUATION_RUNTIME_MODE=enabled
 BEDROCK_CORPUS_BUCKET=<BedrockCorpusBucketName output>
 BEDROCK_DATA_SOURCE_ID=<BedrockDataSourceId output>
 ```
@@ -190,9 +226,11 @@ inference profile ARN, and `bedrock:InvokeModel` on the profile plus underlying
 foundation-model ARN. Corpus upload and Knowledge Base ingestion must complete
 before retrieval can return approved private context.
 
-Development sets composer mode enabled and grants only the three approved object-read patterns.
-Local mode disables composer automatically. Production is composer-disabled and has no composer
-artifact-read grant.
+The development definition sets composer and evaluation modes enabled, configures the existing
+Cognito issuer and client ID for application authentication, and grants only the three approved
+object-read patterns. The evaluation switch adds no AWS resource or IAM action. Local mode
+disables composer and evaluation automatically. Production is composer-disabled, omits evaluation
+configuration, and has no composer artifact-read grant.
 
 ## Infrastructure Flow
 
@@ -329,6 +367,9 @@ stage path unless CloudFormation outputs one.
   abstraction.
 - Reranking and structured model output are not implemented. Change either only through a fresh
   reviewed design and checkpointed plan.
+- The evaluation endpoint is an authenticated development operator surface, not a mobile or
+  production API. Disable it by omitting or setting `EVALUATION_RUNTIME_MODE=disabled`; normal
+  readings remain available through the same executor.
 
 ## Verification Commands
 

@@ -3,7 +3,8 @@
 Use this when changing or debugging the Simple Tarot Bedrock reading path.
 Also use this when changing authenticated reading persistence, because the
 same `POST /readings` route now owns generation, DynamoDB writes, S3 API logs,
-and profile updates.
+and profile updates. Development also exposes `POST /reading-evaluations`, which reuses the exact
+reading executor but never writes reading or profile state.
 
 Opaque composer loading and deterministic runtime composition are implemented for development.
 Follow `docs/deterministic-composer-runtime.md`; do not infer or expand the runtime contract from
@@ -14,6 +15,8 @@ private artifact contents.
 The Bedrock path spans:
 
 - `apps/api/src/routes/readings.ts`
+- `apps/api/src/routes/reading-evaluations.ts`
+- `apps/api/src/evaluations/*`
 - `apps/api/src/readings/*`
 - `apps/api/src/bedrock/*`
 - `apps/api/src/composer/*`
@@ -37,6 +40,8 @@ receives the Knowledge Base ID, application inference profile ARN, and region
 directly from `SimpleTarotBedrockRag-<env>` via CDK cross-stack references.
 Development also receives the corpus bucket/data-source identities and runs with composer enabled.
 Production is composer-disabled with no artifact-read grant.
+Development alone sets `EVALUATION_RUNTIME_MODE=enabled` with Cognito application auth; production
+omits the setting.
 There is no local-mode fallback in the deployed Lambda; local mode exists only
 for offline API development (`yarn api:dev` without Bedrock env vars set).
 
@@ -108,6 +113,9 @@ Important files:
 - Evidence budgets: `apps/api/src/bedrock/retrieval-evidence.ts`
 - Explicit RAG orchestration: `apps/api/src/bedrock/explicit-rag-generator.ts`
 - Bedrock Converse: `apps/api/src/bedrock/converse-client.ts`
+- Shared reading execution: `apps/api/src/readings/reading-executor.ts`
+- Evaluation response contract: `apps/api/src/evaluations/contracts.ts`
+- Development evaluation route: `apps/api/src/routes/reading-evaluations.ts`
 - Reading persistence: `apps/api/src/readings/persistence/*`
 - API log sink: `apps/api/src/logging/api-log-sink.ts`
 
@@ -139,6 +147,24 @@ Do not persist API metadata such as source IP, route, method, duration, or
 user agent in DynamoDB. Those belong in the S3 API log source. Do not log
 authorization headers, tokens, cookies, or full raw request bodies.
 
+## Development Evaluation Path
+
+When evaluation mode is enabled, `POST /reading-evaluations` accepts the normal reading request
+behind the same Cognito authentication boundary. `createApiServer` injects the same
+`ReadingExecutor` instance used by `POST /readings`; do not introduce a second retrieval or
+Converse call.
+
+The schema-versioned response contains the normal reading, only its resolved composer context,
+bounded ranked candidates and exact admitted evidence, exact system/user prompts, retrieval
+counts/filter, and safe generation metrics. It must never contain the complete composer bundle,
+S3 bucket/key/URI, raw retrieval metadata, or credentials. The route does not accept persistence
+dependencies and does not save a reading, failed attempt, profile, corpus change, or harness run.
+API logs stay aggregate-only.
+
+Disabled/local and production configurations do not mount the route. Enabling it requires Cognito
+auth, Bedrock mode, and composer mode at startup. The private corpus repository owns saved cases,
+interactive relevance/quality feedback, and exclusive-create run records.
+
 ## Bedrock calls
 
 `createExplicitRagReadingGenerator` performs exactly one retrieval and one generation boundary for
@@ -156,8 +182,10 @@ each successful Bedrock reading:
    a 3,072-token maximum and temperature `0.7`.
 
 Zero usable retrieval results still invoke Converse with deterministic context. Retrieval failure
-prevents Converse. Retrieved evidence never enters responses, persistence, logs, or safe errors.
-The generated result contains text, an empty citations array, and the configured model/profile ID.
+prevents Converse. Retrieved evidence never enters normal responses, persistence, logs, or safe
+errors. The authenticated development evaluation contract exposes only the already bounded
+candidates and exact admitted evidence, without persistence or content-bearing logs. The generated
+result contains text, an empty citations array, and the configured model/profile ID.
 
 Tests are colocated in `apps/api/src/bedrock/*.test.ts`.
 
@@ -227,7 +255,8 @@ describing the pre-migration architecture.
   permitted" logic is unreachable through the deployed URL, only via a direct
   Express run
 - Lambda environment for Bedrock, user-data table, and API log bucket
-- development-only `COMPOSER_RUNTIME_MODE=enabled`, corpus bucket, and data-source identities
+- development-only `COMPOSER_RUNTIME_MODE=enabled`, corpus bucket, data-source identities,
+  Cognito application config, and `EVALUATION_RUNTIME_MODE=enabled`
 - development-only `s3:GetObject` for the active pointer, release manifests, and composer bundles;
   production has none of these grants
 - least-privilege permissions for DynamoDB and S3 API logs plus scoped Bedrock actions:
