@@ -36,6 +36,12 @@ export const SignedIn: Story = {
         isSignedIn: true,
         email: 'user@example.com',
         displayName: 'Jane Doe',
+        onNewReadingPress: () => {
+            console.log('New reading pressed');
+        },
+        onReadingHistoryPress: () => {
+            console.log('Reading history pressed');
+        },
         onSignInPress: () => {
             console.log('Sign in pressed');
         },

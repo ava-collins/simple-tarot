@@ -1,0 +1,31 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as SingleCardReadingScreenStories from './single-card-reading-screen.stories';
+
+<Meta of={SingleCardReadingScreenStories.default} />
+
+# SingleCardReadingScreen
+
+Mobile "tap to draw" screen wrapped in `MobileView`. Wraps the `NewReading` organism unmodified and layers in auth, generating, and error presentation around it.
+
+<Canvas of={SingleCardReadingScreenStories.Default} />
+
+## Generating
+
+<Canvas of={SingleCardReadingScreenStories.Generating} />
+
+## Error
+
+<Canvas of={SingleCardReadingScreenStories.WithError} />
+
+## Auth States
+
+<Canvas of={SingleCardReadingScreenStories.AuthLoading} />
+
+<Canvas of={SingleCardReadingScreenStories.SignedOut} />
+
+## Responsibilities
+
+- Shows auth loading and signed-out states.
+- Blocks double taps while a reading is generating.
+- Surfaces an error with a retry action.
+- Delegates the tap-to-draw interaction to the `NewReading` organism.

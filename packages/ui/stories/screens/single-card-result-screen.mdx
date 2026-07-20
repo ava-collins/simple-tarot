@@ -1,0 +1,32 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import * as SingleCardResultScreenStories from './single-card-result-screen.stories';
+
+<Meta of={SingleCardResultScreenStories.default} />
+
+# SingleCardResultScreen
+
+Mobile result screen wrapped in `MobileView`. Shows the face-up drawn card and its reading text.
+
+<Canvas of={SingleCardResultScreenStories.Default} />
+
+## Reversed
+
+<Canvas of={SingleCardResultScreenStories.Reversed} />
+
+## Long Text
+
+<Canvas of={SingleCardResultScreenStories.LongText} />
+
+## Props
+
+- `cardIndex`: 0-77 index of the drawn card, rendered face-up via the `Card` atom.
+- `cardName`, `position`, `reversed`: echoed back from the reading response for the drawn card.
+- `text`: the generated reading paragraph for this card.
+- `summary`: the overall reading summary.
+- `onDonePress`: returns to the account screen.
+- `onHistoryPress`: optional, navigates to reading history.
+
+## Responsibilities
+
+- Displays the drawn card's face and its reading text below it.
+- Purely presentational — receives resolved reading data as props.
