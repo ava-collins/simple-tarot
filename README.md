@@ -35,7 +35,7 @@ AWS infrastructure, and shared React Native component libraries.
 `apps/api` is an Express REST API for generated tarot readings. It exposes
 `GET /health`, `GET /avatars`, `POST /readings`, and `GET /readings`. The development definition
 also includes an authenticated, non-persisting `POST /reading-evaluations` route for the private
-evaluation workflow. It becomes live only after the reviewed development API deployment. It
+evaluation workflow. The development route is deployed and verified. It
 validates Cognito JWT tokens to support authenticated reading persistence to
 DynamoDB and reading history retrieval. It includes a local development mode
 and can call Bedrock Knowledge Bases in Bedrock runtime mode.

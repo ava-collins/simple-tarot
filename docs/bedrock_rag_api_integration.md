@@ -107,9 +107,8 @@ not returned to the mobile app history screen.
 
 `POST /reading-evaluations` is defined in `apps/api/src/routes/reading-evaluations.ts`. It is
 mounted only when `EVALUATION_RUNTIME_MODE=enabled`; startup also requires Cognito auth, Bedrock
-generation, and composer mode. The development CDK definition supplies those values on the next
-authorized API deployment. Production omits the evaluation setting, and disabled/local
-configurations do not mount the route.
+generation, and composer mode. The verified development deployment supplies those values.
+Production omits the evaluation setting, and disabled/local configurations do not mount the route.
 
 The evaluation route accepts the same reading request and invokes the same shared executor, so it
 adds no second composition, retrieval, or Converse call. It returns schema version 1 with:

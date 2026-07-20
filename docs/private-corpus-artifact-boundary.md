@@ -46,9 +46,11 @@ Knowledge Base, and generation profile. Production retains the legacy `corpus/` 
 definition.
 
 The development API uses the opaque bundle for deterministic context, then performs one explicit
-Knowledge Base retrieval with an active-version filter and one Bedrock Converse call. Retrieved
-evidence remains internal and does not broaden the public artifact contract. Production retains
-the legacy corpus infrastructure definition but has not been deployed with this runtime.
+Knowledge Base retrieval with an active-version filter and one Bedrock Converse call. Normal
+responses keep retrieved evidence internal; the authenticated development evaluation response
+exposes only bounded reading-specific evidence to the private harness. This does not broaden the
+public artifact contract. Production retains the legacy corpus infrastructure definition but has
+not been deployed with this runtime.
 
 ## Change coordination
 

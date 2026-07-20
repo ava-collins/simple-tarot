@@ -21,9 +21,8 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 `dev` is the pre-production/test environment and `prod` is the production
 definition. The dev deployment targets `us-east-2` and provisions the
 full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation and deterministic
-composer runtime enabled. The development definition also enables the authenticated,
-non-persisting retrieval-evaluation route on the next authorized API deployment; production omits
-that surface.
+composer runtime enabled. Development also runs the authenticated, non-persisting
+retrieval-evaluation route; production omits that surface.
 
 ## App Structure
 

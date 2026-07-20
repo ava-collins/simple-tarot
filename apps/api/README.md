@@ -42,8 +42,7 @@ plus the reading-specific resolved composer context, bounded ranked candidates a
 evidence, exact system/user prompts, and generation metrics. It does not save a reading, failed
 attempt, or profile change. The route exists only when `EVALUATION_RUNTIME_MODE=enabled`, which
 also requires Cognito authentication, Bedrock mode, and enabled composer mode at startup. The
-development CDK definition enables it on the next authorized API deployment; local/disabled and
-production configurations return 404.
+development deployment enables it; local/disabled and production configurations return 404.
 API logs remain aggregate-only and never contain prompt, evidence, context, generated output, or
 credentials. The response is intended for the private corpus evaluation harness, not the mobile
 app or the public reading contract.
