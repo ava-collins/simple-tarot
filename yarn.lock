@@ -6031,6 +6031,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@simpletarot/hooks@workspace:packages/hooks"
   dependencies:
+    "@simpletarot/cards": "npm:*"
     "@testing-library/dom": "npm:^10.4.0"
     "@testing-library/react": "npm:^16.3.0"
     "@types/jest": "npm:^30.0.0"

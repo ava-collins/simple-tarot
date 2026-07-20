@@ -24,6 +24,9 @@
         "test": "vitest run --config vitetest.config.mjs --coverage",
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js"
     },
+    "dependencies": {
+        "@simpletarot/cards": "*"
+    },
     "peerDependencies": {
         "react": "19.2.4",
         "react-dom": "19.2.4",
