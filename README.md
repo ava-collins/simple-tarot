@@ -118,6 +118,7 @@ messages.
 
 ### Planning
 
+-   [Private Retrieval-Evaluation Harness Design](./docs/superpowers/specs/2026-07-20-private-retrieval-evaluation-harness-design.md) — approved design for a development-only authenticated evaluation endpoint, shared reading execution, exact runtime traces, and committed human-rated records in the private corpus workflow
 -   [Explicit Bedrock Retrieval and Converse Design](./docs/superpowers/specs/2026-07-18-explicit-retrieval-converse-design.md) — historical approved design for the implemented explicit retrieval and generation path; use the durable [Bedrock RAG architecture](./docs/bedrock_rag_api_integration.md) for current behavior
 -   [Explicit Bedrock Retrieval and Converse Implementation Plan](./docs/superpowers/plans/2026-07-18-explicit-retrieval-converse.md) — historical four-checkpoint implementation and development verification record; use the durable [Bedrock RAG architecture](./docs/bedrock_rag_api_integration.md) for current operations
 -   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — historical approved design for the implemented composer runtime; use the durable [runtime architecture](./docs/deterministic-composer-runtime.md) for current behavior
