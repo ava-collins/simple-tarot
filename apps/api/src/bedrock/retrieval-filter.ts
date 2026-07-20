@@ -1,6 +1,7 @@
 import type { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import { CORPUS_VERSION_PATTERN } from '../composer/constants';
 import { ComposerUnavailableError } from '../composer/errors';
+import type { RetrievalEvaluationFilter } from '../evaluations/contracts';
 
 const CORPUS_VERSION_METADATA_KEY = 'corpusVersion';
 const STATUS_METADATA_KEY = 'status';
@@ -35,5 +36,17 @@ export function activeCorpusFilterFor(corpusVersion: string): RetrievalFilter {
                 }
             }
         ]
+    };
+}
+
+export function activeCorpusEvaluationFilterFor(
+    corpusVersion: string
+): RetrievalEvaluationFilter {
+    activeCorpusFilterFor(corpusVersion);
+
+    return {
+        corpusVersion,
+        documentKind: CORRESPONDENCE_THEME_DOCUMENT_KIND,
+        status: APPROVED_STATUS
     };
 }

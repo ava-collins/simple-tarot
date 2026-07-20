@@ -16,6 +16,49 @@ describe('buildRetrievalEvidence', () => {
             ])
         ).toEqual({
             chunks: ['first theme', 'second theme'],
+            results: [
+                {
+                    candidateCharacterCount: 11,
+                    candidateText: 'first theme',
+                    evidenceCharacterCount: 11,
+                    evidenceText: 'first theme',
+                    includedInPrompt: true,
+                    rank: 1,
+                    truncatedByResultLimit: false,
+                    truncatedByTotalLimit: false
+                },
+                {
+                    candidateCharacterCount: 0,
+                    candidateText: '',
+                    evidenceCharacterCount: 0,
+                    evidenceText: '',
+                    includedInPrompt: false,
+                    rank: 2,
+                    truncatedByResultLimit: false,
+                    truncatedByTotalLimit: false
+                },
+                {
+                    candidateCharacterCount: 0,
+                    candidateText: '',
+                    evidenceCharacterCount: 0,
+                    evidenceText: '',
+                    includedInPrompt: false,
+                    rank: 3,
+                    truncatedByResultLimit: false,
+                    truncatedByTotalLimit: false
+                },
+                {
+                    candidateCharacterCount: 12,
+                    candidateText: 'second theme',
+                    evidenceCharacterCount: 12,
+                    evidenceText: 'second theme',
+                    includedInPrompt: true,
+                    rank: 4,
+                    truncatedByResultLimit: false,
+                    truncatedByTotalLimit: false
+                }
+            ],
+            totalEvidenceCharacters: 23,
             usableResultCount: 2
         });
     });
@@ -27,6 +70,15 @@ describe('buildRetrievalEvidence', () => {
 
         expect(evidence).toEqual({
             chunks: ['a'.repeat(MAX_RETRIEVAL_RESULT_CHARACTERS)],
+            results: [
+                expect.objectContaining({
+                    candidateCharacterCount: MAX_RETRIEVAL_RESULT_CHARACTERS,
+                    evidenceCharacterCount: MAX_RETRIEVAL_RESULT_CHARACTERS,
+                    truncatedByResultLimit: true,
+                    truncatedByTotalLimit: false
+                })
+            ],
+            totalEvidenceCharacters: MAX_RETRIEVAL_RESULT_CHARACTERS,
             usableResultCount: 1
         });
     });
@@ -51,13 +103,45 @@ describe('buildRetrievalEvidence', () => {
             nearlyFullChunk,
             'fina'
         ]);
-        expect(evidence.usableResultCount).toBe(5);
+        expect(evidence.usableResultCount).toBe(6);
+        expect(evidence.totalEvidenceCharacters).toBe(
+            MAX_RETRIEVAL_EVIDENCE_CHARACTERS
+        );
         expect(evidence.chunks.join('')).toHaveLength(
             MAX_RETRIEVAL_EVIDENCE_CHARACTERS
         );
-        expect(Object.keys(evidence).sort()).toEqual([
-            'chunks',
-            'usableResultCount'
+        expect(evidence.results[4]).toEqual(
+            expect.objectContaining({
+                candidateText: 'final theme should be truncated',
+                evidenceText: 'fina',
+                includedInPrompt: true,
+                rank: 5,
+                truncatedByTotalLimit: true
+            })
+        );
+        expect(evidence.results[5]).toEqual(
+            expect.objectContaining({
+                candidateText: 'must not be included',
+                evidenceText: '',
+                includedInPrompt: false,
+                rank: 6,
+                truncatedByTotalLimit: true
+            })
+        );
+    });
+
+    it('preserves optional score and document ID without affecting prompt chunks', () => {
+        const evidence = buildRetrievalEvidence([
+            { documentId: 'theme-one', score: 0.75, text: 'theme' }
         ]);
+
+        expect(evidence.chunks).toEqual(['theme']);
+        expect(evidence.results[0]).toEqual(
+            expect.objectContaining({
+                documentId: 'theme-one',
+                rank: 1,
+                score: 0.75
+            })
+        );
     });
 });

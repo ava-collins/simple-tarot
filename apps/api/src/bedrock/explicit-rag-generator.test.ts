@@ -7,7 +7,11 @@ import {
 } from '../composer/test-fixture';
 import type { GeneratedReading } from '../readings/contracts';
 import { createExplicitRagReadingGenerator } from './explicit-rag-generator';
-import { activeCorpusFilterFor } from './retrieval-filter';
+import {
+    activeCorpusEvaluationFilterFor,
+    activeCorpusFilterFor
+} from './retrieval-filter';
+import { buildRetrievalEvidence } from './retrieval-evidence';
 import { buildRetrievalQuery } from './retrieval-query-builder';
 
 const generatedReading: GeneratedReading = {
@@ -15,6 +19,15 @@ const generatedReading: GeneratedReading = {
     mode: 'bedrock',
     modelId: 'test-model',
     text: 'Generated reading.'
+};
+
+const generationTrace = {
+    durationMs: 20,
+    inputTokens: 100,
+    modelId: 'test-model',
+    outputCharacterCount: generatedReading.text.length,
+    outputTokens: 25,
+    stopReason: 'end_turn'
 };
 
 describe('createExplicitRagReadingGenerator', () => {
@@ -32,7 +45,7 @@ describe('createExplicitRagReadingGenerator', () => {
             converse: {
                 generate: async (prompt, requestId) => {
                     converseInputs.push({ prompt, requestId });
-                    return generatedReading;
+                    return { generated: generatedReading, trace: generationTrace };
                 }
             },
             logInfo: (message, logContext) =>
@@ -40,14 +53,33 @@ describe('createExplicitRagReadingGenerator', () => {
             retriever: {
                 retrieve: async input => {
                     retrievalInputs.push(input);
-                    return [
-                        { text: firstEvidence },
-                        { text: '   ' },
-                        { text: secondEvidence }
-                    ];
+                    return {
+                        durationMs: 12,
+                        requestedResultCount: 5,
+                        results: [
+                            {
+                                documentId: 'first-theme',
+                                score: 0.9,
+                                text: firstEvidence
+                            },
+                            { text: '   ' },
+                            { text: secondEvidence }
+                        ]
+                    };
                 }
             }
         });
+
+        const prompt = buildExplicitGenerationPrompt(
+            sanitizedCelticCrossRequest,
+            context,
+            [firstEvidence.slice(0, 2_000), secondEvidence]
+        );
+        const evidence = buildRetrievalEvidence([
+            { documentId: 'first-theme', score: 0.9, text: firstEvidence },
+            { text: '   ' },
+            { text: secondEvidence }
+        ]);
 
         await expect(
             generator.generateReading({
@@ -55,7 +87,28 @@ describe('createExplicitRagReadingGenerator', () => {
                 request: sanitizedCelticCrossRequest,
                 requestId: 'request-123'
             })
-        ).resolves.toEqual(generatedReading);
+        ).resolves.toEqual({
+            generated: generatedReading,
+            trace: {
+                generation: generationTrace,
+                prompt,
+                retrieval: {
+                    durationMs: 12,
+                    filter: activeCorpusEvaluationFilterFor(
+                        context.corpusVersion
+                    ),
+                    query: buildRetrievalQuery(
+                        sanitizedCelticCrossRequest,
+                        context
+                    ),
+                    requestedResultCount: 5,
+                    results: evidence.results,
+                    returnedResultCount: 3,
+                    totalEvidenceCharacters: evidence.totalEvidenceCharacters,
+                    usableResultCount: 2
+                }
+            }
+        });
         expect(retrievalInputs).toEqual([
             {
                 filter: activeCorpusFilterFor(context.corpusVersion),
@@ -65,11 +118,7 @@ describe('createExplicitRagReadingGenerator', () => {
         ]);
         expect(converseInputs).toEqual([
             {
-                prompt: buildExplicitGenerationPrompt(
-                    sanitizedCelticCrossRequest,
-                    context,
-                    [firstEvidence.slice(0, 2_000), secondEvidence]
-                ),
+                prompt,
                 requestId: 'request-123'
             }
         ]);
@@ -97,13 +146,17 @@ describe('createExplicitRagReadingGenerator', () => {
             converse: {
                 generate: async (prompt, requestId) => {
                     converseInputs.push({ prompt, requestId });
-                    return generatedReading;
+                    return { generated: generatedReading, trace: generationTrace };
                 }
             },
             logInfo: (message, logContext) =>
                 logs.push({ context: logContext, message }),
             retriever: {
-                retrieve: async () => []
+                retrieve: async () => ({
+                    durationMs: 5,
+                    requestedResultCount: 5,
+                    results: []
+                })
             }
         });
 
@@ -146,7 +199,7 @@ describe('createExplicitRagReadingGenerator', () => {
             converse: {
                 generate: async () => {
                     converseCallCount += 1;
-                    return generatedReading;
+                    return { generated: generatedReading, trace: generationTrace };
                 }
             },
             logInfo: () => {},

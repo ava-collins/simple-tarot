@@ -15,7 +15,8 @@ import {
 } from './logger';
 import { avatarsRouter } from './routes/avatars';
 import { healthRouter } from './routes/health';
-import { readingsRouter } from './routes/readings';
+import { createReadingRuntime, type ReadingRuntime } from './readings/runtime';
+import { createReadingsRouter } from './routes/readings';
 
 const { eventContext } = require('@codegenie/serverless-express/src/middleware') as {
     eventContext: () => RequestHandler;
@@ -23,11 +24,15 @@ const { eventContext } = require('@codegenie/serverless-express/src/middleware')
 
 export type CreateApiServerOptions = {
     config?: ApiConfig;
+    readingRuntime?: ReadingRuntime;
     tokenVerifier?: CognitoJwtVerifier;
 };
 
 export function createApiServer(options: CreateApiServerOptions = {}) {
     const config = options.config ?? getApiConfig();
+    const readingRuntime =
+        options.readingRuntime ?? createReadingRuntime(config);
+    const readingsRouter = createReadingsRouter(readingRuntime);
     const app = express();
 
     app.use(express.json());

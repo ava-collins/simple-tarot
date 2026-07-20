@@ -25,6 +25,7 @@ const prompt: GenerationPrompt = {
 describe('createConverseGenerator', () => {
     it('sends one Converse command and joins text output blocks', async () => {
         const sentInputs: unknown[] = [];
+        let now = 10;
         const generator = createConverseGenerator(
             config,
             {
@@ -41,22 +42,40 @@ describe('createConverseGenerator', () => {
                                 role: 'assistant'
                             }
                         },
-                        stopReason: 'end_turn'
+                        stopReason: 'end_turn',
+                        usage: {
+                            inputTokens: 42,
+                            outputTokens: 7,
+                            totalTokens: 49
+                        }
                     };
                 }
             },
             {
                 logError: () => {},
                 logInfo: () => {},
-                now: () => 100
+                now: () => {
+                    now += 5;
+                    return now;
+                }
             }
         );
 
         await expect(generator.generate(prompt, 'request-123')).resolves.toEqual({
-            citations: [],
-            mode: 'bedrock',
-            modelId: config.modelArn,
-            text: 'Overall reading.\nCard interpretation.'
+            generated: {
+                citations: [],
+                mode: 'bedrock',
+                modelId: config.modelArn,
+                text: 'Overall reading.\nCard interpretation.'
+            },
+            trace: {
+                durationMs: 5,
+                inputTokens: 42,
+                modelId: config.modelArn,
+                outputCharacterCount: 37,
+                outputTokens: 7,
+                stopReason: 'end_turn'
+            }
         });
         expect(sentInputs).toEqual([
             {

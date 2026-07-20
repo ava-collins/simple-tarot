@@ -95,8 +95,10 @@ export function createConverseGenerator(
                     throw new BedrockGenerationUnavailableError();
                 }
 
+                const durationMs = Math.max(0, now() - startedAt);
+
                 logInfo('Bedrock Converse completed.', {
-                    durationMs: Math.max(0, now() - startedAt),
+                    durationMs,
                     inputTokens: output.usage?.inputTokens,
                     modelArn: config.modelArn,
                     outputLength: text.length,
@@ -108,10 +110,26 @@ export function createConverseGenerator(
                 });
 
                 return {
-                    citations: [],
-                    mode: 'bedrock',
-                    modelId: config.modelArn,
-                    text
+                    generated: {
+                        citations: [],
+                        mode: 'bedrock',
+                        modelId: config.modelArn,
+                        text
+                    },
+                    trace: {
+                        durationMs,
+                        ...(output.usage?.inputTokens === undefined
+                            ? {}
+                            : { inputTokens: output.usage.inputTokens }),
+                        modelId: config.modelArn,
+                        outputCharacterCount: text.length,
+                        ...(output.usage?.outputTokens === undefined
+                            ? {}
+                            : { outputTokens: output.usage.outputTokens }),
+                        ...(output.stopReason === undefined
+                            ? {}
+                            : { stopReason: output.stopReason })
+                    }
                 };
             } catch (error) {
                 const safeError = safeGenerationErrorFor(error);

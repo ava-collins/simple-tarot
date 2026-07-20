@@ -1,7 +1,10 @@
 import { buildExplicitGenerationPrompt } from '../composer/prompt-builder';
 import type { AppLogger } from '../logger';
 import { logger } from '../logger';
-import { activeCorpusFilterFor } from './retrieval-filter';
+import {
+    activeCorpusEvaluationFilterFor,
+    activeCorpusFilterFor
+} from './retrieval-filter';
 import { buildRetrievalEvidence } from './retrieval-evidence';
 import { buildRetrievalQuery } from './retrieval-query-builder';
 import type {
@@ -24,12 +27,12 @@ export function createExplicitRagReadingGenerator({
     return {
         async generateReading(input) {
             const query = buildRetrievalQuery(input.request, input.context);
-            const results = await retriever.retrieve({
+            const retrieval = await retriever.retrieve({
                 filter: activeCorpusFilterFor(input.context.corpusVersion),
                 query,
                 requestId: input.requestId
             });
-            const evidence = buildRetrievalEvidence(results);
+            const evidence = buildRetrievalEvidence(retrieval.results);
             logInfo('Retrieval evidence prepared.', {
                 requestId: input.requestId,
                 usableResultCount: evidence.usableResultCount,
@@ -41,7 +44,28 @@ export function createExplicitRagReadingGenerator({
                 evidence.chunks
             );
 
-            return converse.generate(prompt, input.requestId);
+            const generation = await converse.generate(prompt, input.requestId);
+
+            return {
+                generated: generation.generated,
+                trace: {
+                    generation: generation.trace,
+                    prompt,
+                    retrieval: {
+                        durationMs: retrieval.durationMs,
+                        filter: activeCorpusEvaluationFilterFor(
+                            input.context.corpusVersion
+                        ),
+                        query,
+                        requestedResultCount: retrieval.requestedResultCount,
+                        results: evidence.results,
+                        returnedResultCount: retrieval.results.length,
+                        totalEvidenceCharacters:
+                            evidence.totalEvidenceCharacters,
+                        usableResultCount: evidence.usableResultCount
+                    }
+                }
+            };
         }
     };
 }

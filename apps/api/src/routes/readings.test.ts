@@ -1,6 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 import { AuthenticatedUser } from '../auth/auth-context';
-import { BedrockGenerationUnavailableError } from '../bedrock/errors';
 import { composeReadingContext } from '../composer/compose-reading';
 import {
     ComposerDomainError,
@@ -13,7 +12,12 @@ import {
 import { GeneratedReading, ReadingRequest } from '../readings/contracts';
 import { ReadingHistoryRecord, ReadingHistoryStore } from '../readings/persistence/contracts';
 import {
-    createBedrockRouteGenerator,
+    ReadingExecutionError,
+    type ReadingExecution,
+    type ReadingExecutor
+} from '../readings/reading-executor';
+import { mapGeneratedReadingResponse } from '../readings/response-mapper';
+import {
     createListReadingsHandler,
     createPostReadingHandler
 } from './readings';
@@ -40,6 +44,21 @@ const generatedReading: GeneratedReading = {
         'guidance: The Star upright highlights a simple next step.'
     ].join('\n')
 };
+
+const disabledExecution: ReadingExecution = {
+    composerMetadata: { composerMode: 'disabled' },
+    generated: generatedReading,
+    reading: mapGeneratedReadingResponse(requestBody, generatedReading)
+};
+
+const createExecutor = (
+    result: ReadingExecution | Error = disabledExecution
+): ReadingExecutor => ({
+    execute:
+        result instanceof Error
+            ? vi.fn().mockRejectedValue(result)
+            : vi.fn().mockResolvedValue(result)
+});
 
 const authenticatedUser: AuthenticatedUser = {
     claims: {
@@ -95,37 +114,66 @@ const createRequest = (body: unknown = requestBody) =>
     }) as never;
 
 describe('createPostReadingHandler', () => {
-    it('keeps disabled mode local without invoking composer', async () => {
-        const compose = vi.fn();
-        const generateReading = vi.fn().mockResolvedValue(generatedReading);
-        const handler = createPostReadingHandler({
-            composerMode: 'disabled',
-            composerRuntime: { compose },
-            generateReading
-        });
+    it('delegates one validated request and request ID to the executor', async () => {
+        const executor = createExecutor();
+        const handler = createPostReadingHandler({ executor });
 
         await handler(createRequest(), createResponse() as never, vi.fn());
 
-        expect(compose).not.toHaveBeenCalled();
-        expect(generateReading).toHaveBeenCalledWith(
-            requestBody,
-            undefined,
-            'request-123'
-        );
+        expect(executor.execute).toHaveBeenCalledWith(requestBody, 'request-123');
     });
 
-    it('composes enabled requests before generation and persists no evidence', async () => {
+    it('persists the enabled reading but neither trace nor resolved context', async () => {
         const context = composeReadingContext(
             sanitizedSingleCardRequest,
             sanitizedComposerBundle
         );
-        const compose = vi.fn().mockResolvedValue(context);
-        const generateReading = vi.fn().mockResolvedValue(generatedReading);
+        const composerMetadata = {
+            composerMode: 'enabled' as const,
+            corpusVersion: context.corpusVersion,
+            namedPairCount: 0,
+            wholeSpreadCount: 0
+        };
+        const executor = createExecutor({
+            composerMetadata,
+            context,
+            generated: generatedReading,
+            reading: mapGeneratedReadingResponse(
+                sanitizedSingleCardRequest,
+                generatedReading,
+                composerMetadata
+            ),
+            trace: {
+                generation: {
+                    durationMs: 1,
+                    modelId: 'private-model-marker',
+                    outputCharacterCount: generatedReading.text.length
+                },
+                prompt: {
+                    system: 'private-system-marker',
+                    user: 'private-user-marker'
+                },
+                retrieval: {
+                    durationMs: 1,
+                    filter: {
+                        corpusVersion: context.corpusVersion,
+                        documentKind: 'correspondence-theme',
+                        status: 'approved'
+                    },
+                    query: 'private-query-marker',
+                    requestedResultCount: 5,
+                    results: [],
+                    returnedResultCount: 0,
+                    totalEvidenceCharacters: 0,
+                    usableResultCount: 0
+                }
+            }
+        });
         const store = createStore();
+        const apiLogSink = { write: vi.fn().mockResolvedValue(undefined) };
         const handler = createPostReadingHandler({
-            composerMode: 'enabled',
-            composerRuntime: { compose },
-            generateReading,
+            apiLogSink,
+            executor,
             readingHistoryStore: store
         });
 
@@ -137,15 +185,6 @@ describe('createPostReadingHandler', () => {
             vi.fn()
         );
 
-        expect(compose).toHaveBeenCalledWith(
-            sanitizedSingleCardRequest,
-            'request-123'
-        );
-        expect(generateReading).toHaveBeenCalledWith(
-            sanitizedSingleCardRequest,
-            context,
-            'request-123'
-        );
         expect(response.json).toHaveBeenCalledWith(
             expect.objectContaining({
                 metadata: expect.objectContaining({
@@ -161,7 +200,10 @@ describe('createPostReadingHandler', () => {
                 vi.mocked(store.saveSuccessfulReading).mock.calls[0]?.[0]
             )
         ).not.toMatch(
-            /retrieved|evidence|theme|fact|score|location|sourceId|ruleId/
+            /private-system-marker|private-user-marker|private-query-marker|resolvedContext|retrieval|prompt|trace/
+        );
+        expect(JSON.stringify(apiLogSink.write.mock.calls)).not.toMatch(
+            /private-system-marker|private-user-marker|private-query-marker|resolvedContext|retrieval|prompt|trace/
         );
     });
 
@@ -169,19 +211,15 @@ describe('createPostReadingHandler', () => {
         new ComposerDomainError('INVALID_CARD_SELECTION'),
         new ComposerUnavailableError('PRIVATE_REASON_MARKER')
     ])('fails closed when enabled composition rejects', async error => {
-        const generateReading = vi.fn();
         const handler = createPostReadingHandler({
-            composerMode: 'enabled',
-            composerRuntime: {
-                compose: vi.fn().mockRejectedValue(error)
-            },
-            generateReading
+            executor: createExecutor(
+                new ReadingExecutionError(error, { composerMode: 'enabled' })
+            )
         });
         const next = vi.fn();
 
         await handler(createRequest(), createResponse() as never, next);
 
-        expect(generateReading).not.toHaveBeenCalled();
         expect(next).toHaveBeenCalledWith(error);
     });
 
@@ -193,11 +231,14 @@ describe('createPostReadingHandler', () => {
         const store = createStore();
         const error = new Error('generation failed');
         const handler = createPostReadingHandler({
-            composerMode: 'enabled',
-            composerRuntime: {
-                compose: vi.fn().mockResolvedValue(context)
-            },
-            generateReading: vi.fn().mockRejectedValue(error),
+            executor: createExecutor(
+                new ReadingExecutionError(error, {
+                    composerMode: 'enabled',
+                    corpusVersion: context.corpusVersion,
+                    namedPairCount: 0,
+                    wholeSpreadCount: 0
+                })
+            ),
             generationMode: 'bedrock',
             readingHistoryStore: store
         });
@@ -235,7 +276,7 @@ describe('createPostReadingHandler', () => {
         };
         const handler = createPostReadingHandler({
             apiLogSink,
-            generateReading: vi.fn().mockResolvedValue(generatedReading),
+            executor: createExecutor(),
             now: vi.fn().mockReturnValue(new Date('2026-07-02T14:00:00.000Z')),
             readingHistoryStore: store
         });
@@ -303,7 +344,11 @@ describe('createPostReadingHandler', () => {
         });
         const handler = createPostReadingHandler({
             apiLogSink,
-            generateReading: vi.fn().mockRejectedValue(error),
+            executor: createExecutor(
+                new ReadingExecutionError(error, {
+                    composerMode: 'disabled'
+                })
+            ),
             now: vi.fn().mockReturnValue(new Date('2026-07-02T14:01:00.000Z')),
             readingHistoryStore: store
         });
@@ -349,7 +394,11 @@ describe('createPostReadingHandler', () => {
             }
         });
         const handler = createPostReadingHandler({
-            generateReading: vi.fn().mockRejectedValue(error),
+            executor: createExecutor(
+                new ReadingExecutionError(error, {
+                    composerMode: 'disabled'
+                })
+            ),
             generationMode: 'bedrock',
             now: vi.fn().mockReturnValue(new Date('2026-07-15T18:00:00.000Z')),
             readingHistoryStore: store
@@ -366,37 +415,6 @@ describe('createPostReadingHandler', () => {
                 }
             })
         );
-    });
-});
-
-describe('createBedrockRouteGenerator', () => {
-    it('fails closed without composed context', async () => {
-        const generateReading = vi.fn();
-        const routeGenerator = createBedrockRouteGenerator({ generateReading });
-
-        await expect(
-            routeGenerator(sanitizedSingleCardRequest, undefined, 'request-123')
-        ).rejects.toBeInstanceOf(BedrockGenerationUnavailableError);
-        expect(generateReading).not.toHaveBeenCalled();
-    });
-
-    it('forwards request, context, and request ID exactly once', async () => {
-        const context = composeReadingContext(
-            sanitizedSingleCardRequest,
-            sanitizedComposerBundle
-        );
-        const generateReading = vi.fn().mockResolvedValue(generatedReading);
-        const routeGenerator = createBedrockRouteGenerator({ generateReading });
-
-        await expect(
-            routeGenerator(sanitizedSingleCardRequest, context, 'request-123')
-        ).resolves.toEqual(generatedReading);
-        expect(generateReading).toHaveBeenCalledTimes(1);
-        expect(generateReading).toHaveBeenCalledWith({
-            context,
-            request: sanitizedSingleCardRequest,
-            requestId: 'request-123'
-        });
     });
 });
 

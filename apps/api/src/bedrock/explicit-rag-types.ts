@@ -1,6 +1,11 @@
 import type { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import type { ComposedReadingContext } from '../composer/contracts';
 import type { GeneratedReading, ReadingRequest } from '../readings/contracts';
+import type {
+    ExplicitRagEvaluationTrace,
+    GenerationEvaluationTrace,
+    RetrievalEvaluationResult
+} from '../evaluations/contracts';
 
 export type ExplicitBedrockConfig = {
     knowledgeBaseId: string;
@@ -11,11 +16,21 @@ export type ExplicitBedrockConfig = {
 };
 
 export type RetrievedTextResult = {
+    documentId?: string;
+    score?: number;
     text?: string;
+};
+
+export type KnowledgeBaseRetrievalExecution = {
+    durationMs: number;
+    requestedResultCount: number;
+    results: RetrievedTextResult[];
 };
 
 export type RetrievalEvidence = {
     chunks: string[];
+    results: RetrievalEvaluationResult[];
+    totalEvidenceCharacters: number;
     usableResultCount: number;
 };
 
@@ -29,11 +44,14 @@ export type KnowledgeBaseRetriever = {
         filter: RetrievalFilter;
         query: string;
         requestId?: string;
-    }): Promise<RetrievedTextResult[]>;
+    }): Promise<KnowledgeBaseRetrievalExecution>;
 };
 
 export type ConverseGenerator = {
-    generate(prompt: GenerationPrompt, requestId?: string): Promise<GeneratedReading>;
+    generate(prompt: GenerationPrompt, requestId?: string): Promise<{
+        generated: GeneratedReading;
+        trace: GenerationEvaluationTrace;
+    }>;
 };
 
 export type ExplicitRagGenerationInput = {
@@ -43,5 +61,8 @@ export type ExplicitRagGenerationInput = {
 };
 
 export type ExplicitRagReadingGenerator = {
-    generateReading(input: ExplicitRagGenerationInput): Promise<GeneratedReading>;
+    generateReading(input: ExplicitRagGenerationInput): Promise<{
+        generated: GeneratedReading;
+        trace: ExplicitRagEvaluationTrace;
+    }>;
 };
