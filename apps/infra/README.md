@@ -21,7 +21,8 @@ This workspace contains the AWS CDK v2 app for Simple Tarot infrastructure.
 `dev` is the pre-production/test environment and `prod` is the production
 definition. The dev deployment targets `us-east-2` and provisions the
 full Cognito, user-data, Bedrock RAG, and API path with Bedrock generation and deterministic
-composer runtime enabled.
+composer runtime enabled. Development also runs the authenticated, non-persisting
+retrieval-evaluation route; production omits that surface.
 
 ## App Structure
 
@@ -179,6 +180,7 @@ The stack creates:
     Knowledge Base and application inference profile, user-data table, and API
     log bucket
 -   development-only composer mode, corpus bucket, and data-source identities
+-   development-only Cognito application configuration and `EVALUATION_RUNTIME_MODE=enabled`
 -   least-privilege grants for DynamoDB read/write and S3 API log writes
 -   development-only `s3:GetObject` for the active pointer, release manifests,
     and composer bundles
@@ -212,7 +214,10 @@ provides an approved artifact.
 
 Development sets `COMPOSER_RUNTIME_MODE=enabled` and consumes
 `BEDROCK_CORPUS_BUCKET` plus `BEDROCK_DATA_SOURCE_ID` through strong same-stage references.
-Production sets composer mode disabled and has no composer S3 grant. See
+It also sets `API_AUTH_MODE=cognito`, the same-stage Cognito issuer/client ID, and
+`EVALUATION_RUNTIME_MODE=enabled`; this mounts `POST /reading-evaluations` behind the existing JWT
+boundary without adding a resource or IAM permission. Production sets composer mode disabled,
+omits evaluation configuration, and has no composer S3 grant. See
 [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md) for loading,
 compatibility, verification, and rollback.
 
@@ -287,6 +292,13 @@ Development composer handoff:
 -   `BedrockCorpusBucketName` -> `BEDROCK_CORPUS_BUCKET`
 -   `BedrockDataSourceId` -> `BEDROCK_DATA_SOURCE_ID`
 -   environment definition -> `COMPOSER_RUNTIME_MODE=enabled`
+
+Development evaluation handoff:
+
+-   `CognitoIssuer` -> `COGNITO_ISSUER`
+-   `CognitoUserPoolClientId` -> `COGNITO_CLIENT_ID`
+-   environment definition -> `API_AUTH_MODE=cognito`
+-   environment definition -> `EVALUATION_RUNTIME_MODE=enabled`
 
 User-data outputs:
 
@@ -366,6 +378,11 @@ The unauthenticated health request should return `401`, confirming that the
 deployed API authorizer is active.
 
 ## Rollback
+
+To remove only the evaluation surface, set `EVALUATION_RUNTIME_MODE=disabled` or omit it and
+redeploy the development API stack. The route then returns 404 and normal readings continue through
+the same executor. This switch does not require an IAM, database, Knowledge Base, data-source, or
+corpus change.
 
 For composer-only rollback, review a development diff with composer mode disabled. It must remove
 `BEDROCK_CORPUS_BUCKET`, `BEDROCK_DATA_SOURCE_ID`, the three composer `s3:GetObject` patterns, and

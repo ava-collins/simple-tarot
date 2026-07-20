@@ -91,6 +91,14 @@ describe('SimpleTarotStage', () => {
     );
     expect(variables.BEDROCK_RUNTIME_MODE).toBe('bedrock');
     expect(variables.COMPOSER_RUNTIME_MODE).toBe('enabled');
+    expect(variables.API_AUTH_MODE).toBe('cognito');
+    expect(variables.EVALUATION_RUNTIME_MODE).toBe('enabled');
+    expect(JSON.stringify(variables.COGNITO_CLIENT_ID)).toContain(
+      'SimpleTarotCognito-dev'
+    );
+    expect(JSON.stringify(variables.COGNITO_ISSUER)).toContain(
+      'SimpleTarotCognito-dev'
+    );
     expect(variables.BEDROCK_REGION).toBe('us-east-2');
     expect(JSON.stringify(variables.BEDROCK_KNOWLEDGE_BASE_ID)).toContain(
       'SimpleTarotBedrockRag-dev'
@@ -113,8 +121,12 @@ describe('SimpleTarotStage', () => {
     const variables = fn.Properties.Environment.Variables;
 
     expect(variables.COMPOSER_RUNTIME_MODE).toBe('disabled');
+    expect(variables).not.toHaveProperty('API_AUTH_MODE');
     expect(variables).not.toHaveProperty('BEDROCK_CORPUS_BUCKET');
     expect(variables).not.toHaveProperty('BEDROCK_DATA_SOURCE_ID');
+    expect(variables).not.toHaveProperty('COGNITO_CLIENT_ID');
+    expect(variables).not.toHaveProperty('COGNITO_ISSUER');
+    expect(variables).not.toHaveProperty('EVALUATION_RUNTIME_MODE');
   });
 
   it('tags owned resources', () => {

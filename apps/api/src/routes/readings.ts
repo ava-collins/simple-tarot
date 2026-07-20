@@ -1,103 +1,43 @@
-import { Request, RequestHandler, Response, Router } from 'express';
-import { createConverseGenerator } from '../bedrock/converse-client';
-import { BedrockGenerationUnavailableError } from '../bedrock/errors';
-import { createExplicitRagReadingGenerator } from '../bedrock/explicit-rag-generator';
-import type { ExplicitRagReadingGenerator } from '../bedrock/explicit-rag-types';
-import { createKnowledgeBaseRetriever } from '../bedrock/knowledge-base-retriever';
-import { ComposerRuntimeConfig, getApiConfig } from '../config';
+import { RequestHandler, Router } from 'express';
 import { UnauthorizedError } from '../auth/auth-context';
-import { createComposerBundleLoader } from '../composer/bundle-loader';
-import type { ComposedReadingContext } from '../composer/contracts';
-import { ComposerUnavailableError } from '../composer/errors';
-import { ComposerRuntime, createComposerRuntime } from '../composer/runtime';
-import { createS3ArtifactReader } from '../composer/s3-artifact-reader';
 import { toApiError } from '../errors';
-import { ApiLogSink } from '../logging/api-log-sink';
-import { createS3ApiLogSink } from '../logging/api-log-sink';
+import type { ApiLogSink } from '../logging/api-log-sink';
 import {
     ComposerResponseMetadata,
     GeneratedReading,
     ReadingRequest
 } from '../readings/contracts';
 import { createLocalGeneratedReading } from '../readings/local-generated-reading';
-import { createDynamoDbReadingHistoryStore } from '../readings/persistence/dynamodb-reading-history-store';
 import {
     ReadingHistoryRecord,
     ReadingHistoryStore
 } from '../readings/persistence/contracts';
-import { mapGeneratedReadingResponse } from '../readings/response-mapper';
+import {
+    ReadingExecutionError,
+    createReadingExecutor,
+    type ReadingExecution,
+    type ReadingExecutor
+} from '../readings/reading-executor';
 import { validateReadingRequest } from '../readings/validation';
-
-type ReadingGenerator = (
-    request: ReadingRequest,
-    context?: ComposedReadingContext,
-    requestId?: string
-) => Promise<GeneratedReading>;
+import {
+    authenticatedUserIdFor,
+    cognitoIssuerFor,
+    readingLogEventBaseFor
+} from './reading-request-context';
 
 export type ReadingsRouterOptions = {
     apiLogSink?: ApiLogSink;
-    composerMode?: ComposerRuntimeConfig['mode'];
-    composerRuntime?: ComposerRuntime;
-    generateReading?: ReadingGenerator;
+    executor?: ReadingExecutor;
     generationMode?: GeneratedReading['mode'];
     now?: () => Date;
     readingHistoryStore?: ReadingHistoryStore;
 };
 
-const defaultGenerateReading: ReadingGenerator = async request =>
-    createLocalGeneratedReading(request);
-
-export const createBedrockRouteGenerator = (
-    explicitRagGenerator: ExplicitRagReadingGenerator
-): ReadingGenerator => async (request, context, requestId) => {
-    if (!context) {
-        throw new BedrockGenerationUnavailableError();
-    }
-
-    return explicitRagGenerator.generateReading({
-        context,
-        request,
-        requestId
-    });
-};
-
-const authenticatedUserIdFor = (res: Response): string | undefined =>
-    typeof res.locals.authenticatedUser?.userId === 'string'
-        ? res.locals.authenticatedUser.userId
-        : undefined;
-
-const cognitoIssuerFor = (res: Response): string | undefined =>
-    typeof res.locals.authenticatedUser?.claims?.iss === 'string'
-        ? res.locals.authenticatedUser.claims.iss
-        : undefined;
-
-const sourceIpFor = (req: Request): string => {
-    const forwardedFor = req.header('x-forwarded-for');
-
-    if (forwardedFor) {
-        return forwardedFor.split(',')[0]?.trim() ?? '';
-    }
-
-    return req.ip ?? '';
-};
-
-const logEventBaseFor = (
-    req: Request,
-    res: Response,
-    timestamp: string,
-    startedAtMs: number,
-    statusCode: number
-) => ({
-    cognitoSub: authenticatedUserIdFor(res),
-    durationMs: Math.max(0, Date.parse(timestamp) - startedAtMs),
-    hasQuestion: typeof req.body?.question === 'string' && req.body.question.length > 0,
-    method: req.method,
-    requestId: res.locals.requestId,
-    route: req.originalUrl,
-    sourceIp: sourceIpFor(req),
-    statusCode,
-    timestamp,
-    userAgent: req.header('user-agent')
+const defaultExecutor = createReadingExecutor({
+    composerMode: 'disabled',
+    generate: async request => ({
+        generated: createLocalGeneratedReading(request)
+    })
 });
 
 const generationMetadataFor = (
@@ -131,9 +71,7 @@ const limitFor = (value: unknown): number | undefined => {
 
 export const createPostReadingHandler = ({
     apiLogSink,
-    composerMode = 'disabled',
-    composerRuntime,
-    generateReading = defaultGenerateReading,
+    executor = defaultExecutor,
     generationMode = 'local',
     now = () => new Date(),
     readingHistoryStore
@@ -151,39 +89,21 @@ export const createPostReadingHandler = ({
 
     const createdAt = now().toISOString();
     const userId = authenticatedUserIdFor(res);
-    let generated: GeneratedReading;
-    let context: ComposedReadingContext | undefined;
-    let composerMetadata: ComposerResponseMetadata = {
-        composerMode
-    };
+    let execution: ReadingExecution;
 
     try {
-        if (composerMode === 'enabled') {
-            if (!composerRuntime) {
-                throw new ComposerUnavailableError(
-                    'COMPOSER_RUNTIME_NOT_CONFIGURED'
-                );
-            }
-
-            context = await composerRuntime.compose(
-                validation.value,
-                res.locals.requestId
-            );
-            composerMetadata = {
-                composerMode: 'enabled',
-                corpusVersion: context.corpusVersion,
-                namedPairCount: context.namedPairResults.length,
-                wholeSpreadCount: context.wholeSpreadResults.length
-            };
-        }
-
-        generated = await generateReading(
+        execution = await executor.execute(
             validation.value,
-            context,
             res.locals.requestId
         );
     } catch (error) {
-        const apiError = toApiError(error);
+        const cause =
+            error instanceof ReadingExecutionError ? error.cause : error;
+        const composerMetadata =
+            error instanceof ReadingExecutionError
+                ? error.composerMetadata
+                : { composerMode: 'disabled' as const };
+        const apiError = toApiError(cause);
 
         if (readingHistoryStore && userId) {
             await readingHistoryStore.saveFailedReadingAttempt({
@@ -205,29 +125,29 @@ export const createPostReadingHandler = ({
         }
 
         await apiLogSink?.write({
-            ...logEventBaseFor(req, res, createdAt, startedAtMs, apiError.status),
+            ...readingLogEventBaseFor(
+                req,
+                res,
+                createdAt,
+                startedAtMs,
+                apiError.status
+            ),
             errorCode: apiError.body.code,
             errorMessage: apiError.body.message
         });
 
-        next(error);
+        next(cause);
 
         return;
     }
-
-    const readingResponse = mapGeneratedReadingResponse(
-        validation.value,
-        generated,
-        composerMetadata
-    );
 
     try {
         if (readingHistoryStore && userId) {
             await readingHistoryStore.saveSuccessfulReading({
                 cognitoIssuer: cognitoIssuerFor(res),
                 createdAt,
-                generatedReading: generated,
-                readingResponse,
+                generatedReading: execution.generated,
+                readingResponse: execution.reading,
                 request: validation.value,
                 requestId: res.locals.requestId,
                 userId
@@ -235,11 +155,11 @@ export const createPostReadingHandler = ({
         }
 
         await apiLogSink?.write({
-            ...logEventBaseFor(req, res, createdAt, startedAtMs, 200),
-            readingId: readingResponse.readingId
+            ...readingLogEventBaseFor(req, res, createdAt, startedAtMs, 200),
+            readingId: execution.reading.readingId
         });
 
-        res.status(200).json(readingResponse);
+        res.status(200).json(execution.reading);
     } catch (error) {
         next(error);
     }
@@ -276,60 +196,11 @@ export const createListReadingsHandler = ({
     }
 };
 
-const defaultOptions = (): ReadingsRouterOptions => {
-    const config = getApiConfig();
-    const explicitRagGenerator =
-        config.bedrock.mode === 'bedrock'
-            ? createExplicitRagReadingGenerator({
-                  converse: createConverseGenerator(config.bedrock),
-                  retriever: createKnowledgeBaseRetriever(config.bedrock)
-              })
-            : undefined;
-    const composerRuntime =
-        config.bedrock.mode === 'bedrock' && config.composer.mode === 'enabled'
-            ? createComposerRuntime({
-                  loader: createComposerBundleLoader({
-                      dataSourceId: config.composer.dataSourceId,
-                      knowledgeBaseId: config.bedrock.knowledgeBaseId,
-                      reader: createS3ArtifactReader({
-                          bucketName: config.composer.bucketName
-                      })
-                  })
-              })
-            : undefined;
-    const generateReading: ReadingGenerator = explicitRagGenerator
-        ? createBedrockRouteGenerator(explicitRagGenerator)
-        : async request => createLocalGeneratedReading(request);
-
-    return {
-        apiLogSink: config.apiLog.bucketName
-            ? createS3ApiLogSink({
-                  bucketName: config.apiLog.bucketName
-              })
-            : undefined,
-        composerMode: config.composer.mode,
-        composerRuntime,
-        generateReading,
-        generationMode: config.bedrock.mode,
-        readingHistoryStore: config.userData.tableName
-            ? createDynamoDbReadingHistoryStore({
-                  tableName: config.userData.tableName
-              })
-            : undefined
-    };
-};
-
 export const createReadingsRouter = (options: ReadingsRouterOptions = {}) => {
     const router = Router();
-    const resolvedOptions = {
-        ...defaultOptions(),
-        ...options
-    };
 
-    router.get('/readings', createListReadingsHandler(resolvedOptions));
-    router.post('/readings', createPostReadingHandler(resolvedOptions));
+    router.get('/readings', createListReadingsHandler(options));
+    router.post('/readings', createPostReadingHandler(options));
 
     return router;
 };
-
-export const readingsRouter = createReadingsRouter();

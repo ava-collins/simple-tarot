@@ -1,7 +1,8 @@
 import {
     BedrockAgentRuntimeClient,
     RetrieveCommand,
-    type RetrieveCommandOutput
+    type RetrieveCommandOutput,
+    type RetrievalResultLocation
 } from '@aws-sdk/client-bedrock-agent-runtime';
 import type { AppLogger } from '../logger';
 import { logger } from '../logger';
@@ -29,6 +30,22 @@ const isThrottling = (error: unknown): boolean =>
     error !== null &&
     'name' in error &&
     error.name === 'ThrottlingException';
+
+const documentIdFor = (
+    location: RetrievalResultLocation | undefined
+): string | undefined => {
+    if (location?.type !== 'S3' || !location.s3Location?.uri) {
+        return undefined;
+    }
+
+    try {
+        const filename = new URL(location.s3Location.uri).pathname.split('/').pop();
+
+        return filename?.endsWith('.txt') ? filename.slice(0, -4) : undefined;
+    } catch {
+        return undefined;
+    }
+};
 
 export function createKnowledgeBaseRetriever(
     config: ExplicitBedrockConfig,
@@ -59,12 +76,23 @@ export function createKnowledgeBaseRetriever(
                         retrievalQuery: { text: input.query }
                     })
                 );
-                const results = (output.retrievalResults ?? []).map(result => ({
-                    text: result.content?.text
-                }));
+                const results = (output.retrievalResults ?? []).map(result => {
+                    const documentId = documentIdFor(result.location);
+
+                    return {
+                        ...(documentId === undefined ? {} : { documentId }),
+                        ...(result.score === undefined
+                            ? {}
+                            : { score: result.score }),
+                        ...(result.content?.text === undefined
+                            ? {}
+                            : { text: result.content.text })
+                    };
+                });
+                const durationMs = Math.max(0, now() - startedAt);
 
                 logInfo('Bedrock retrieval completed.', {
-                    durationMs: Math.max(0, now() - startedAt),
+                    durationMs,
                     knowledgeBaseId: config.knowledgeBaseId,
                     requestId: input.requestId,
                     requestedResultCount: config.retrievalResults,
@@ -72,7 +100,11 @@ export function createKnowledgeBaseRetriever(
                     zeroResults: results.length === 0
                 });
 
-                return results;
+                return {
+                    durationMs,
+                    requestedResultCount: config.retrievalResults,
+                    results
+                };
             } catch (error) {
                 const safeError = isThrottling(error)
                     ? new BedrockThrottledError()

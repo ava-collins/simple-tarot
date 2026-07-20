@@ -33,7 +33,9 @@ A yarn workspace monorepository to manage the mobile tarot application,
 AWS infrastructure, and shared React Native component libraries.
 
 `apps/api` is an Express REST API for generated tarot readings. It exposes
-`GET /health`, `GET /avatars`, `POST /readings`, and `GET /readings`. It
+`GET /health`, `GET /avatars`, `POST /readings`, and `GET /readings`. The development definition
+also includes an authenticated, non-persisting `POST /reading-evaluations` route for the private
+evaluation workflow. The development route is deployed and verified. It
 validates Cognito JWT tokens to support authenticated reading persistence to
 DynamoDB and reading history retrieval. It includes a local development mode
 and can call Bedrock Knowledge Bases in Bedrock runtime mode.
@@ -100,7 +102,7 @@ messages.
 ### Architecture
 
 -   [RSC Readings and Avatars Pilot](./docs/rsc-readings-and-avatars-pilot.md) — package boundaries for Expo Server Function wrappers, shared reading/avatar clients and hooks, UI screens, and rollback; linked from [Tarot App](./apps/tarot/README.md#rsc-pilot), [REST API](./apps/api/README.md#endpoints), and [Infrastructure](./apps/infra/README.md#expo-contract)
--   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — current end-to-end flow from mobile request through deterministic composition, explicit Knowledge Base retrieval, bounded internal evidence, Converse generation, and CloudFormation wiring
+-   [Bedrock RAG API Integration](./docs/bedrock_rag_api_integration.md) — current end-to-end flow from mobile request through shared deterministic execution, explicit Knowledge Base retrieval, bounded evidence, Converse generation, development-only evaluation, and CloudFormation wiring
 -   [Deterministic Composer Runtime](./docs/deterministic-composer-runtime.md) — implemented opaque active-bundle loading, deterministic card and relationship composition, evidence precedence, active-version filtering, safe metadata, development rollout, and rollback
 -   [Private Corpus Artifact Boundary](./docs/private-corpus-artifact-boundary.md) — public ownership and compatibility contract for approved opaque corpus artifacts without private source, compiler, or rule details
 -   [User Reading Persistence](./docs/user_reading_persistence.md) — DynamoDB single-table design, auth flow, S3 log structure, and AWS CLI inspection commands; see [Cognito → Expo Config Contract](./docs/cognito_expo_config_contract.md) for the auth identity source
@@ -118,6 +120,8 @@ messages.
 
 ### Planning
 
+-   [Private Retrieval-Evaluation Harness Design](./docs/superpowers/specs/2026-07-20-private-retrieval-evaluation-harness-design.md) — historical approved design for the implemented development-only evaluation endpoint and private harness; use the durable [Bedrock RAG architecture](./docs/bedrock_rag_api_integration.md) for current public behavior
+-   [Private Retrieval-Evaluation Harness Implementation Plan](./docs/superpowers/plans/2026-07-20-private-retrieval-evaluation-harness.md) — historical checkpoint plan for the implemented shared trace, development route, and private interactive records; use durable public and private operations documentation for current commands
 -   [Explicit Bedrock Retrieval and Converse Design](./docs/superpowers/specs/2026-07-18-explicit-retrieval-converse-design.md) — historical approved design for the implemented explicit retrieval and generation path; use the durable [Bedrock RAG architecture](./docs/bedrock_rag_api_integration.md) for current behavior
 -   [Explicit Bedrock Retrieval and Converse Implementation Plan](./docs/superpowers/plans/2026-07-18-explicit-retrieval-converse.md) — historical four-checkpoint implementation and development verification record; use the durable [Bedrock RAG architecture](./docs/bedrock_rag_api_integration.md) for current operations
 -   [Deterministic Composer Runtime Design](./docs/superpowers/specs/2026-07-18-deterministic-composer-runtime-design.md) — historical approved design for the implemented composer runtime; use the durable [runtime architecture](./docs/deterministic-composer-runtime.md) for current behavior

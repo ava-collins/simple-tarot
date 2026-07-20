@@ -71,7 +71,8 @@ When changing prompt behavior:
 - Update the matching focused test.
 - Keep card order, position, and orientation explicit in the prompt.
 - Keep retrieved themes after authoritative deterministic context, escaped as untrusted data, and
-  absent from responses, persistence, logs, and safe errors.
+  absent from normal responses, persistence, logs, and safe errors. Only the authenticated
+  development evaluation contract may return the already bounded candidate and admitted evidence.
 
 When changing composer runtime behavior:
 
@@ -81,7 +82,9 @@ When changing composer runtime behavior:
 - Preserve zero-based sequential spread-position order compatibility.
 - Preserve per-request pointer reads, immutable checksum/schema validation, one-entry cache, and
   fail-closed behavior.
-- Keep responses, persistence, errors, and logs aggregate-only; never add composed content.
+- Keep normal responses, persistence, errors, and logs aggregate-only; never add composed content.
+  The development evaluation route may return only the resolved context used for its reading,
+  never a complete bundle.
 
 When changing Bedrock runtime behavior:
 
@@ -99,6 +102,20 @@ When changing Bedrock runtime behavior:
 - The deployed API stack sets `BEDROCK_RUNTIME_MODE=bedrock` unconditionally;
   there is no deployed local-mode fallback. Local mode only applies to
   offline API development (`yarn api:dev` without Bedrock env vars).
+
+When changing evaluation behavior:
+
+- Read the durable evaluation section in `docs/bedrock_rag_api_integration.md` first.
+- Preserve the one shared `ReadingExecutor`; evaluation must not repeat composition, retrieval, or
+  Converse generation.
+- Preserve development-only mounting behind Cognito auth and the fail-closed Bedrock/composer
+  prerequisites. Production and disabled/local configurations return 404.
+- Preserve the separate response schema: reading-specific resolved context, bounded candidates,
+  exact admitted evidence, exact prompts, and safe metrics only.
+- Never add reading/profile persistence, content-bearing application logs, corpus mutation, a new
+  AWS resource, or an IAM permission for evaluation.
+- Keep saved cases, access-token environment values, human feedback, and run records in the private
+  corpus repository.
 
 When changing reading persistence behavior:
 

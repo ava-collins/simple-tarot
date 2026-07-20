@@ -8,6 +8,19 @@ const bedrockEnv = {
     BEDROCK_MODEL_ID: 'anthropic.claude-sonnet-4-5-20250929-v1:0'
 };
 
+const cognitoEnv = {
+    API_AUTH_MODE: 'cognito',
+    COGNITO_CLIENT_ID: 'public-client-id',
+    COGNITO_ISSUER:
+        'https://cognito-idp.us-east-1.amazonaws.com/us-east-1_example'
+};
+
+const composerEnv = {
+    COMPOSER_RUNTIME_MODE: 'enabled',
+    BEDROCK_CORPUS_BUCKET: 'invented-bucket',
+    BEDROCK_DATA_SOURCE_ID: 'DS123'
+};
+
 describe('getApiConfig', () => {
     it('uses disabled auth and local Bedrock runtime mode by default', () => {
         expect(getApiConfig({})).toMatchObject({
@@ -20,6 +33,9 @@ describe('getApiConfig', () => {
                 retrievalResults: 5
             },
             composer: {
+                mode: 'disabled'
+            },
+            evaluation: {
                 mode: 'disabled'
             }
         });
@@ -199,5 +215,48 @@ describe('getApiConfig', () => {
                 COMPOSER_RUNTIME_MODE: 'sometimes'
             })
         ).toThrow('Invalid COMPOSER_RUNTIME_MODE value "sometimes".');
+    });
+
+    it('enables evaluation with Cognito, Bedrock, and composer prerequisites', () => {
+        expect(
+            getApiConfig({
+                ...bedrockEnv,
+                ...cognitoEnv,
+                ...composerEnv,
+                EVALUATION_RUNTIME_MODE: 'enabled'
+            }).evaluation
+        ).toEqual({ mode: 'enabled' });
+    });
+
+    it.each([
+        {
+            env: { ...bedrockEnv, ...composerEnv },
+            missing: 'Cognito authentication'
+        },
+        {
+            env: { ...cognitoEnv, ...composerEnv },
+            missing: 'Bedrock runtime'
+        },
+        {
+            env: { ...bedrockEnv, ...cognitoEnv },
+            missing: 'enabled composer'
+        }
+    ])('rejects enabled evaluation without $missing', ({ env }) => {
+        expect(() =>
+            getApiConfig({
+                ...env,
+                EVALUATION_RUNTIME_MODE: 'enabled'
+            })
+        ).toThrow(
+            'Evaluation runtime requires Cognito authentication, Bedrock runtime, and enabled composer.'
+        );
+    });
+
+    it('rejects an unknown evaluation mode', () => {
+        expect(() =>
+            getApiConfig({
+                EVALUATION_RUNTIME_MODE: 'sometimes'
+            })
+        ).toThrow('Invalid EVALUATION_RUNTIME_MODE value "sometimes".');
     });
 });

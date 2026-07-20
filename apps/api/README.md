@@ -13,6 +13,7 @@
 -   `GET /avatars`
 -   `POST /readings`
 -   `GET /readings`
+-   development only: `POST /reading-evaluations`
 
 `GET /avatars` returns `{ thumbnails: string[] }` — a list of image URLs sourced
 from Google Images via SerpAPI. Requires `SERPAPI_API_KEY` in the environment;
@@ -34,6 +35,17 @@ with sanitized failure fields and are excluded from user-facing history.
 
 `GET /readings` returns the signed-in user's successful reading history newest
 first.
+
+`POST /reading-evaluations` accepts the same reading request and runs the same composer,
+retrieval, evidence, prompt, and Converse execution exactly once. It returns the normal reading
+plus the reading-specific resolved composer context, bounded ranked candidates and admitted
+evidence, exact system/user prompts, and generation metrics. It does not save a reading, failed
+attempt, or profile change. The route exists only when `EVALUATION_RUNTIME_MODE=enabled`, which
+also requires Cognito authentication, Bedrock mode, and enabled composer mode at startup. The
+development deployment enables it; local/disabled and production configurations return 404.
+API logs remain aggregate-only and never contain prompt, evidence, context, generated output, or
+credentials. The response is intended for the private corpus evaluation harness, not the mobile
+app or the public reading contract.
 
 The API also maintains a minimal user profile item when successful readings are
 saved. See [User Reading Persistence](../../docs/user_reading_persistence.md)
@@ -77,6 +89,7 @@ BEDROCK_INFERENCE_PROFILE_ARN=<BedrockInferenceProfileArn-output>
 BEDROCK_MAX_ATTEMPTS=5
 BEDROCK_RETRIEVAL_RESULTS=5
 COMPOSER_RUNTIME_MODE=enabled
+EVALUATION_RUNTIME_MODE=enabled
 BEDROCK_CORPUS_BUCKET=<cloudformation-output>
 BEDROCK_DATA_SOURCE_ID=<cloudformation-output>
 ```
@@ -109,7 +122,9 @@ active pointer is read per enabled request; immutable bundles are size/checksum/
 and cached by complete pointer identity. One reading-level query requests five results with no
 reranker and filters to the active corpus version, approved status, and correspondence-theme
 document kind. Each non-empty result contributes at most 2,000 characters and total retrieved
-evidence is capped at 8,000 characters. Evidence remains internal to prompt assembly. See
+evidence is capped at 8,000 characters. The normal reading route keeps evidence internal to prompt
+assembly; the authenticated development evaluation route returns the same bounded candidates and
+exact admitted evidence for private review. See
 [Deterministic Composer Runtime](../../docs/deterministic-composer-runtime.md).
 
 Local mode disables composer automatically and does not create an S3 reader. The configuration
@@ -128,8 +143,10 @@ metadata records the active generation mode.
 Composer metadata is aggregate-only: mode, optional corpus version, and optional named-pair and
 whole-spread counts. Safe composer request errors return 400; artifact or load failures return a
 retryable 503. Retrieval and generation failures return distinct retryable 503 responses, and
-Bedrock throttling returns 429. Successful Bedrock responses retain the public response shape but
-return an empty `citations` array because retrieved evidence is private and internal.
+Bedrock throttling returns 429. Successful normal Bedrock responses retain the public response
+shape but return an empty `citations` array because retrieved evidence is private and internal to
+that route. Evaluation responses use their separate development-only contract and are never
+persisted.
 
 ## Commands
 

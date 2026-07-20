@@ -1,8 +1,11 @@
+import { EVALUATION_RUNTIME_ENABLED } from './evaluations/constants';
+
 export type ApiConfig = {
     apiLog: ApiLogConfig;
     auth: AuthConfig;
     bedrock: BedrockRuntimeConfig;
     composer: ComposerRuntimeConfig;
+    evaluation: EvaluationRuntimeConfig;
     hostname: string;
     port: number;
     userData: UserDataConfig;
@@ -54,6 +57,10 @@ export type ComposerRuntimeConfig =
           dataSourceId: string;
           mode: 'enabled';
       };
+
+export type EvaluationRuntimeConfig =
+    | { mode: 'disabled' }
+    | { mode: typeof EVALUATION_RUNTIME_ENABLED };
 
 const parsePort = (value: string | undefined): number => {
     if (value === undefined || value.length === 0) {
@@ -241,14 +248,49 @@ const getComposerRuntimeConfig = (
     };
 };
 
+const getEvaluationRuntimeConfig = (
+    env: typeof process.env,
+    auth: AuthConfig,
+    bedrock: BedrockRuntimeConfig,
+    composer: ComposerRuntimeConfig
+): EvaluationRuntimeConfig => {
+    if (
+        env.EVALUATION_RUNTIME_MODE === undefined ||
+        env.EVALUATION_RUNTIME_MODE === 'disabled'
+    ) {
+        return { mode: 'disabled' };
+    }
+
+    if (env.EVALUATION_RUNTIME_MODE !== EVALUATION_RUNTIME_ENABLED) {
+        throw new Error(
+            `Invalid EVALUATION_RUNTIME_MODE value "${env.EVALUATION_RUNTIME_MODE}".`
+        );
+    }
+
+    if (
+        auth.mode !== 'cognito' ||
+        bedrock.mode !== 'bedrock' ||
+        composer.mode !== 'enabled'
+    ) {
+        throw new Error(
+            'Evaluation runtime requires Cognito authentication, Bedrock runtime, and enabled composer.'
+        );
+    }
+
+    return { mode: EVALUATION_RUNTIME_ENABLED };
+};
+
 export function getApiConfig(env = process.env): ApiConfig {
+    const auth = getAuthConfig(env);
     const bedrock = getBedrockRuntimeConfig(env);
+    const composer = getComposerRuntimeConfig(env, bedrock);
 
     return {
         apiLog: getApiLogConfig(env),
-        auth: getAuthConfig(env),
+        auth,
         bedrock,
-        composer: getComposerRuntimeConfig(env, bedrock),
+        composer,
+        evaluation: getEvaluationRuntimeConfig(env, auth, bedrock, composer),
         hostname: env.HOST ?? 'localhost',
         port: parsePort(env.PORT),
         userData: getUserDataConfig(env)

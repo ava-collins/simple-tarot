@@ -15,7 +15,9 @@ import {
 } from './logger';
 import { avatarsRouter } from './routes/avatars';
 import { healthRouter } from './routes/health';
-import { readingsRouter } from './routes/readings';
+import { createReadingRuntime, type ReadingRuntime } from './readings/runtime';
+import { createReadingEvaluationsRouter } from './routes/reading-evaluations';
+import { createReadingsRouter } from './routes/readings';
 
 const { eventContext } = require('@codegenie/serverless-express/src/middleware') as {
     eventContext: () => RequestHandler;
@@ -23,11 +25,24 @@ const { eventContext } = require('@codegenie/serverless-express/src/middleware')
 
 export type CreateApiServerOptions = {
     config?: ApiConfig;
+    readingRuntime?: ReadingRuntime;
     tokenVerifier?: CognitoJwtVerifier;
 };
 
 export function createApiServer(options: CreateApiServerOptions = {}) {
     const config = options.config ?? getApiConfig();
+    const readingRuntime =
+        options.readingRuntime ?? createReadingRuntime(config);
+    const readingsRouter = createReadingsRouter(readingRuntime);
+    const readingEvaluationsRouter =
+        config.evaluation.mode === 'enabled'
+            ? createReadingEvaluationsRouter({
+                  ...(readingRuntime.apiLogSink === undefined
+                      ? {}
+                      : { apiLogSink: readingRuntime.apiLogSink }),
+                  executor: readingRuntime.executor
+              })
+            : undefined;
     const app = express();
 
     app.use(express.json());
@@ -39,12 +54,14 @@ export function createApiServer(options: CreateApiServerOptions = {}) {
     app.use(avatarsRouter);
 
     if (config.auth.mode === 'cognito') {
-        app.use(
-            requireAuthentication(
-                options.tokenVerifier ?? createCognitoJwtVerifier(config.auth)
-            ),
-            readingsRouter
+        const requireCognitoAuthentication = requireAuthentication(
+            options.tokenVerifier ?? createCognitoJwtVerifier(config.auth)
         );
+
+        app.use(requireCognitoAuthentication, readingsRouter);
+        if (readingEvaluationsRouter) {
+            app.use(requireCognitoAuthentication, readingEvaluationsRouter);
+        }
     } else {
         app.use(readingsRouter);
     }

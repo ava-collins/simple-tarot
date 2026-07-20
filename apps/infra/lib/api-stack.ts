@@ -38,6 +38,14 @@ export class ApiStack extends cdk.Stack {
           BEDROCK_DATA_SOURCE_ID: props.dataSource.attrDataSourceId
         }
       : {};
+    const evaluationEnvironment: Record<string, string> = composerEnabled
+      ? {
+          API_AUTH_MODE: 'cognito',
+          COGNITO_CLIENT_ID: props.userPoolClient.userPoolClientId,
+          COGNITO_ISSUER: `https://cognito-idp.${props.config.awsRegion}.amazonaws.com/${props.userPool.userPoolId}`,
+          EVALUATION_RUNTIME_MODE: 'enabled'
+        }
+      : {};
 
     const apiFunction = new nodejs.NodejsFunction(this, 'ApiFunction', {
       entry: join(__dirname, '..', '..', 'api', 'src', 'lambda.ts'),
@@ -54,6 +62,7 @@ export class ApiStack extends cdk.Stack {
         BEDROCK_RUNTIME_MODE: 'bedrock',
         COMPOSER_RUNTIME_MODE: composerEnabled ? 'enabled' : 'disabled',
         ...composerEnvironment,
+        ...evaluationEnvironment,
         USER_DATA_TABLE_NAME: props.config.userDataTableName
       },
       bundling: {

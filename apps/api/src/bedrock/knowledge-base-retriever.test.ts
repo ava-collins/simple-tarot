@@ -19,7 +19,7 @@ const retrievalFilter = {
 } as const;
 
 describe('createKnowledgeBaseRetriever', () => {
-    it('sends one filtered Retrieve command and returns only ranked text', async () => {
+    it('returns ranked text, scores, and normalized S3 document IDs', async () => {
         const logs: unknown[] = [];
         const sentInputs: unknown[] = [];
         const retriever = createKnowledgeBaseRetriever(
@@ -37,7 +37,7 @@ describe('createKnowledgeBaseRetriever', () => {
                                 },
                                 location: {
                                     s3Location: {
-                                        uri: 's3://private-location-marker'
+                                        uri: 's3://private-location-marker/corpus/active/document-first.txt'
                                     },
                                     type: 'S3'
                                 },
@@ -51,7 +51,25 @@ describe('createKnowledgeBaseRetriever', () => {
                                     text: 'private-content-marker-second',
                                     type: 'TEXT'
                                 },
+                                location: {
+                                    type: 'WEB',
+                                    webLocation: {
+                                        url: 'https://private-location-marker/document-second.txt'
+                                    }
+                                },
                                 score: 0.5
+                            },
+                            {
+                                content: {
+                                    text: 'private-content-marker-third',
+                                    type: 'TEXT'
+                                },
+                                location: {
+                                    s3Location: {
+                                        uri: 's3://private-location-marker/corpus/active/not-text.json'
+                                    },
+                                    type: 'S3'
+                                }
                             }
                         ]
                     };
@@ -70,10 +88,19 @@ describe('createKnowledgeBaseRetriever', () => {
                 query: 'User intent: General tarot reading.',
                 requestId: 'request-123'
             })
-        ).resolves.toEqual([
-            { text: 'private-content-marker-first' },
-            { text: 'private-content-marker-second' }
-        ]);
+        ).resolves.toEqual({
+            durationMs: 0,
+            requestedResultCount: 5,
+            results: [
+                {
+                    documentId: 'document-first',
+                    score: 0.991234,
+                    text: 'private-content-marker-first'
+                },
+                { score: 0.5, text: 'private-content-marker-second' },
+                { text: 'private-content-marker-third' }
+            ]
+        });
         expect(sentInputs).toEqual([
             {
                 knowledgeBaseId: 'KB123',
@@ -95,7 +122,7 @@ describe('createKnowledgeBaseRetriever', () => {
                     knowledgeBaseId: 'KB123',
                     requestId: 'request-123',
                     requestedResultCount: 5,
-                    resultCount: 2,
+                    resultCount: 3,
                     zeroResults: false
                 },
                 message: 'Bedrock retrieval completed.'
@@ -130,7 +157,11 @@ describe('createKnowledgeBaseRetriever', () => {
                 query: 'private-query-marker',
                 requestId: 'request-123'
             })
-        ).resolves.toEqual([]);
+        ).resolves.toEqual({
+            durationMs: 5,
+            requestedResultCount: 5,
+            results: []
+        });
         expect(logs).toEqual([
             {
                 context: {

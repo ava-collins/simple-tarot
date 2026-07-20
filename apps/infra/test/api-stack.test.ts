@@ -81,12 +81,16 @@ describe('ApiStack', () => {
       Timeout: 29,
       Environment: {
         Variables: Match.objectLike({
+          API_AUTH_MODE: 'cognito',
           API_LOG_BUCKET_NAME: Match.anyValue(),
           BEDROCK_INFERENCE_PROFILE_ARN: Match.anyValue(),
           BEDROCK_KNOWLEDGE_BASE_ID: Match.anyValue(),
           BEDROCK_REGION: expectedRegion,
           BEDROCK_RUNTIME_MODE: 'bedrock',
           COMPOSER_RUNTIME_MODE: 'enabled',
+          COGNITO_CLIENT_ID: Match.anyValue(),
+          COGNITO_ISSUER: Match.anyValue(),
+          EVALUATION_RUNTIME_MODE: 'enabled',
           BEDROCK_CORPUS_BUCKET: Match.anyValue(),
           BEDROCK_DATA_SOURCE_ID: Match.anyValue(),
           USER_DATA_TABLE_NAME: Match.anyValue(),
@@ -172,10 +176,33 @@ describe('ApiStack', () => {
     const policies = JSON.stringify(template.findResources('AWS::IAM::Policy'));
 
     expect(variables.COMPOSER_RUNTIME_MODE).toBe('disabled');
+    expect(variables).not.toHaveProperty('API_AUTH_MODE');
     expect(variables).not.toHaveProperty('BEDROCK_CORPUS_BUCKET');
     expect(variables).not.toHaveProperty('BEDROCK_DATA_SOURCE_ID');
+    expect(variables).not.toHaveProperty('COGNITO_CLIENT_ID');
+    expect(variables).not.toHaveProperty('COGNITO_ISSUER');
+    expect(variables).not.toHaveProperty('EVALUATION_RUNTIME_MODE');
     expect(policies).not.toContain('s3:GetObject');
     expect(policies).not.toContain('/state/dev/active-release.json');
+  });
+
+  it('adds no evaluation resource or IAM permission', () => {
+    const devTemplate = synthesizeApiStack('dev').toJSON();
+    const prodTemplate = synthesizeApiStack('prod').toJSON();
+    const devResourceTypes = Object.values(devTemplate.Resources).map(
+      (resource) => (resource as { Type: string }).Type
+    );
+    const prodResourceTypes = Object.values(prodTemplate.Resources).map(
+      (resource) => (resource as { Type: string }).Type
+    );
+
+    expect(devResourceTypes.sort()).toEqual(prodResourceTypes.sort());
+    expect(JSON.stringify(devTemplate.Resources)).not.toContain(
+      'reading-evaluations'
+    );
+    expect(JSON.stringify(devTemplate.Resources)).not.toContain(
+      'EvaluationRuntime'
+    );
   });
 
   it('grants only the explicit Bedrock retrieval and generation actions', () => {
