@@ -12,6 +12,7 @@ const localConfig: ApiConfig = {
         retrievalResults: 5
     },
     composer: { mode: 'disabled' },
+    evaluation: { mode: 'disabled' },
     hostname: 'localhost',
     port: 4100,
     userData: {}

@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response, Router } from 'express';
+import { RequestHandler, Router } from 'express';
 import { UnauthorizedError } from '../auth/auth-context';
 import { toApiError } from '../errors';
 import type { ApiLogSink } from '../logging/api-log-sink';
@@ -19,6 +19,11 @@ import {
     type ReadingExecutor
 } from '../readings/reading-executor';
 import { validateReadingRequest } from '../readings/validation';
+import {
+    authenticatedUserIdFor,
+    cognitoIssuerFor,
+    readingLogEventBaseFor
+} from './reading-request-context';
 
 export type ReadingsRouterOptions = {
     apiLogSink?: ApiLogSink;
@@ -33,45 +38,6 @@ const defaultExecutor = createReadingExecutor({
     generate: async request => ({
         generated: createLocalGeneratedReading(request)
     })
-});
-
-const authenticatedUserIdFor = (res: Response): string | undefined =>
-    typeof res.locals.authenticatedUser?.userId === 'string'
-        ? res.locals.authenticatedUser.userId
-        : undefined;
-
-const cognitoIssuerFor = (res: Response): string | undefined =>
-    typeof res.locals.authenticatedUser?.claims?.iss === 'string'
-        ? res.locals.authenticatedUser.claims.iss
-        : undefined;
-
-const sourceIpFor = (req: Request): string => {
-    const forwardedFor = req.header('x-forwarded-for');
-
-    if (forwardedFor) {
-        return forwardedFor.split(',')[0]?.trim() ?? '';
-    }
-
-    return req.ip ?? '';
-};
-
-const logEventBaseFor = (
-    req: Request,
-    res: Response,
-    timestamp: string,
-    startedAtMs: number,
-    statusCode: number
-) => ({
-    cognitoSub: authenticatedUserIdFor(res),
-    durationMs: Math.max(0, Date.parse(timestamp) - startedAtMs),
-    hasQuestion: typeof req.body?.question === 'string' && req.body.question.length > 0,
-    method: req.method,
-    requestId: res.locals.requestId,
-    route: req.originalUrl,
-    sourceIp: sourceIpFor(req),
-    statusCode,
-    timestamp,
-    userAgent: req.header('user-agent')
 });
 
 const generationMetadataFor = (
@@ -159,7 +125,13 @@ export const createPostReadingHandler = ({
         }
 
         await apiLogSink?.write({
-            ...logEventBaseFor(req, res, createdAt, startedAtMs, apiError.status),
+            ...readingLogEventBaseFor(
+                req,
+                res,
+                createdAt,
+                startedAtMs,
+                apiError.status
+            ),
             errorCode: apiError.body.code,
             errorMessage: apiError.body.message
         });
@@ -183,7 +155,7 @@ export const createPostReadingHandler = ({
         }
 
         await apiLogSink?.write({
-            ...logEventBaseFor(req, res, createdAt, startedAtMs, 200),
+            ...readingLogEventBaseFor(req, res, createdAt, startedAtMs, 200),
             readingId: execution.reading.readingId
         });
 

@@ -1,3 +1,6 @@
+import type { ComposedReadingContext } from '../composer/contracts';
+import type { ReadingResponse } from '../readings/contracts';
+
 export type RetrievalEvaluationResult = {
     rank: number;
     score?: number;
@@ -44,4 +47,15 @@ export type ExplicitRagEvaluationTrace = {
         user: string;
     };
     retrieval: RetrievalEvaluationTrace;
+};
+
+export type ReadingEvaluationResponse = {
+    corpusVersion: string;
+    evaluatedAt: string;
+    reading: ReadingResponse;
+    requestId: string;
+    schemaVersion: 1;
+    trace: ExplicitRagEvaluationTrace & {
+        resolvedContext: ComposedReadingContext;
+    };
 };
