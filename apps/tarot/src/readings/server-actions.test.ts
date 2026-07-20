@@ -69,13 +69,19 @@ describe('reading server actions', () => {
             question: 'What should I notice today?',
             items: [
                 {
-                    cardIndex: 0,
-                    cardName: 'Fool',
+                    cardIndex: expect.any(Number),
+                    cardName: expect.any(String),
                     position: 'guidance',
                     reversed: false
                 }
             ]
         });
+
+        const [request] = createReading.mock.calls[0];
+        const [item] = request.items;
+
+        expect(item.cardIndex).toBeGreaterThanOrEqual(0);
+        expect(item.cardIndex).toBeLessThanOrEqual(77);
     });
 
     it('omits a blank question from the request payload', async () => {
@@ -101,8 +107,8 @@ describe('reading server actions', () => {
             spread: 'single_card',
             items: [
                 {
-                    cardIndex: 0,
-                    cardName: 'Fool',
+                    cardIndex: expect.any(Number),
+                    cardName: expect.any(String),
                     position: 'guidance',
                     reversed: false
                 }

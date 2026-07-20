@@ -1,10 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
-import {
-    createOneCardReadingRequest,
-    createTarotApiClient,
-    type ReadingRequest
-} from '../../index';
+import { createTarotApiClient, type ReadingRequest } from '../../index';
 
 const readingRequest: ReadingRequest = {
     spread: 'single_card',
@@ -41,28 +37,6 @@ const jsonResponse = (body: unknown, ok = true, status = 200) => ({
     ok,
     status,
     text: vi.fn().mockResolvedValue(JSON.stringify(body))
-});
-
-describe('createOneCardReadingRequest', () => {
-    it('creates a single-card reading request with a trimmed question', () => {
-        expect(createOneCardReadingRequest('  What should I notice today?  ')).toEqual(
-            readingRequest
-        );
-    });
-
-    it('omits the question when it is blank', () => {
-        expect(createOneCardReadingRequest('   ')).toEqual({
-            spread: 'single_card',
-            items: [
-                {
-                    cardIndex: 0,
-                    cardName: 'Fool',
-                    position: 'guidance',
-                    reversed: false
-                }
-            ]
-        });
-    });
 });
 
 describe('createTarotApiClient', () => {

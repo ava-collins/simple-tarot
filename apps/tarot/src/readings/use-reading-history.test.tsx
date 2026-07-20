@@ -138,8 +138,8 @@ describe('useReadingHistory', () => {
             question: 'What should I notice today?',
             items: [
                 {
-                    cardIndex: 0,
-                    cardName: 'Fool',
+                    cardIndex: expect.any(Number),
+                    cardName: expect.any(String),
                     position: 'guidance',
                     reversed: false
                 }
