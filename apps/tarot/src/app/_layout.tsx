@@ -18,6 +18,8 @@ export default function TabLayout() {
                     <Stack.Screen name="auth/sign-out" />
                     <Stack.Screen name="readings/index" />
                     <Stack.Screen name="readings/new" />
+                    <Stack.Screen name="readings/single-card/index" />
+                    <Stack.Screen name="readings/single-card/result" />
                     <Stack.Screen name="index" />
                 </Stack>
             </AuthProvider>

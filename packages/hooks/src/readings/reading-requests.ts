@@ -93,7 +93,13 @@ const CARD_NAMES: readonly string[] = [
 ];
 
 function drawRandomCardIndex(random: () => number): number {
-    return Math.floor(random() * CARD_NAMES.length);
+    const index = Math.floor(random() * CARD_NAMES.length);
+
+    return Math.min(Math.max(index, 0), CARD_NAMES.length - 1);
+}
+
+function cardNameForIndex(cardIndex: number): string {
+    return CARD_NAMES[cardIndex] ?? 'Fool';
 }
 
 export function createOneCardReadingRequest(
@@ -109,7 +115,7 @@ export function createOneCardReadingRequest(
         items: [
             {
                 cardIndex,
-                cardName: CARD_NAMES[cardIndex],
+                cardName: cardNameForIndex(cardIndex),
                 position: GUIDANCE_POSITION,
                 reversed: false
             }
