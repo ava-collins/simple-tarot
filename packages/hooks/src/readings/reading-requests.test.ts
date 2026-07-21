@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { createOneCardReadingRequest } from './reading-requests';
 
+// Builds a deterministic stand-in for the injected `random` param, always returning `value`.
 const randomReturning = (value: number) => () => value;
 
 describe('createOneCardReadingRequest', () => {
