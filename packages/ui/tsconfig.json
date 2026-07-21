@@ -7,8 +7,9 @@
         "declarationMap": true,
         "emitDeclarationOnly": true,
         "ignoreDeprecations": "6.0",
+        "noEmit": false,
         "noImplicitAny": false,
-        "outDir": ".",
+        "outDir": "dist",
         "rootDir": "."
     },
     "include": ["**/*.ts", "**/*.tsx", "../hooks/style/colors.ts", "stories/**/*.mdx"],
