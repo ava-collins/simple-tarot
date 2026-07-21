@@ -1,3 +1,15 @@
+# [@simpletarot/ui-v2.3.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.2.1...@simpletarot/ui-v2.3.0) (2026-07-21)
+
+
+### Bug Fixes
+
+* align type configs across projects ([36d30c8](https://github.com/ava-collins/simple-tarot/commit/36d30c890e37fbe0afd7d8ef927a9cbe608a3d93))
+
+
+### Features
+
+* **ui:** single card reading screens ([4ba789f](https://github.com/ava-collins/simple-tarot/commit/4ba789fbf071dbc6710fb69f170fd1dc3f515950))
+
 # [@simpletarot/ui-v2.2.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.2.0...@simpletarot/ui-v2.2.1) (2026-07-19)
 
 
