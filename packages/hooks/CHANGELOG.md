@@ -1,3 +1,10 @@
+# [@simpletarot/hooks-v2.2.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v2.1.1...@simpletarot/hooks-v2.2.0) (2026-07-21)
+
+
+### Features
+
+* **tarot:** implee=ment single card reading routes ([92e2ab5](https://github.com/ava-collins/simple-tarot/commit/92e2ab554672cf08d1a4acaf385b1f49a25c8be5))
+
 # [@simpletarot/hooks-v2.1.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/hooks-v2.1.0...@simpletarot/hooks-v2.1.1) (2026-07-19)
 
 
