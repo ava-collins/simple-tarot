@@ -1,0 +1,10 @@
+{
+    "extends": "./tsconfig.json",
+    "compilerOptions": {
+        "paths": {
+            "@/*": ["./src/*"],
+            "@/assets/*": ["./assets/*"],
+            "@simpletarot/ui": ["../../packages/ui/dist/index.d.ts"]
+        }
+    }
+}

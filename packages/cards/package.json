@@ -5,6 +5,16 @@
     "type": "module",
     "main": "dist/index.js",
     "types": "dist/index.d.ts",
+    "exports": {
+        ".": {
+            "import": "./dist/index.js",
+            "types": "./dist/index.d.ts"
+        },
+        "./card-names": {
+            "import": "./dist/card-names.js",
+            "types": "./dist/card-names.d.ts"
+        }
+    },
     "scripts": {
         "build-types": "rm -rf dist && tsc -b",
         "generate:cards": "node ./scripts/generate-cards.mjs",

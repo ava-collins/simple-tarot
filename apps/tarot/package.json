@@ -55,7 +55,7 @@
     },
     "scripts": {
         "start": "expo start",
-        "build-types": "tsc --noEmit",
+        "build-types": "tsc --noEmit -p tsconfig.typecheck.json",
         "reset-project": "node ./scripts/reset-project.js",
         "android": "expo run:android",
         "ios:go": "expo start --ios",
