@@ -12,6 +12,6 @@
         "outDir": "dist",
         "rootDir": "."
     },
-    "include": ["**/*.ts", "**/*.tsx", "../hooks/style/colors.ts", "stories/**/*.mdx"],
-    "exclude": ["**/*.js", "./storybook-static/**", "./.storybook/**"]
+    "include": ["**/*.ts", "**/*.tsx", "stories/**/*.mdx"],
+    "exclude": ["**/*.js", "./storybook-static/**", "./.storybook/**", "dist/**"]
 }
