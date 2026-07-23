@@ -3,7 +3,9 @@ import {
     ComposedCardContext,
     ComposedTheme,
     ComposerBundle,
+    ComposerBundleV2,
     ComposerCard,
+    ComposerCardV2,
     ComposerOrientation,
     NormalizedComposerCard,
     NormalizedComposerRequest,
@@ -97,11 +99,58 @@ const exactMeaningFor = (
         : undefined;
 };
 
+const singleCardThemesFor = (
+    card: ComposerCardV2,
+    bundle: ComposerBundleV2
+) => {
+    const keys = new Set([
+        `arcana:${card.arcana}`,
+        ...(card.suit ? [`suit:${card.suit}`] : []),
+        `number:${card.number}`,
+        `element:${card.element}`
+    ]);
+
+    return bundle.approvedSingleCardThemes
+        .filter(theme => keys.has(`${theme.dimension}:${String(theme.value)}`))
+        .map(theme => ({
+            ...theme,
+            sourceIds: [...theme.sourceIds]
+        }));
+};
+
 export function composeCardContexts(
     normalized: NormalizedComposerRequest,
     bundle: ComposerBundle
 ): ComposedCardContext[] {
     const spreadId = normalized.spread?.id;
+
+    if (normalized.spreadMode === 'single-card' && bundle.schemaVersion === 2) {
+        return normalized.cards.map(item => {
+            const card = bundle.cardsById[item.card.id];
+            if (!card) {
+                throw new Error('Normalized card is missing from its composer bundle.');
+            }
+
+            return {
+                cardId: card.id,
+                cardIndex: card.index,
+                cardName: card.name,
+                title: card.title,
+                arcana: card.arcana,
+                ...(card.suit ? { suit: card.suit } : {}),
+                number: card.number,
+                element: card.element,
+                orientation: item.orientation,
+                orientationKeywords: [
+                    ...(item.orientation === 'upright'
+                        ? card.uprightKeywords
+                        : card.reversedKeywords)
+                ],
+                presentationPosition: item.presentationPosition,
+                singleCardThemes: singleCardThemesFor(card, bundle)
+            };
+        });
+    }
 
     return normalized.cards.map(item => {
         const exactMeaning = exactMeaningFor(item, spreadId, bundle);
@@ -126,4 +175,3 @@ export function composeCardContexts(
         };
     });
 }
-

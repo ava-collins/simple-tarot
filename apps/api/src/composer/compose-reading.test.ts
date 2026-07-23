@@ -3,6 +3,7 @@ import { composeReadingContext } from './compose-reading';
 import {
     sanitizedCelticCrossRequest,
     sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from './test-fixture';
 
@@ -14,12 +15,37 @@ describe('composeReadingContext', () => {
                 sanitizedComposerBundle
             )
         ).toMatchObject({
+            composerSchemaVersion: 1,
             corpusVersion: sanitizedComposerBundle.corpusVersion,
             spreadMode: 'single-card',
             cards: [{ cardId: 'dawn-keeper', presentationPosition: 'guidance' }],
             namedPairResults: [],
             wholeSpreadResults: []
         });
+    });
+
+    it('assembles a schema-2 focused single-card context without relationships', () => {
+        const context = composeReadingContext(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundleV2
+        );
+
+        expect(context).toMatchObject({
+            composerSchemaVersion: 2,
+            spreadMode: 'single-card',
+            cards: [
+                {
+                    cardId: 'dawn-keeper',
+                    number: 0,
+                    element: 'air',
+                    presentationPosition: 'guidance'
+                }
+            ],
+            namedPairResults: [],
+            wholeSpreadResults: []
+        });
+        expect(context.cards[0]).not.toHaveProperty('description');
+        expect(context.cards[0]).not.toHaveProperty('themes');
     });
 
     it('assembles the exact ordered Celtic Cross context deterministically', () => {

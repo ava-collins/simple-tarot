@@ -6,7 +6,7 @@ import { UnauthorizedError } from './auth/auth-context';
 import type { ApiConfig } from './config';
 import { composeReadingContext } from './composer/compose-reading';
 import {
-    sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from './composer/test-fixture';
 import type { GeneratedReading } from './readings/contracts';
@@ -51,7 +51,7 @@ const enabledConfig: ApiConfig = {
 
 const context = composeReadingContext(
     sanitizedSingleCardRequest,
-    sanitizedComposerBundle
+    sanitizedComposerBundleV2
 );
 const generated: GeneratedReading = {
     citations: [],
@@ -78,25 +78,15 @@ const createRuntime = (): ReadingRuntime => {
                 composerMetadata
             ),
             trace: {
+                mode: 'deterministic',
                 generation: {
                     durationMs: 1,
                     modelId: 'test-model',
                     outputCharacterCount: generated.text.length
                 },
-                prompt: { system: 'system', user: 'user' },
-                retrieval: {
-                    durationMs: 1,
-                    filter: {
-                        corpusVersion: context.corpusVersion,
-                        documentKind: 'correspondence-theme',
-                        status: 'approved'
-                    },
-                    query: 'query',
-                    requestedResultCount: 5,
-                    results: [],
-                    returnedResultCount: 0,
-                    totalEvidenceCharacters: 0,
-                    usableResultCount: 0
+                prompt: {
+                    system: 'private-system-marker',
+                    user: 'private-theme-marker'
                 }
             }
         })
@@ -203,5 +193,25 @@ describe('createApiServer evaluation mounting', () => {
         expect(evaluationResponse.status).toBe(200);
         expect(readingResponse.status).toBe(200);
         expect(runtime.executor.execute).toHaveBeenCalledTimes(2);
+
+        const evaluationBody = await evaluationResponse.json();
+        const readingBody = await readingResponse.json();
+
+        expect(evaluationBody.trace).toEqual(
+            expect.objectContaining({
+                mode: 'deterministic',
+                prompt: {
+                    system: 'private-system-marker',
+                    user: 'private-theme-marker'
+                },
+                resolvedContext: expect.objectContaining({
+                    composerSchemaVersion: 2,
+                    spreadMode: 'single-card'
+                })
+            })
+        );
+        expect(JSON.stringify(readingBody)).not.toMatch(
+            /private-system-marker|private-theme-marker|resolvedContext|prompt|trace|orientationKeywords|singleCardThemes|sourceIds|ruleIds/
+        );
     });
 });

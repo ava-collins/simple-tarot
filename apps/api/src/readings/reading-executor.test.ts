@@ -20,6 +20,7 @@ const generated: GeneratedReading = {
 };
 
 const trace: ExplicitRagEvaluationTrace = {
+    mode: 'explicit-rag',
     generation: {
         durationMs: 2,
         modelId: 'test-model',

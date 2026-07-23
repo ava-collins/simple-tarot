@@ -3,7 +3,9 @@ import { composeReadingContext } from '../composer/compose-reading';
 import { buildExplicitGenerationPrompt } from '../composer/prompt-builder';
 import {
     sanitizedCelticCrossRequest,
-    sanitizedComposerBundle
+    sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
+    sanitizedSingleCardRequest
 } from '../composer/test-fixture';
 import type { GeneratedReading } from '../readings/contracts';
 import { createExplicitRagReadingGenerator } from './explicit-rag-generator';
@@ -90,6 +92,7 @@ describe('createExplicitRagReadingGenerator', () => {
         ).resolves.toEqual({
             generated: generatedReading,
             trace: {
+                mode: 'explicit-rag',
                 generation: generationTrace,
                 prompt,
                 retrieval: {
@@ -133,6 +136,98 @@ describe('createExplicitRagReadingGenerator', () => {
             }
         ]);
         expect(JSON.stringify(logs)).not.toContain('private-evidence-marker');
+    });
+
+    it('skips retrieval and converses once for a schema-2 single card', async () => {
+        const context = composeReadingContext(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundleV2
+        );
+        const retrievalInputs: unknown[] = [];
+        const converseInputs: unknown[] = [];
+        const logs: unknown[] = [];
+        const generator = createExplicitRagReadingGenerator({
+            converse: {
+                generate: async (prompt, requestId) => {
+                    converseInputs.push({ prompt, requestId });
+                    return { generated: generatedReading, trace: generationTrace };
+                }
+            },
+            logInfo: (message, logContext) =>
+                logs.push({ context: logContext, message }),
+            retriever: {
+                retrieve: async input => {
+                    retrievalInputs.push(input);
+                    throw new Error('Retriever must not run.');
+                }
+            }
+        });
+        const prompt = buildExplicitGenerationPrompt(
+            sanitizedSingleCardRequest,
+            context,
+            []
+        );
+
+        await expect(
+            generator.generateReading({
+                context,
+                request: sanitizedSingleCardRequest,
+                requestId: 'request-123'
+            })
+        ).resolves.toEqual({
+            generated: generatedReading,
+            trace: {
+                mode: 'deterministic',
+                generation: generationTrace,
+                prompt
+            }
+        });
+        expect(retrievalInputs).toEqual([]);
+        expect(converseInputs).toEqual([{ prompt, requestId: 'request-123' }]);
+        expect(logs).toEqual([]);
+    });
+
+    it.each([
+        {
+            bundle: sanitizedComposerBundle,
+            label: 'schema-1 single card',
+            request: sanitizedSingleCardRequest
+        },
+        {
+            bundle: sanitizedComposerBundleV2,
+            label: 'schema-2 Celtic Cross',
+            request: sanitizedCelticCrossRequest
+        }
+    ])('retains explicit retrieval for $label', async ({ bundle, request }) => {
+        const context = composeReadingContext(request, bundle);
+        const retrievalInputs: unknown[] = [];
+        const generator = createExplicitRagReadingGenerator({
+            converse: {
+                generate: async () => ({
+                    generated: generatedReading,
+                    trace: generationTrace
+                })
+            },
+            retriever: {
+                retrieve: async input => {
+                    retrievalInputs.push(input);
+                    return {
+                        durationMs: 5,
+                        requestedResultCount: 5,
+                        results: []
+                    };
+                }
+            }
+        });
+
+        const result = await generator.generateReading({
+            context,
+            request,
+            requestId: 'request-123'
+        });
+
+        expect(result.trace.mode).toBe('explicit-rag');
+        expect(retrievalInputs).toHaveLength(1);
     });
 
     it('continues to Converse with no retrieved themes when retrieval is empty', async () => {

@@ -22,7 +22,7 @@ export type SubjectReference = {
     type: SubjectKind;
 };
 
-export type ComposerCard = {
+export type ComposerCardV1 = {
     id: string;
     index: number;
     name: string;
@@ -34,6 +34,19 @@ export type ComposerCard = {
     correspondenceIds: string[];
     attributes: Record<string, string | number>;
 };
+
+export type ClassicalElement = 'air' | 'fire' | 'water' | 'earth';
+export type TarotSuit = 'swords' | 'wands' | 'cups' | 'coins';
+
+export type ComposerCardV2 = ComposerCardV1 & {
+    number: number;
+    suit?: TarotSuit;
+    element: ClassicalElement;
+    uprightKeywordSourceIds: string[];
+    reversedKeywordSourceIds: string[];
+};
+
+export type ComposerCard = ComposerCardV1 | ComposerCardV2;
 
 export type SpreadPosition = {
     id: string;
@@ -117,16 +130,61 @@ export type LegacyPositionMeaning = {
     status: 'approved';
 };
 
-export type ComposerBundle = {
-    schemaVersion: typeof COMPOSER_SCHEMA_VERSION;
+export type SingleCardTheme =
+    | {
+          id: string;
+          dimension: 'arcana';
+          value: ComposerArcana;
+          theme: string;
+          status: 'approved';
+          sourceIds: string[];
+      }
+    | {
+          id: string;
+          dimension: 'suit';
+          value: TarotSuit;
+          theme: string;
+          status: 'approved';
+          sourceIds: string[];
+      }
+    | {
+          id: string;
+          dimension: 'number';
+          value: number;
+          theme: string;
+          status: 'approved';
+          sourceIds: string[];
+      }
+    | {
+          id: string;
+          dimension: 'element';
+          value: ClassicalElement;
+          theme: string;
+          status: 'approved';
+          sourceIds: string[];
+      };
+
+type ComposerBundleCommon = {
     corpusVersion: string;
-    cardsById: Record<string, ComposerCard>;
     spreadsById: Record<string, ComposerSpread>;
     correspondencesById: Record<string, ComposerCorrespondence>;
     approvedThemeFragments: ThemeFragment[];
     relationshipRules: RelationshipRule[];
     legacyPositionMeaningsByKey: Record<string, LegacyPositionMeaning>;
 };
+
+export type ComposerBundleV1 = ComposerBundleCommon & {
+    schemaVersion: 1;
+    cardsById: Record<string, ComposerCardV1>;
+};
+
+export type ComposerBundleV2 = ComposerBundleCommon & {
+    schemaVersion: typeof COMPOSER_SCHEMA_VERSION;
+    cardsById: Record<string, ComposerCardV2>;
+    approvedSingleCardThemes: SingleCardTheme[];
+};
+
+export type ComposerBundle = ComposerBundleV1 | ComposerBundleV2;
 
 export type CardPredicateInput = {
     card: ComposerCard;
@@ -153,7 +211,7 @@ export type ComposedTheme = {
     theme: string;
 };
 
-export type ComposedCardContext = {
+export type ComposedCardContextV1 = {
     cardId: string;
     cardIndex: number;
     cardName: string;
@@ -167,6 +225,25 @@ export type ComposedCardContext = {
     exactMeaning?: string;
     themes: ComposedTheme[];
 };
+
+export type ComposedSingleCardContextV2 = {
+    cardId: string;
+    cardIndex: number;
+    cardName: string;
+    title: string;
+    arcana: ComposerArcana;
+    suit?: TarotSuit;
+    number: number;
+    element: ClassicalElement;
+    orientation: ComposerOrientation;
+    orientationKeywords: string[];
+    presentationPosition: string;
+    singleCardThemes: SingleCardTheme[];
+};
+
+export type ComposedCardContext =
+    | ComposedCardContextV1
+    | ComposedSingleCardContextV2;
 
 export type RelationshipSupport = {
     cardId: string;
@@ -182,6 +259,7 @@ export type RelationshipResult = {
 };
 
 export type ComposedReadingContext = {
+    composerSchemaVersion: 1 | 2;
     corpusVersion: string;
     spreadMode: 'single-card' | 'celtic-cross';
     cards: ComposedCardContext[];
@@ -215,11 +293,10 @@ export type ReleaseManifestEntry = {
 
 export type ReleaseManifest = {
     manifestSchemaVersion: 1;
-    corpusSchemaVersion: 1;
+    corpusSchemaVersion: 1 | 2;
     corpusVersion: string;
     artifacts: ReleaseManifestEntry[];
     runtimeObjects: string[];
     coverageObjects: string[];
     ingestibleObjects: string[];
 };
-

@@ -12,10 +12,10 @@ export function composeReadingContext(
     const relationships = composeRelationshipResults(normalized, bundle);
 
     return {
+        composerSchemaVersion: bundle.schemaVersion,
         corpusVersion: bundle.corpusVersion,
         spreadMode: normalized.spreadMode,
         cards: composeCardContexts(normalized, bundle),
         ...relationships
     };
 }
-

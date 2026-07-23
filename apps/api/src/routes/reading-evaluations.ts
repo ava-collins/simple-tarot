@@ -45,9 +45,19 @@ export const createPostReadingEvaluationHandler = ({
 
         if (
             !execution.context ||
-            !execution.trace ||
-            execution.context.corpusVersion !==
-                execution.trace.retrieval.filter.corpusVersion
+            !execution.trace
+        ) {
+            throw new ComposerUnavailableError(
+                'EVALUATION_EXECUTION_TRACE_UNAVAILABLE'
+            );
+        }
+        const { context, trace } = execution;
+        if (
+            (trace.mode === 'deterministic' &&
+                (context.composerSchemaVersion !== 2 ||
+                    context.spreadMode !== 'single-card')) ||
+            (trace.mode === 'explicit-rag' &&
+                context.corpusVersion !== trace.retrieval.filter.corpusVersion)
         ) {
             throw new ComposerUnavailableError(
                 'EVALUATION_EXECUTION_TRACE_UNAVAILABLE'
@@ -55,24 +65,37 @@ export const createPostReadingEvaluationHandler = ({
         }
 
         const response: ReadingEvaluationResponse = {
-            corpusVersion: execution.context.corpusVersion,
+            corpusVersion: context.corpusVersion,
             evaluatedAt,
             reading: execution.reading,
             requestId: res.locals.requestId,
             schemaVersion: EVALUATION_SCHEMA_VERSION,
-            trace: {
-                generation: execution.trace.generation,
-                prompt: execution.trace.prompt,
-                resolvedContext: execution.context,
-                retrieval: execution.trace.retrieval
-            }
+            trace:
+                trace.mode === 'deterministic'
+                    ? {
+                          mode: 'deterministic',
+                          generation: trace.generation,
+                          prompt: trace.prompt,
+                          resolvedContext: context
+                      }
+                    : {
+                          mode: 'explicit-rag',
+                          generation: trace.generation,
+                          prompt: trace.prompt,
+                          resolvedContext: context,
+                          retrieval: trace.retrieval
+                      }
         };
 
         await apiLogSink?.write({
             ...readingLogEventBaseFor(req, res, evaluatedAt, startedAtMs, 200),
-            returnedResultCount:
-                execution.trace.retrieval.returnedResultCount,
-            usableResultCount: execution.trace.retrieval.usableResultCount
+            ...(trace.mode === 'explicit-rag'
+                ? {
+                      returnedResultCount:
+                          trace.retrieval.returnedResultCount,
+                      usableResultCount: trace.retrieval.usableResultCount
+                  }
+                : {})
         });
 
         res.status(200).json(response);

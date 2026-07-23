@@ -4,6 +4,7 @@ import { normalizeComposerRequest } from './reading-normalizer';
 import {
     sanitizedCelticCrossRequest,
     sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from './test-fixture';
 
@@ -40,6 +41,79 @@ describe('composeCardContexts', () => {
                 ]
             }
         ]);
+    });
+
+    it('composes a focused v2 Major single-card context with reversed keywords only', () => {
+        const request = structuredClone(sanitizedSingleCardRequest);
+        request.items[0]!.reversed = true;
+        const normalized = normalizeComposerRequest(
+            request,
+            sanitizedComposerBundleV2
+        );
+
+        const [context] = composeCardContexts(
+            normalized,
+            sanitizedComposerBundleV2
+        );
+
+        expect(context).toEqual({
+            cardId: 'dawn-keeper',
+            cardIndex: 0,
+            cardName: 'Dawn Keeper',
+            title: 'The First Lantern',
+            arcana: 'major',
+            number: 0,
+            element: 'air',
+            orientation: 'reversed',
+            orientationKeywords: ['hesitation', 'delay'],
+            presentationPosition: 'guidance',
+            singleCardThemes: [
+                sanitizedComposerBundleV2.approvedSingleCardThemes[0],
+                sanitizedComposerBundleV2.approvedSingleCardThemes[3],
+                sanitizedComposerBundleV2.approvedSingleCardThemes[5]
+            ]
+        });
+        expect(context).not.toHaveProperty('description');
+        expect(context).not.toHaveProperty('themes');
+        expect(context).not.toHaveProperty('position');
+        expect(context).not.toHaveProperty('exactMeaning');
+        expect(context).not.toHaveProperty('uprightKeywords');
+        expect(context).not.toHaveProperty('reversedKeywords');
+    });
+
+    it('composes a focused v2 Minor single-card context with suit and resolved element', () => {
+        const request = {
+            ...structuredClone(sanitizedSingleCardRequest),
+            items: [
+                {
+                    cardIndex: 1,
+                    cardName: 'Tide Weaver',
+                    position: 'guidance',
+                    reversed: false
+                }
+            ]
+        };
+        const normalized = normalizeComposerRequest(
+            request,
+            sanitizedComposerBundleV2
+        );
+
+        expect(
+            composeCardContexts(normalized, sanitizedComposerBundleV2)[0]
+        ).toMatchObject({
+            arcana: 'minor',
+            suit: 'swords',
+            number: 2,
+            element: 'air',
+            orientation: 'upright',
+            orientationKeywords: ['patience', 'motion'],
+            singleCardThemes: [
+                sanitizedComposerBundleV2.approvedSingleCardThemes[1],
+                sanitizedComposerBundleV2.approvedSingleCardThemes[2],
+                sanitizedComposerBundleV2.approvedSingleCardThemes[4],
+                sanitizedComposerBundleV2.approvedSingleCardThemes[5]
+            ]
+        });
     });
 
     it('adds position lenses, orientation keywords, and matching approved exact meanings', () => {

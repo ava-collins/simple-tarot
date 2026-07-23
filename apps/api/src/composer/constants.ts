@@ -1,5 +1,7 @@
-export const COMPOSER_SCHEMA_VERSION = 1 as const;
-export const CORPUS_SCHEMA_VERSION = 1 as const;
+export const COMPOSER_SCHEMA_VERSION = 2 as const;
+export const CORPUS_SCHEMA_VERSION = 2 as const;
+export const SUPPORTED_COMPOSER_SCHEMA_VERSIONS = [1, 2] as const;
+export const SUPPORTED_CORPUS_SCHEMA_VERSIONS = [1, 2] as const;
 
 export const SINGLE_CARD_REQUEST_SPREAD = 'single_card' as const;
 export const CELTIC_CROSS_REQUEST_SPREAD = 'celtic_cross' as const;

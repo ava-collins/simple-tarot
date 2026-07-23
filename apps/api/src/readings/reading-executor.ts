@@ -2,7 +2,7 @@ import type { ComposerRuntimeConfig } from '../config';
 import type { ComposedReadingContext } from '../composer/contracts';
 import { ComposerUnavailableError } from '../composer/errors';
 import type { ComposerRuntime } from '../composer/runtime';
-import type { ExplicitRagEvaluationTrace } from '../evaluations/contracts';
+import type { BedrockEvaluationTrace } from '../evaluations/contracts';
 import type {
     ComposerResponseMetadata,
     GeneratedReading,
@@ -13,7 +13,7 @@ import { mapGeneratedReadingResponse } from './response-mapper';
 
 export type ReadingGenerationExecution = {
     generated: GeneratedReading;
-    trace?: ExplicitRagEvaluationTrace;
+    trace?: BedrockEvaluationTrace;
 };
 
 export type ReadingGenerator = (
@@ -27,7 +27,7 @@ export type ReadingExecution = {
     context?: ComposedReadingContext;
     generated: GeneratedReading;
     reading: ReadingResponse;
-    trace?: ExplicitRagEvaluationTrace;
+    trace?: BedrockEvaluationTrace;
 };
 
 export type ReadingExecutor = {

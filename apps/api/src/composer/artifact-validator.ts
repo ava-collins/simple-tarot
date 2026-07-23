@@ -1,9 +1,9 @@
 import {
     COMPOSER_BUNDLE_PATH,
-    COMPOSER_SCHEMA_VERSION,
-    CORPUS_SCHEMA_VERSION,
     CORPUS_VERSION_PATTERN,
     MAX_COMPOSER_BUNDLE_BYTES,
+    SUPPORTED_COMPOSER_SCHEMA_VERSIONS,
+    SUPPORTED_CORPUS_SCHEMA_VERSIONS,
     SUPPORTED_RELATIONSHIP_TYPES
 } from './constants';
 import {
@@ -80,6 +80,15 @@ const expectStringArray = (value: unknown): string[] => {
     }
 
     return value;
+};
+
+const expectNonEmptyStringArray = (value: unknown): string[] => {
+    const values = expectStringArray(value);
+    if (values.length === 0 || values.some(item => item.length === 0)) {
+        invalid();
+    }
+
+    return values;
 };
 
 const expectArray = (value: unknown): unknown[] =>
@@ -213,7 +222,9 @@ export function parseReleaseManifest(
     ]);
     if (
         input.manifestSchemaVersion !== 1 ||
-        input.corpusSchemaVersion !== CORPUS_SCHEMA_VERSION ||
+        !(SUPPORTED_CORPUS_SCHEMA_VERSIONS as readonly unknown[]).includes(
+            input.corpusSchemaVersion
+        ) ||
         input.corpusVersion !== expectedCorpusVersion
     ) {
         invalid();
@@ -251,7 +262,7 @@ export function parseReleaseManifest(
         composerArtifact,
         manifest: {
             manifestSchemaVersion: 1,
-            corpusSchemaVersion: 1,
+            corpusSchemaVersion: input.corpusSchemaVersion as 1 | 2,
             corpusVersion: expectedCorpusVersion,
             artifacts,
             runtimeObjects,
@@ -343,7 +354,7 @@ return;
     invalid();
 };
 
-const validateCards = (value: unknown): void => {
+const validateCardsV1 = (value: unknown): void => {
     const cards = expectRecord(value);
     for (const [key, rawCard] of Object.entries(cards)) {
         const card = expectRecord(rawCard);
@@ -369,6 +380,92 @@ const validateCards = (value: unknown): void => {
         expectStringArray(card.reversedKeywords);
         expectStringArray(card.correspondenceIds);
         validatePrimitiveAttributes(card.attributes, false);
+    }
+};
+
+const validateCardsV2 = (value: unknown): void => {
+    const cards = expectRecord(value);
+    for (const [key, rawCard] of Object.entries(cards)) {
+        const card = expectRecord(rawCard);
+        const arcana = expectEnum(card.arcana, ['major', 'minor'] as const);
+        expectExactKeys(card, [
+            'id',
+            'index',
+            'name',
+            'title',
+            'arcana',
+            'description',
+            'number',
+            ...(arcana === 'minor' ? ['suit'] : []),
+            'element',
+            'uprightKeywords',
+            'uprightKeywordSourceIds',
+            'reversedKeywords',
+            'reversedKeywordSourceIds',
+            'correspondenceIds',
+            'attributes'
+        ]);
+        if (expectString(card.id) !== key) invalid();
+        expectInteger(card.index);
+        expectString(card.name);
+        expectString(card.title);
+        expectString(card.description);
+        const number = expectInteger(card.number);
+        if (
+            (arcana === 'major' && (number < 0 || number > 21)) ||
+            (arcana === 'minor' && (number < 1 || number > 14))
+        ) {
+            invalid();
+        }
+        if (arcana === 'minor') {
+            expectEnum(card.suit, ['swords', 'wands', 'cups', 'coins'] as const);
+        }
+        expectEnum(card.element, ['air', 'fire', 'water', 'earth'] as const);
+        expectNonEmptyStringArray(card.uprightKeywords);
+        expectNonEmptyStringArray(card.uprightKeywordSourceIds);
+        expectNonEmptyStringArray(card.reversedKeywords);
+        expectNonEmptyStringArray(card.reversedKeywordSourceIds);
+        expectStringArray(card.correspondenceIds);
+        validatePrimitiveAttributes(card.attributes, false);
+    }
+};
+
+const validateSingleCardThemes = (value: unknown): void => {
+    const themes = expectArray(value).map(expectRecord);
+    expectUniqueIds(themes);
+    const approvedKeys = new Set<string>();
+
+    for (const theme of themes) {
+        expectExactKeys(theme, [
+            'id',
+            'dimension',
+            'value',
+            'theme',
+            'status',
+            'sourceIds'
+        ]);
+        expectString(theme.id);
+        const dimension = expectEnum(
+            theme.dimension,
+            ['arcana', 'suit', 'number', 'element'] as const
+        );
+        if (dimension === 'arcana') {
+            expectEnum(theme.value, ['major', 'minor'] as const);
+        } else if (dimension === 'suit') {
+            expectEnum(theme.value, ['swords', 'wands', 'cups', 'coins'] as const);
+        } else if (dimension === 'number') {
+            const number = expectInteger(theme.value);
+            if (number < 0 || number > 21) invalid();
+        } else {
+            expectEnum(theme.value, ['air', 'fire', 'water', 'earth'] as const);
+        }
+        expectString(theme.theme);
+        if (theme.status !== 'approved') invalid();
+        expectNonEmptyStringArray(theme.sourceIds);
+
+        const key = `${dimension}:${String(theme.value)}`;
+        if (approvedKeys.has(key)) invalid();
+        approvedKeys.add(key);
     }
 };
 
@@ -544,13 +641,22 @@ const validatePositionMeanings = (value: unknown): void => {
 
 export function parseComposerBundle(
     value: unknown,
-    expectedCorpusVersion: string
+    expectedCorpusVersion: string,
+    expectedSchemaVersion: 1 | 2
 ): ComposerBundle {
     const bundle = expectRecord(value);
+    if (
+        !(SUPPORTED_COMPOSER_SCHEMA_VERSIONS as readonly unknown[]).includes(
+            expectedSchemaVersion
+        )
+    ) {
+        invalid();
+    }
     expectExactKeys(bundle, [
         'schemaVersion',
         'corpusVersion',
         'cardsById',
+        ...(expectedSchemaVersion === 2 ? ['approvedSingleCardThemes'] : []),
         'spreadsById',
         'correspondencesById',
         'approvedThemeFragments',
@@ -558,11 +664,16 @@ export function parseComposerBundle(
         'legacyPositionMeaningsByKey'
     ]);
     if (
-        bundle.schemaVersion !== COMPOSER_SCHEMA_VERSION ||
+        bundle.schemaVersion !== expectedSchemaVersion ||
         bundle.corpusVersion !== expectedCorpusVersion
     ) invalid();
 
-    validateCards(bundle.cardsById);
+    if (expectedSchemaVersion === 1) {
+        validateCardsV1(bundle.cardsById);
+    } else {
+        validateCardsV2(bundle.cardsById);
+        validateSingleCardThemes(bundle.approvedSingleCardThemes);
+    }
     validateSpreads(bundle.spreadsById);
     validateCorrespondences(bundle.correspondencesById);
     validateThemes(bundle.approvedThemeFragments);

@@ -26,6 +26,30 @@ export function createExplicitRagReadingGenerator({
 }: ExplicitRagGeneratorOptions): ExplicitRagReadingGenerator {
     return {
         async generateReading(input) {
+            if (
+                input.context.composerSchemaVersion === 2 &&
+                input.context.spreadMode === 'single-card'
+            ) {
+                const prompt = buildExplicitGenerationPrompt(
+                    input.request,
+                    input.context,
+                    []
+                );
+                const generation = await converse.generate(
+                    prompt,
+                    input.requestId
+                );
+
+                return {
+                    generated: generation.generated,
+                    trace: {
+                        mode: 'deterministic',
+                        generation: generation.trace,
+                        prompt
+                    }
+                };
+            }
+
             const query = buildRetrievalQuery(input.request, input.context);
             const retrieval = await retriever.retrieve({
                 filter: activeCorpusFilterFor(input.context.corpusVersion),
@@ -49,6 +73,7 @@ export function createExplicitRagReadingGenerator({
             return {
                 generated: generation.generated,
                 trace: {
+                    mode: 'explicit-rag',
                     generation: generation.trace,
                     prompt,
                     retrieval: {

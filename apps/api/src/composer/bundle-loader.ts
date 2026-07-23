@@ -61,7 +61,7 @@ const loadImmutableRelease = async (
         `${pointer.releasePrefix}${RELEASE_MANIFEST_PATH}`,
         MAX_COMPOSER_BUNDLE_BYTES
     );
-    const { composerArtifact } = parseReleaseManifest(
+    const { composerArtifact, manifest } = parseReleaseManifest(
         parseJson(manifestBytes),
         pointer.corpusVersion
     );
@@ -77,7 +77,11 @@ const loadImmutableRelease = async (
     }
 
     return {
-        bundle: parseComposerBundle(parseJson(bundleBytes), pointer.corpusVersion),
+        bundle: parseComposerBundle(
+            parseJson(bundleBytes),
+            pointer.corpusVersion,
+            manifest.corpusSchemaVersion
+        ),
         pointer
     };
 };
@@ -133,4 +137,3 @@ export function createComposerBundleLoader({
         }
     };
 }
-
