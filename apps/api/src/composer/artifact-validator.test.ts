@@ -278,6 +278,17 @@ describe('parseComposerBundle', () => {
         );
     });
 
+    it('rejects malformed schema-2 legacy theme topic tags', () => {
+        const bundle = structuredClone(sanitizedComposerBundleV2) as unknown as {
+            approvedThemeFragments: Array<Record<string, unknown>>;
+        };
+        bundle.approvedThemeFragments[0]!.topicTags = ['valid', 7];
+
+        expectUnavailable(() =>
+            parseComposerBundle(bundle, SANITIZED_CORPUS_VERSION, 2)
+        );
+    });
+
     it('rejects executable attribute values', () => {
         const bundle = structuredClone(sanitizedComposerBundle) as unknown as Record<
             string,

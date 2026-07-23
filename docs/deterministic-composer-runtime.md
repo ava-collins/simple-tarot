@@ -93,7 +93,9 @@ Schema 2 requires each card to carry a resolved classical element and an explici
 cards omit suit; Minor cards use one of the four supported suits. Orientation keyword provenance
 is validated but remains internal. Single-card themes are exact, approved dimension/value records;
 duplicate dimension/value keys are rejected. These checks validate the consumer projection, not
-the private rules that produced it.
+the private rules that produced it. Schema-2 legacy theme fragments also require string-array
+`topicTags`; the loader validates this private metadata but composition and prompt rendering do not
+consume it. Schema-1 legacy theme fragments retain their prior exact shape without `topicTags`.
 
 Spread positions use zero-based sequential `order` values. Celtic Cross requests must contain ten
 items whose position IDs match that exact order. Card indexes resolve to one canonical card and the
