@@ -2,6 +2,7 @@
   "expo": {
     "name": "tarot",
     "slug": "tarot",
+    "owner": "simples",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -12,6 +13,7 @@
       "bundleIdentifier": "com.simples.tarot"
     },
     "android": {
+      "package": "com.simples.tarot",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -47,6 +49,12 @@
       "typedRoutes": true,
       "reactCompiler": true,
       "reactServerFunctions": true
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "b7d1d5be-f938-406b-8a3b-71ff6fc30669"
+      }
     }
   }
 }
