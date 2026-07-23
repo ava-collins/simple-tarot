@@ -5,6 +5,7 @@ import { composeRelationshipResults } from './relationship-composer';
 import {
     sanitizedCelticCrossRequest,
     sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from './test-fixture';
 
@@ -160,5 +161,15 @@ describe('composeRelationshipResults', () => {
             composeRelationshipResults(normalized, sanitizedComposerBundle)
         ).toEqual({ namedPairResults: [], wholeSpreadResults: [] });
     });
-});
 
+    it('emits no relationships for schema-2 single-card mode', () => {
+        const normalized = normalizeComposerRequest(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundleV2
+        );
+
+        expect(
+            composeRelationshipResults(normalized, sanitizedComposerBundleV2)
+        ).toEqual({ namedPairResults: [], wholeSpreadResults: [] });
+    });
+});

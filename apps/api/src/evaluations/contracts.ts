@@ -40,22 +40,32 @@ export type RetrievalEvaluationTrace = {
     usableResultCount: number;
 };
 
-export type ExplicitRagEvaluationTrace = {
+type TraceBase = {
     generation: GenerationEvaluationTrace;
     prompt: {
         system: string;
         user: string;
     };
+};
+
+export type DeterministicEvaluationTrace = TraceBase & {
+    mode: 'deterministic';
+};
+
+export type ExplicitRagEvaluationTrace = TraceBase & {
+    mode: 'explicit-rag';
     retrieval: RetrievalEvaluationTrace;
 };
+
+export type BedrockEvaluationTrace =
+    | DeterministicEvaluationTrace
+    | ExplicitRagEvaluationTrace;
 
 export type ReadingEvaluationResponse = {
     corpusVersion: string;
     evaluatedAt: string;
     reading: ReadingResponse;
     requestId: string;
-    schemaVersion: 1;
-    trace: ExplicitRagEvaluationTrace & {
-        resolvedContext: ComposedReadingContext;
-    };
+    schemaVersion: 2;
+    trace: BedrockEvaluationTrace & { resolvedContext: ComposedReadingContext };
 };

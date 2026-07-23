@@ -250,6 +250,102 @@ export const sanitizedComposerBundle: ComposerBundle = {
     }
 };
 
+export const sanitizedComposerBundleV2 = {
+    schemaVersion: 2,
+    corpusVersion: SANITIZED_CORPUS_VERSION,
+    cardsById: {
+        'dawn-keeper': {
+            id: 'dawn-keeper',
+            index: 0,
+            name: 'Dawn Keeper',
+            title: 'The First Lantern',
+            arcana: 'major',
+            description: 'A traveler notices a new horizon.',
+            number: 0,
+            element: 'air',
+            uprightKeywords: ['beginning', 'wonder'],
+            uprightKeywordSourceIds: ['invented-source'],
+            reversedKeywords: ['hesitation', 'delay'],
+            reversedKeywordSourceIds: ['invented-source'],
+            correspondenceIds: ['ember', 'lantern', 'two'],
+            attributes: { path: 'opening' }
+        },
+        'tide-weaver': {
+            id: 'tide-weaver',
+            index: 1,
+            name: 'Tide Weaver',
+            title: 'The Patient Current',
+            arcana: 'minor',
+            description: 'A guide shapes a steady passage.',
+            number: 2,
+            suit: 'swords',
+            element: 'air',
+            uprightKeywords: ['patience', 'motion'],
+            uprightKeywordSourceIds: ['invented-source'],
+            reversedKeywords: ['stagnation', 'resistance'],
+            reversedKeywordSourceIds: ['invented-source'],
+            correspondenceIds: ['ember', 'lantern', 'two'],
+            attributes: { path: 'continuance' }
+        }
+    },
+    approvedSingleCardThemes: [
+        {
+            id: 'arcana-major-theme',
+            dimension: 'arcana',
+            value: 'major',
+            theme: 'An invented broad-scale theme.',
+            status: 'approved',
+            sourceIds: ['invented-source']
+        },
+        {
+            id: 'arcana-minor-theme',
+            dimension: 'arcana',
+            value: 'minor',
+            theme: 'An invented daily-life theme.',
+            status: 'approved',
+            sourceIds: ['invented-source']
+        },
+        {
+            id: 'suit-swords-theme',
+            dimension: 'suit',
+            value: 'swords',
+            theme: 'An invented discernment theme.',
+            status: 'approved',
+            sourceIds: ['invented-source']
+        },
+        {
+            id: 'number-zero-theme',
+            dimension: 'number',
+            value: 0,
+            theme: 'An invented beginning theme.',
+            status: 'approved',
+            sourceIds: ['invented-source']
+        },
+        {
+            id: 'number-two-theme',
+            dimension: 'number',
+            value: 2,
+            theme: 'An invented relationship theme.',
+            status: 'approved',
+            sourceIds: ['invented-source']
+        },
+        {
+            id: 'element-air-theme',
+            dimension: 'element',
+            value: 'air',
+            theme: 'An invented motion theme.',
+            status: 'approved',
+            sourceIds: ['invented-source']
+        }
+    ],
+    spreadsById: sanitizedComposerBundle.spreadsById,
+    correspondencesById: sanitizedComposerBundle.correspondencesById,
+    approvedThemeFragments: sanitizedComposerBundle.approvedThemeFragments,
+    relationshipRules: sanitizedComposerBundle.relationshipRules,
+    legacyPositionMeaningsByKey:
+        sanitizedComposerBundle.legacyPositionMeaningsByKey
+} as const;
+
 export const sanitizedSingleCardRequest: ReadingRequest = {
     spread: 'single_card',
     items: [

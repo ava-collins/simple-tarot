@@ -2,7 +2,7 @@ import type { RetrievalFilter } from '@aws-sdk/client-bedrock-agent-runtime';
 import type { ComposedReadingContext } from '../composer/contracts';
 import type { GeneratedReading, ReadingRequest } from '../readings/contracts';
 import type {
-    ExplicitRagEvaluationTrace,
+    BedrockEvaluationTrace,
     GenerationEvaluationTrace,
     RetrievalEvaluationResult
 } from '../evaluations/contracts';
@@ -63,6 +63,6 @@ export type ExplicitRagGenerationInput = {
 export type ExplicitRagReadingGenerator = {
     generateReading(input: ExplicitRagGenerationInput): Promise<{
         generated: GeneratedReading;
-        trace: ExplicitRagEvaluationTrace;
+        trace: BedrockEvaluationTrace;
     }>;
 };

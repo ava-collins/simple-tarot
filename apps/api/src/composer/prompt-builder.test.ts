@@ -4,6 +4,7 @@ import { buildExplicitGenerationPrompt } from './prompt-builder';
 import {
     sanitizedCelticCrossRequest,
     sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from './test-fixture';
 
@@ -97,5 +98,82 @@ describe('buildExplicitGenerationPrompt', () => {
         ]) {
             expect(JSON.stringify(first)).not.toContain(privateValue);
         }
+    });
+
+    it('renders an exact minimal schema-2 Major prompt with reversed keywords only', () => {
+        const request = {
+            ...structuredClone(sanitizedSingleCardRequest),
+            question: 'What should I notice?'
+        };
+        request.items[0]!.reversed = true;
+        const context = composeReadingContext(request, sanitizedComposerBundleV2);
+        const prompt = buildExplicitGenerationPrompt(request, context, [
+            'This retrieved text must be ignored.'
+        ]);
+
+        expect(prompt.user).toBe(
+            [
+                'Card: Dawn Keeper — The First Lantern',
+                'Arcana: major',
+                'Number: 0',
+                'Element: air',
+                'Orientation: reversed',
+                'Reversed keywords: hesitation, delay',
+                'Theme — arcana: An invented broad-scale theme.',
+                'Theme — number: An invented beginning theme.',
+                'Theme — element: An invented motion theme.',
+                '',
+                '<user-intent>',
+                '<question>What should I notice?</question>',
+                '</user-intent>'
+            ].join('\n')
+        );
+        expect(prompt.system).toContain('exact single-card fields');
+        for (const excluded of [
+            'dawn-keeper',
+            'Card index',
+            'Corpus version',
+            'Spread:',
+            'Presentation position',
+            'Description:',
+            'Upright keywords',
+            'Canonical position',
+            'Exact position meaning',
+            'Retrieved',
+            'This retrieved text must be ignored.',
+            'invented-source',
+            'arcana-major-theme'
+        ]) {
+            expect(`${prompt.system}\n${prompt.user}`).not.toContain(excluded);
+        }
+    });
+
+    it('includes suit in a minimal schema-2 Minor prompt', () => {
+        const request = {
+            ...structuredClone(sanitizedSingleCardRequest),
+            items: [
+                {
+                    cardIndex: 1,
+                    cardName: 'Tide Weaver',
+                    position: 'guidance',
+                    reversed: false
+                }
+            ]
+        };
+        const context = composeReadingContext(request, sanitizedComposerBundleV2);
+        const prompt = buildExplicitGenerationPrompt(request, context, []);
+
+        expect(prompt.user).toContain(
+            [
+                'Card: Tide Weaver — The Patient Current',
+                'Arcana: minor',
+                'Suit: swords',
+                'Number: 2',
+                'Element: air',
+                'Orientation: upright',
+                'Upright keywords: patience, motion'
+            ].join('\n')
+        );
+        expect(prompt.user).not.toContain('Reversed keywords:');
     });
 });

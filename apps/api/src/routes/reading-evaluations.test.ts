@@ -4,6 +4,7 @@ import { composeReadingContext } from '../composer/compose-reading';
 import { ComposerUnavailableError } from '../composer/errors';
 import {
     sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from '../composer/test-fixture';
 import type { GeneratedReading } from '../readings/contracts';
@@ -44,6 +45,7 @@ const execution: ReadingExecution = {
         composerMetadata
     ),
     trace: {
+        mode: 'explicit-rag',
         generation: {
             durationMs: 7,
             inputTokens: 101,
@@ -82,6 +84,47 @@ const execution: ReadingExecution = {
             returnedResultCount: 1,
             totalEvidenceCharacters: 23,
             usableResultCount: 1
+        }
+    }
+};
+
+const deterministicContext = composeReadingContext(
+    sanitizedSingleCardRequest,
+    sanitizedComposerBundleV2
+);
+
+const deterministicExecution: ReadingExecution = {
+    composerMetadata: {
+        composerMode: 'enabled',
+        corpusVersion: deterministicContext.corpusVersion,
+        namedPairCount: 0,
+        wholeSpreadCount: 0
+    },
+    context: deterministicContext,
+    generated,
+    reading: mapGeneratedReadingResponse(
+        sanitizedSingleCardRequest,
+        generated,
+        {
+            composerMode: 'enabled',
+            corpusVersion: deterministicContext.corpusVersion,
+            namedPairCount: 0,
+            wholeSpreadCount: 0
+        }
+    ),
+    trace: {
+        mode: 'deterministic',
+        generation: {
+            durationMs: 7,
+            inputTokens: 80,
+            modelId: 'test-model',
+            outputCharacterCount: generated.text.length,
+            outputTokens: 20,
+            stopReason: 'end_turn'
+        },
+        prompt: {
+            system: 'deterministic-system-prompt-marker',
+            user: 'deterministic-user-prompt-marker'
         }
     }
 };
@@ -147,8 +190,9 @@ describe('createPostReadingEvaluationHandler', () => {
             evaluatedAt: '2026-07-20T15:00:00.000Z',
             reading: execution.reading,
             requestId: 'request-123',
-            schemaVersion: 1,
+            schemaVersion: 2,
             trace: {
+                mode: 'explicit-rag',
                 generation: execution.trace?.generation,
                 prompt: execution.trace?.prompt,
                 resolvedContext: context,
@@ -169,6 +213,35 @@ describe('createPostReadingEvaluationHandler', () => {
             /private-system-prompt-marker|private-user-prompt-marker|private-query-marker|private-candidate-marker|private-evidence-marker|Generated summary/
         );
         expect(next).not.toHaveBeenCalled();
+    });
+
+    it('returns deterministic context and prompt without retrieval fields or counts', async () => {
+        const apiLogSink = { write: vi.fn().mockResolvedValue(undefined) };
+        const handler = createPostReadingEvaluationHandler({
+            apiLogSink,
+            executor: createExecutor(deterministicExecution),
+            now: () => new Date('2026-07-20T15:00:00.000Z')
+        });
+        const response = createResponse();
+
+        await handler(createRequest(), response as never, vi.fn());
+
+        expect(response.status).toHaveBeenCalledWith(200);
+        const body = response.json.mock.calls[0]?.[0];
+        expect(body).toMatchObject({
+            corpusVersion: deterministicContext.corpusVersion,
+            schemaVersion: 2,
+            trace: {
+                mode: 'deterministic',
+                generation: deterministicExecution.trace?.generation,
+                prompt: deterministicExecution.trace?.prompt,
+                resolvedContext: deterministicContext
+            }
+        });
+        expect(body.trace).not.toHaveProperty('retrieval');
+        const log = apiLogSink.write.mock.calls[0]?.[0];
+        expect(log).not.toHaveProperty('returnedResultCount');
+        expect(log).not.toHaveProperty('usableResultCount');
     });
 
     it('returns the existing safe 400 transport response without execution', async () => {

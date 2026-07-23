@@ -8,7 +8,8 @@ import {
 import { ComposerArtifactReader } from './s3-artifact-reader';
 import {
     SANITIZED_CORPUS_VERSION,
-    sanitizedComposerBundle
+    sanitizedComposerBundle,
+    sanitizedComposerBundleV2
 } from './test-fixture';
 
 const encoder = new TextEncoder();
@@ -21,9 +22,11 @@ const EXPECTED_IDENTITIES = {
     knowledgeBaseId: 'KB1234567890'
 };
 
-const releaseFor = (corpusVersion: string) => {
+const releaseFor = (corpusVersion: string, schemaVersion: 1 | 2 = 1) => {
+    const fixture =
+        schemaVersion === 1 ? sanitizedComposerBundle : sanitizedComposerBundleV2;
     const bundle = {
-        ...structuredClone(sanitizedComposerBundle),
+        ...structuredClone(fixture),
         corpusVersion
     };
     const bundleBytes = jsonBytes(bundle);
@@ -40,7 +43,7 @@ const releaseFor = (corpusVersion: string) => {
     };
     const manifest = {
         manifestSchemaVersion: 1,
-        corpusSchemaVersion: 1,
+        corpusSchemaVersion: schemaVersion,
         corpusVersion,
         artifacts: [
             {
@@ -118,6 +121,17 @@ describe('createComposerBundleLoader', () => {
         expect(reader.calls[2]?.maximumBytes).toBe(release.bundleBytes.byteLength);
     });
 
+    it('loads a matching schema-2 manifest and bundle', async () => {
+        const release = releaseFor(SANITIZED_CORPUS_VERSION, 2);
+
+        await expect(
+            loaderFor(new MutableArtifactReader(release)).loadActiveBundle()
+        ).resolves.toEqual({
+            bundle: release.bundle,
+            pointer: release.pointer
+        });
+    });
+
     it('reads the pointer for every request but reuses matching immutable objects', async () => {
         const release = releaseFor(SANITIZED_CORPUS_VERSION);
         const reader = new MutableArtifactReader(release);
@@ -148,6 +162,21 @@ describe('createComposerBundleLoader', () => {
         expect(first.bundle.corpusVersion).toBe(SANITIZED_CORPUS_VERSION);
         expect(second.bundle.corpusVersion).toBe('b'.repeat(64));
         expect(second).not.toBe(first);
+    });
+
+    it('replaces a cached schema-2 release with a valid schema-1 rollback', async () => {
+        const firstRelease = releaseFor(SANITIZED_CORPUS_VERSION, 2);
+        const rollbackRelease = releaseFor('b'.repeat(64), 1);
+        const reader = new MutableArtifactReader(firstRelease, rollbackRelease);
+        const loader = loaderFor(reader);
+
+        const first = await loader.loadActiveBundle();
+        reader.currentVersion = rollbackRelease.pointer.corpusVersion;
+        const rollback = await loader.loadActiveBundle();
+
+        expect(first.bundle.schemaVersion).toBe(2);
+        expect(rollback.bundle.schemaVersion).toBe(1);
+        expect(rollback).not.toBe(first);
     });
 
     it('does not use the old cache when a changed pointer fails', async () => {

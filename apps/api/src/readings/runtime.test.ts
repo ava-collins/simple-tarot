@@ -74,6 +74,7 @@ describe('createReadingRuntime', () => {
     it('constructs one shared enabled composer and explicit generator graph', async () => {
         const context = {
             cards: [],
+            composerSchemaVersion: 1 as const,
             corpusVersion: 'a'.repeat(64),
             namedPairResults: [],
             spreadMode: 'single-card' as const,
@@ -84,6 +85,7 @@ describe('createReadingRuntime', () => {
             generateReading: vi.fn().mockResolvedValue({
                 generated,
                 trace: {
+                    mode: 'explicit-rag',
                     generation: {
                         durationMs: 1,
                         modelId: 'test-model',

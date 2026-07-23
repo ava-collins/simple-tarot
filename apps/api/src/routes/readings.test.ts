@@ -7,6 +7,7 @@ import {
 } from '../composer/errors';
 import {
     sanitizedComposerBundle,
+    sanitizedComposerBundleV2,
     sanitizedSingleCardRequest
 } from '../composer/test-fixture';
 import { GeneratedReading, ReadingRequest } from '../readings/contracts';
@@ -204,6 +205,71 @@ describe('createPostReadingHandler', () => {
         );
         expect(JSON.stringify(apiLogSink.write.mock.calls)).not.toMatch(
             /private-system-marker|private-user-marker|private-query-marker|resolvedContext|retrieval|prompt|trace/
+        );
+    });
+
+    it('keeps deterministic single-card context and prompts internal', async () => {
+        const context = composeReadingContext(
+            sanitizedSingleCardRequest,
+            sanitizedComposerBundleV2
+        );
+        const composerMetadata = {
+            composerMode: 'enabled' as const,
+            corpusVersion: context.corpusVersion,
+            namedPairCount: 0,
+            wholeSpreadCount: 0
+        };
+        const executor = createExecutor({
+            composerMetadata,
+            context,
+            generated: generatedReading,
+            reading: mapGeneratedReadingResponse(
+                sanitizedSingleCardRequest,
+                generatedReading,
+                composerMetadata
+            ),
+            trace: {
+                mode: 'deterministic',
+                generation: {
+                    durationMs: 1,
+                    modelId: 'private-model-marker',
+                    outputCharacterCount: generatedReading.text.length
+                },
+                prompt: {
+                    system: 'private-system-marker',
+                    user: 'private-theme-marker'
+                }
+            }
+        });
+        const store = createStore();
+        const apiLogSink = { write: vi.fn().mockResolvedValue(undefined) };
+        const handler = createPostReadingHandler({
+            apiLogSink,
+            executor,
+            readingHistoryStore: store
+        });
+        const response = createResponse();
+
+        await handler(
+            createRequest(sanitizedSingleCardRequest),
+            response as never,
+            vi.fn()
+        );
+
+        const serializedResponse = JSON.stringify(response.json.mock.calls);
+        const serializedPersistence = JSON.stringify(
+            vi.mocked(store.saveSuccessfulReading).mock.calls
+        );
+        const serializedLogs = JSON.stringify(apiLogSink.write.mock.calls);
+
+        expect(serializedResponse).not.toMatch(
+            /private-system-marker|private-theme-marker|resolvedContext|prompt|trace|orientationKeywords|singleCardThemes|sourceIds|ruleIds/
+        );
+        expect(serializedPersistence).not.toMatch(
+            /private-system-marker|private-theme-marker|resolvedContext|prompt|trace|orientationKeywords|singleCardThemes|sourceIds|ruleIds/
+        );
+        expect(serializedLogs).not.toMatch(
+            /private-system-marker|private-theme-marker|resolvedContext|prompt|trace|orientationKeywords|singleCardThemes|sourceIds|ruleIds/
         );
     });
 

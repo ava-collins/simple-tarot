@@ -27,11 +27,17 @@ The public repository must not reproduce private corpus behavior or import priva
 
 ## Artifact contract
 
-The implemented public runtime consumer accepts only an approved, versioned, opaque artifact set.
+The implemented public runtime consumer accepts approved opaque artifact sets for schemas 1 and 2.
 The handoff includes schema and corpus compatibility metadata, object identities, and checksums
-sufficient to reject incomplete, incompatible, or corrupted input without interpreting how the
-corpus was constructed. Spread positions use zero-based sequential order values as part of the
-consumer compatibility contract.
+sufficient to reject incomplete, cross-version, incompatible, or corrupted input without
+interpreting how the corpus was constructed. Spread positions use zero-based sequential order
+values as part of the consumer compatibility contract.
+
+Schema 2 adds only the public fields needed for deterministic single-card composition: explicit
+number, resolved classical element, optional Minor-card suit, orientation-labeled keyword sets
+with internal provenance, and exact approved themes for the arcana/suit/number/element dimensions.
+The private workflow remains solely responsible for assignments, correspondences, wording,
+editorial checklists, and derivation rules.
 
 Private artifact publication and development activation are implemented outside this repository.
 Public runtime loading, caching, compatibility enforcement, and generic deterministic composition
@@ -45,12 +51,17 @@ The public development infrastructure definition uses a selective data source at
 Knowledge Base, and generation profile. Production retains the legacy `corpus/` and fixed-size
 definition.
 
-The development API uses the opaque bundle for deterministic context, then performs one explicit
-Knowledge Base retrieval with an active-version filter and one Bedrock Converse call. Normal
-responses keep retrieved evidence internal; the authenticated development evaluation response
-exposes only bounded reading-specific evidence to the private harness. This does not broaden the
-public artifact contract. Production retains the legacy corpus infrastructure definition but has
-not been deployed with this runtime.
+For a schema-2 single card, the development API uses the opaque bundle directly and performs no
+Knowledge Base retrieval before its one Bedrock Converse call. Schema-1 single cards and Celtic
+Cross requests retain one explicit retrieval with an active-version filter before Converse.
+Normal responses keep resolved context, prompts, and retrieved evidence internal. The
+authenticated development evaluation response exposes a versioned deterministic or explicit-RAG
+trace to the private harness. This does not broaden the public artifact contract. Production
+retains the legacy corpus infrastructure definition but has not been deployed with this runtime.
+
+Runtime behavior follows the activated release. Supporting schema 2 in application code does not
+publish or activate a private release, initiate ingestion, or change AWS resources. Rolling the
+active pointer back to a compatible schema-1 release restores the schema-1 runtime behavior.
 
 ## Change coordination
 
