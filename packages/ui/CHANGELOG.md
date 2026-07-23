@@ -1,3 +1,10 @@
+# [@simpletarot/ui-v2.3.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.3.0...@simpletarot/ui-v2.3.1) (2026-07-23)
+
+
+### Bug Fixes
+
+* eas yarn and ts config ([c10a374](https://github.com/ava-collins/simple-tarot/commit/c10a374606ad92479ddad33d3ffa9559ece7c11d))
+
 # [@simpletarot/ui-v2.3.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.2.1...@simpletarot/ui-v2.3.0) (2026-07-21)
 
 
