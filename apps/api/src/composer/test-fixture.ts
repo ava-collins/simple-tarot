@@ -340,7 +340,12 @@ export const sanitizedComposerBundleV2 = {
     ],
     spreadsById: sanitizedComposerBundle.spreadsById,
     correspondencesById: sanitizedComposerBundle.correspondencesById,
-    approvedThemeFragments: sanitizedComposerBundle.approvedThemeFragments,
+    approvedThemeFragments: sanitizedComposerBundle.approvedThemeFragments.map(
+        theme => ({
+            ...theme,
+            topicTags: ['invented-topic']
+        })
+    ),
     relationshipRules: sanitizedComposerBundle.relationshipRules,
     legacyPositionMeaningsByKey:
         sanitizedComposerBundle.legacyPositionMeaningsByKey

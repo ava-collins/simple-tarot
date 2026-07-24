@@ -522,7 +522,10 @@ const validateCorrespondences = (value: unknown): void => {
     }
 };
 
-const validateThemes = (value: unknown): void => {
+const validateThemes = (
+    value: unknown,
+    schemaVersion: 1 | 2
+): void => {
     const themes = expectArray(value).map(expectRecord);
     expectUniqueIds(themes);
     for (const theme of themes) {
@@ -534,7 +537,8 @@ const validateThemes = (value: unknown): void => {
             'when',
             'polarity',
             'status',
-            'sourceIds'
+            'sourceIds',
+            ...(schemaVersion === 2 ? ['topicTags'] : [])
         ]);
         expectString(theme.id);
         if (theme.kind !== 'correspondence-theme' || theme.status !== 'approved') invalid();
@@ -543,6 +547,9 @@ const validateThemes = (value: unknown): void => {
         validatePredicate(theme.when);
         expectEnum(theme.polarity, POLARITIES);
         expectStringArray(theme.sourceIds);
+        if (schemaVersion === 2) {
+            expectStringArray(theme.topicTags);
+        }
     }
 };
 
@@ -676,7 +683,7 @@ export function parseComposerBundle(
     }
     validateSpreads(bundle.spreadsById);
     validateCorrespondences(bundle.correspondencesById);
-    validateThemes(bundle.approvedThemeFragments);
+    validateThemes(bundle.approvedThemeFragments, expectedSchemaVersion);
     validateRelationshipRules(bundle.relationshipRules);
     validatePositionMeanings(bundle.legacyPositionMeaningsByKey);
 

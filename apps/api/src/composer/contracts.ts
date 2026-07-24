@@ -94,6 +94,7 @@ export type ThemeFragment = {
     polarity: 'contextual' | 'reinforcing' | 'challenging';
     status: 'approved';
     sourceIds: string[];
+    topicTags?: string[];
 };
 
 export type RelationshipCondition =
