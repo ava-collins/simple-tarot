@@ -128,6 +128,21 @@ position meanings, relationships, retrieval text, source IDs, theme IDs, or priv
 Similar words may legitimately occur in both orientation sets; selection is based on the
 orientation label, not keyword comparison.
 
+The schema-2 single-card system instruction asks the model to select and synthesize only the
+keywords and themes relevant to the user intent rather than list every supplied field. The reading
+balances reflective guidance with possible future developments, frames predictions as
+possibilities rather than certainties, and includes one practical reflection or action. The model
+must not contradict the selected orientation or invent unsupported card meanings, facts, or
+themes.
+
+Generation remains the existing unstructured two-line contract: one sentence for the overall
+summary, followed by one line containing a two-to-four-sentence card interpretation. The second
+line has no heading, label, bullet, or metadata. Converse is called once; the runtime does not
+validate, repair, or retry malformed model output. The response mapper exposes the first two
+non-empty lines through the existing `ReadingResponse` and discards additional lines. The
+development evaluation response includes the mapped reading, exact prompt, resolved context, and
+safe generation metrics, but not Bedrock's raw generated text.
+
 Schema-1 requests and all Celtic Cross requests preserve the existing prompt precedence:
 deterministic context, relationships, optional bounded retrieval evidence, user intent, and
 response-shape requirements. Retrieved text may enrich exact facts but cannot replace or
