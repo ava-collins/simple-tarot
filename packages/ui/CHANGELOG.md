@@ -1,3 +1,10 @@
+# [@simpletarot/ui-v2.4.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.3.1...@simpletarot/ui-v2.4.0) (2026-07-24)
+
+
+### Features
+
+* **ui:** wire QuickNav navigation callbacks and export it ([b6a1be8](https://github.com/ava-collins/simple-tarot/commit/b6a1be83f3d8e22c7c190c569b2dd51141a0ef26))
+
 # [@simpletarot/ui-v2.3.1](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.3.0...@simpletarot/ui-v2.3.1) (2026-07-23)
 
 
