@@ -3,28 +3,38 @@ import React, { useState } from 'react';
 import SpeedDial from '@rneui/themed/dist/SpeedDial';
 import { View } from 'react-native';
 
-const QuickNav = () => {
+export interface QuickNavProps {
+    onNewReadingPress?: () => void;
+    onProfilePress?: () => void;
+    onReadingHistoryPress?: () => void;
+}
+
+const QuickNav: React.FC<QuickNavProps> = ({
+    onNewReadingPress,
+    onProfilePress,
+    onReadingHistoryPress
+}) => {
     const [open, setOpen] = useState(false);
 
     const openProfile = () => {
         setOpen(false);
+        onProfilePress?.();
     };
 
     const goToHistory = () => {
         setOpen(false);
+        onReadingHistoryPress?.();
     };
 
     const startNewReading = () => {
         setOpen(false);
-    };
-
-    const goToHome = () => {
-        setOpen(false);
+        onNewReadingPress?.();
     };
 
     return (
         <View
             testID="quick-nav-container"
+            pointerEvents="box-none"
             style={{
                 position: 'absolute',
                 top: 0,
