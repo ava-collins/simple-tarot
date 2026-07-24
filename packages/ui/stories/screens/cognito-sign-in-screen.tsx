@@ -4,8 +4,6 @@ import React from 'react';
 import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
 
-const t = theme();
-
 export interface CognitoSignInScreenProps {
     authRequestReady?: boolean;
     isLoading?: boolean;
@@ -57,21 +55,21 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: '600',
-        color: t.colors.primary
+        color: theme.colors.primary
     },
     body: {
         fontSize: 14,
         lineHeight: 20,
-        color: t.colors.grey5
+        color: theme.colors.grey5
     },
     errorText: {
         fontSize: 14,
         lineHeight: 20,
-        color: t.colors.error
+        color: theme.colors.error
     },
     button: {
         alignItems: 'center',
-        backgroundColor: t.colors.grey5,
+        backgroundColor: theme.colors.grey5,
         borderRadius: 4,
         height: 60,
         justifyContent: 'center',
@@ -84,7 +82,7 @@ const styles = StyleSheet.create({
         opacity: 0.75
     },
     buttonText: {
-        color: t.colors.white,
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: 'bold'
     }

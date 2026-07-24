@@ -1,4 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
+import theme from '../utils/theme';
 
 export type ReadingListCardProps = {
     createdAtLabel: string;
@@ -26,21 +27,21 @@ export default function ReadingListCard({
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: '#FFFDF8',
-        borderColor: '#D9CBAE',
+        backgroundColor: theme.colors.white,
+        borderColor: theme.colors.greyOutline,
         borderRadius: 8,
         borderWidth: 1,
         gap: 8,
         padding: 16
     },
     questionText: {
-        color: '#1B1A18',
+        color: theme.colors.secondary,
         fontSize: 17,
         fontWeight: '700',
         lineHeight: 22
     },
     metaText: {
-        color: '#765B2B',
+        color: theme.colors.grey4,
         fontSize: 12,
         fontWeight: '600',
         lineHeight: 16

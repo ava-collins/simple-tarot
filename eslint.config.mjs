@@ -36,6 +36,7 @@ export default defineConfig([
             'apps/tarot/.expo/**',
             'apps/tarot/expo-env.d.ts',
             'apps/tarot/metro.config.js',
+            'apps/tarot/plugins/**',
             'packages/ui/.storybook_server/**',
             'packages/ui/.storybook/**',
             'packages/ui/storybook-static/**'

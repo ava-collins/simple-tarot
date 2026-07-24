@@ -6,7 +6,6 @@ import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
 import { useLoginForm } from '@simpletarot/hooks/client';
 
-const t = theme();
 
 export interface LoginScreenProps {
     error?: string | null;
@@ -43,7 +42,7 @@ const LoginScreen: React.FC<LoginScreenProps> = ({
     return (
         <MobileView>
             <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
-                <View style={t.formWrapperStyle}>
+                <View style={theme.formWrapperStyle}>
                     <LoginForm
                         email={email}
                         password={password}

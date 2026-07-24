@@ -4,8 +4,6 @@ import React from 'react';
 import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
 
-const t = theme();
-
 export interface AuthCallbackScreenProps {
     isLoading?: boolean;
     error?: string | null;
@@ -43,16 +41,16 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: '600',
-        color: t.colors.primary
+        color: theme.colors.primary
     },
     body: {
         fontSize: 14,
         lineHeight: 20,
-        color: t.colors.grey5
+        color: theme.colors.grey5
     },
     errorText: {
         fontSize: 14,
         lineHeight: 20,
-        color: t.colors.error
+        color: theme.colors.error
     }
 });

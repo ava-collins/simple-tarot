@@ -1,5 +1,5 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-
+import theme from '../utils/theme';
 import ReadingHistoryList, {
     type ReadingHistoryListProps
 } from '../organisms/reading-history-list';
@@ -64,15 +64,7 @@ export default function ReadingHistoryScreen({
                         <Text style={styles.eyebrow}>Saved readings</Text>
                         <Text style={styles.title}>Reading history</Text>
                     </View>
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onCreateReadingPress}
-                        style={({ pressed }) => [
-                            styles.iconButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.iconButtonText}>+</Text>
-                    </Pressable>
+                 
                 </View>
 
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
@@ -92,7 +84,6 @@ export default function ReadingHistoryScreen({
 const styles = StyleSheet.create({
     screen: {
         flex: 1,
-        backgroundColor: '#F7F3EA',
         paddingHorizontal: 24,
         paddingTop: 72
     },
@@ -101,7 +92,7 @@ const styles = StyleSheet.create({
         alignItems: 'stretch',
         justifyContent: 'center',
         gap: 16,
-        backgroundColor: '#F7F3EA',
+        backgroundColor: theme.colors.white,
         paddingHorizontal: 32
     },
     header: {
@@ -112,56 +103,56 @@ const styles = StyleSheet.create({
         marginBottom: 24
     },
     eyebrow: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 0,
         textTransform: 'uppercase'
     },
     title: {
-        color: '#1B1A18',
+        color: theme.colors.secondary,
         fontSize: 30,
         fontWeight: '700',
         letterSpacing: 0
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.primary,
         fontSize: 16,
         lineHeight: 22
     },
     mutedText: {
-        color: '#6C665B',
+        color: theme.colors.grey2,
         fontSize: 15
     },
     errorText: {
-        color: '#8F2D2D',
+        color: theme.colors.error,
         fontSize: 14,
         lineHeight: 20,
         marginBottom: 16
     },
     primaryButton: {
         alignItems: 'center',
-        backgroundColor: '#1B1A18',
+        backgroundColor: theme.colors.black,
         borderRadius: 6,
         minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: 20
     },
     primaryButtonText: {
-        color: '#FFFDF8',
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: '700'
     },
     iconButton: {
         alignItems: 'center',
-        backgroundColor: '#1B1A18',
+        backgroundColor: theme.colors.black,
         borderRadius: 26,
         height: 52,
         justifyContent: 'center',
         width: 52
     },
     iconButtonText: {
-        color: '#FFFDF8',
+        color: theme.colors.white,
         fontSize: 32,
         fontWeight: '500',
         lineHeight: 36

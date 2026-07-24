@@ -1,11 +1,9 @@
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
+import theme from '../utils/theme';
 
 import AvatarRollback from '../atoms/avatar-rollback';
 import MobileView from '../templates/mobile-view';
-import theme from '../utils/theme';
-
-const t = theme();
 
 export interface AccountScreenProps {
     apiBaseUrl?: string;
@@ -142,7 +140,7 @@ const styles = StyleSheet.create({
     emailText: {
         fontSize: 18,
         fontWeight: '600',
-        color: t.colors.primary,
+        color: theme.colors.primary,
         textAlign: 'center'
     },
     claimsSection: {
@@ -154,53 +152,53 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 28,
         fontWeight: '600',
-        color: t.colors.primary
+        color: theme.colors.primary
     },
     label: {
         fontSize: 12,
         fontWeight: '700',
-        color: t.colors.grey5,
+        color: theme.colors.grey5,
         textTransform: 'uppercase',
         letterSpacing: 0.5
     },
     body: {
         fontSize: 14,
         lineHeight: 20,
-        color: t.colors.primary
+        color: theme.colors.primary
     },
     mutedText: {
         fontSize: 14,
-        color: t.colors.grey5
+        color: theme.colors.grey5
     },
     errorText: {
         fontSize: 14,
         lineHeight: 20,
-        color: t.colors.error
+        color: theme.colors.error
     },
     buttonGroup: {
         gap: 16
     },
     button: {
         alignItems: 'center',
-        backgroundColor: t.colors.grey5,
+        backgroundColor: theme.colors.grey5,
         borderRadius: 4,
         height: 60,
         justifyContent: 'center'
     },
     buttonText: {
-        color: t.colors.white,
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: 'bold'
     },
     signOutButton: {
         alignItems: 'center',
-        backgroundColor: t.colors.grey3,
+        backgroundColor: theme.colors.grey3,
         borderRadius: 4,
         height: 60,
         justifyContent: 'center'
     },
     signOutButtonText: {
-        color: t.colors.white,
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: 'bold'
     },

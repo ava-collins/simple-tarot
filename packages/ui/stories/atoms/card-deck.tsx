@@ -8,8 +8,6 @@ export type DeckProps = {
     onPress: () => void;
 };
 
-const t = theme();
-
 const viewHeight = Dimensions.get('window').height;
 const basis = viewHeight - 100;
 const imgWidth = basis * 0.4;
@@ -18,7 +16,7 @@ const imgHeight = basis * 0.71;
 const styles = StyleSheet.create({
     deck: {
         marginTop: 10,
-        shadowColor: t.colors.secondary,
+        shadowColor: theme.colors.secondary,
         shadowOffset: {
             width: 0,
             height: 0

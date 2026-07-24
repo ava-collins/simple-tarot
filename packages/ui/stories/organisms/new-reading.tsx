@@ -11,7 +11,6 @@ type StartProps = {
     onStart: () => void;
 };
 
-const t = theme();
 
 const viewHeight = Dimensions.get('window').height;
 
@@ -55,7 +54,7 @@ const NewReading = ({ onStart }: StartProps) => (
                 <StartArrow
                     style={styles.arrow}
                     strokeWidth="4"
-                    fill={t.colors.primary}
+                    fill={theme.colors.primary}
                 />
                 <Text style={styles.text}>Tap tarot card to start</Text>
             </View>

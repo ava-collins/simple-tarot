@@ -26,3 +26,5 @@ export { default as AuthCallbackScreen } from './stories/screens/auth-callback-s
 export type { AuthCallbackScreenProps } from './stories/screens/auth-callback-screen';
 export { default as SignOutScreen } from './stories/screens/sign-out-screen';
 export { default as LogoutCallbackScreen } from './stories/screens/logout-callback-screen';
+export { default as theme } from './stories/utils/theme';
+export { default as colors } from './stories/utils/colors';
