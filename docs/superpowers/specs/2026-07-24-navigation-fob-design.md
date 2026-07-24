@@ -59,9 +59,12 @@ category):
 
 ## Verification
 
-- `yarn workspace @simpletarot/ui build-storybook` and the Storybook test runner must pass,
-  including the extended `QuickNavOpenTest` interaction test.
-- `yarn build` (lint + type-build across workspaces) must pass.
+- `packages/ui` has no CLI-driven test suite and no Storybook test-runner addon configured
+  (confirmed in `.storybook/main.ts`); the extended `QuickNavOpenTest` interaction test is
+  verified by running `yarn workspace @simpletarot/ui storybook` and exercising the story's
+  Interactions panel, not by an automated CLI gate.
+- `yarn build` (lint + type-build across workspaces) must pass — this typechecks the new
+  `QuickNavProps` usage in both `packages/ui` and `apps/tarot`.
 - Manual verification in the iOS simulator: confirm the fob renders on `/account` and `/readings`
   screens, is hidden on `/auth/sign-in`, and that each action navigates to its target route. Also
   confirm touches on screen content still work while the fob is present and closed (regression
