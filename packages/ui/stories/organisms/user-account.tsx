@@ -6,8 +6,8 @@ import FormButton from '../atoms/form-button';
 import { Value } from '../utils/fonts';
 import theme from '../utils/theme';
 
-const t = theme();
-const { width, height } = Dimensions.get('window');
+
+const {  height } = Dimensions.get('window');
 
 export interface UserAccountProps {
     apiBaseUrl: string;
@@ -94,17 +94,17 @@ const styles = StyleSheet.create({
         fontStyle: 'italic',
         fontWeight: 'normal',
         textAlign: 'center',
-        color: t.colors.primary
+        color: theme.colors.primary
     },
     password: {
         fontSize: Value(18),
         fontWeight: '600',
-        color: t.colors.grey2
+        color: theme.colors.grey2
     },
     logoutContainer: {
         paddingVertical: 50
     },
     logbtn: {
-        backgroundColor: t.colors.grey3
+        backgroundColor: theme.colors.grey3
     }
 });

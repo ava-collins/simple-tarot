@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 
 import ReadingListCard from '../molecules/reading-list-card';
+import theme from '../utils/theme';
 
 export type ReadingHistoryListProps = {
     emptyMessage: string;
@@ -74,20 +75,20 @@ const styles = StyleSheet.create({
         paddingVertical: 56
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.primary,
         fontSize: 16,
         lineHeight: 22
     },
     primaryButton: {
         alignItems: 'center',
-        backgroundColor: '#1B1A18',
+        backgroundColor: theme.colors.primary,
         borderRadius: 6,
         minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: 20
     },
     primaryButtonText: {
-        color: '#FFFDF8',
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: '700'
     },

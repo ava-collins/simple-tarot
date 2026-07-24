@@ -6,7 +6,6 @@ import MobileView from '../templates/mobile-view';
 import theme from '../utils/theme';
 import { useForgotPasswordForm } from '@simpletarot/hooks/client';
 
-const t = theme();
 
 export interface ForgotPasswordScreenProps {
     onSubmit: (emailAddress: string) => void;
@@ -28,7 +27,7 @@ const ForgotPasswordScreen: React.FC<ForgotPasswordScreenProps> = ({ onSubmit })
     return (
         <MobileView>
             <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
-                <View style={t.formWrapperStyle}>
+                <View style={theme.formWrapperStyle}>
                     <ForgotPasswordForm
                         email={email}
                         errors={errors}

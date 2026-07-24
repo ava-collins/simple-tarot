@@ -8,7 +8,6 @@ interface MobileViewProps {
     children: React.ReactNode;
 }
 
-const t = theme();
 
 const { width, height } = Dimensions.get('window');
 
@@ -21,7 +20,7 @@ const MobileView: React.FC<MobileViewProps> = ({ children }) => (
                 display: 'flex',
                 alignItems: 'stretch',
                 justifyContent: 'center',
-                backgroundColor: t.colors.grey0
+                backgroundColor: theme.colors.grey0
             }}>
             {children}
         </SafeAreaView>

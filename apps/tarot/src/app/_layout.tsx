@@ -17,14 +17,11 @@ export default function TabLayout() {
     const pathname = usePathname();
     const router = useRouter();
     const showQuickNav = !pathname.startsWith('/auth');
-    
-
 
     return (
         <MobileView>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <AuthProvider>
-                
                     <Stack initialRouteName="account" screenOptions={{ headerShown: false }}>
                         <Stack.Screen name="account" />
                         <Stack.Screen name="auth/sign-in" />
@@ -39,16 +36,13 @@ export default function TabLayout() {
                         <Stack.Screen name="index" />
                     </Stack>
                     {showQuickNav && (
-                        
-
                         <QuickNav
                             onNewReadingPress={() => router.push('/readings/single-card' as Href)}
                             onProfilePress={() => router.push('/account' as Href)}
                             onReadingHistoryPress={() => router.push('/readings' as Href)}
                             />
-                        
+
                     )}
-                
             </AuthProvider>
         </ThemeProvider>
         </MobileView>

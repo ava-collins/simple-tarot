@@ -15,7 +15,6 @@ export interface SignupScreenProps {
     onSubmit: (emailAddress: string, password: string) => void;
 }
 
-const t = theme();
 
 const SignupScreen: React.FC<SignupScreenProps> = ({
     error,
@@ -54,7 +53,7 @@ const SignupScreen: React.FC<SignupScreenProps> = ({
     return (
         <MobileView>
             <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={100}>
-                <View style={t.formWrapperStyle}>
+                <View style={theme.formWrapperStyle}>
                     <SignupForm
                         email={email}
                         password={password}

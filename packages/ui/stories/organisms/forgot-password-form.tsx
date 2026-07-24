@@ -4,9 +4,6 @@ import FormButton from '../atoms/form-button';
 import FormInputRow from '../molecules/form-input-row';
 import { KeyboardType } from 'react-native';
 import type { FormError } from '@simpletarot/hooks/server';
-import theme from '../utils/theme';
-
-const t = theme();
 
 interface ForgotPasswordFormProps {
     email: string;

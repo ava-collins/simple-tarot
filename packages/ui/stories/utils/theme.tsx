@@ -30,9 +30,9 @@ const fallbackColor = '#ff0000';
 const themeColors: ThemeColors = {
     background: colors.spanish_gray?.base ?? fallbackColor,
     primary: colors.smoky_black?.base ?? fallbackColor,
-    secondary: colors.cambridge_blue?.accent1 ?? fallbackColor,
+    secondary: colors.tuscany?.dark ?? fallbackColor,
     base: colors.cambridge_blue?.base ?? fallbackColor,
-    white: colors.spanish_white?.base ?? fallbackColor,
+    white: colors.silver_sand?.accent1 ?? fallbackColor,
     black: colors.smoky_black?.base ?? fallbackColor,
     grey0: colors.silver_sand?.light ?? fallbackColor,
     grey1: colors.silver_sand?.base ?? fallbackColor,
@@ -57,4 +57,4 @@ const theme = (tc = themeColors): Theme => ({
     }
 });
 
-export default theme;
+export default theme(themeColors);

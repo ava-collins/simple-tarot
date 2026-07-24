@@ -68,7 +68,7 @@ const silver_sand: Color = {
     muted: '#AAABAD',
     shadow: '#848587',
     dark: '#464647',
-    accent1: '#FFFFFF',
+    accent1: '#FFFFFE',
     accent2: '#C7C5AF'
 };
 

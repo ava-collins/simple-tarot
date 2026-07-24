@@ -12,8 +12,6 @@ export interface ButtonProps {
     titleStyle?: object;
 }
 
-const t = theme();
-
 const FormButton: React.FC<ButtonProps> = ({
     buttonLabel,
     btnEnabled = true,
@@ -24,7 +22,7 @@ const FormButton: React.FC<ButtonProps> = ({
     const styles = StyleSheet.create({
         base: {
             height: 60,
-            backgroundColor: t.colors.grey5,
+            backgroundColor: theme.colors.grey5,
             marginBottom: 20,
             paddingHorizontal: 40
         },

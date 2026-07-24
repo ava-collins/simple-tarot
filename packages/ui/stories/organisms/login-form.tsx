@@ -6,7 +6,6 @@ import { KeyboardType, Pressable, StyleSheet, Text } from 'react-native';
 import type { FormError } from '@simpletarot/hooks/server';
 import theme from '../utils/theme';
 
-const t = theme();
 
 export interface LoginFormProps {
     email: string;
@@ -102,7 +101,7 @@ export default LoginForm;
 
 const styles = StyleSheet.create({
     errorText: {
-        color: t.colors.error,
+        color: theme.colors.error,
         fontSize: 14,
         lineHeight: 20,
         marginBottom: 12
@@ -112,7 +111,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8
     },
     linkText: {
-        color: t.colors.primary,
+        color: theme.colors.primary,
         fontSize: 14,
         fontWeight: '600'
     },
