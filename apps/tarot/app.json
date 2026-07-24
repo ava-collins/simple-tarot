@@ -40,7 +40,15 @@
       ],
       "expo-secure-store",
       "expo-asset",
-      "expo-font",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "react-native-vector-icons/Fonts/MaterialIcons.ttf",
+            "react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"
+          ]
+        }
+      ],
       "expo-image",
       "expo-status-bar",
       "expo-web-browser"

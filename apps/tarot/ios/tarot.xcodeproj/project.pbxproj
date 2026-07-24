@@ -7,31 +7,35 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		00C22423E7BFAF874BEDE72E /* libPods-tarot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2A829A4C5BD5D79B924E8C5F /* libPods-tarot.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
-		1FA4718C2F183B799BA20FC6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = C2B3955CB9AFFF90299A8637 /* PrivacyInfo.xcprivacy */; };
+		16ABA9A337B2D70EA2B73C1B /* libPods-tarot.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 958E20AE5C9CCABEF60F097C /* libPods-tarot.a */; };
+		35DC84A949C97E915FF92A36 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6220A79E5828B0DD99395157 /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		91F45EFF9E404408902497CA /* expo.icon in Resources */ = {isa = PBXBuildFile; fileRef = 2DAA053AEEED49E2A0154B9F /* expo.icon */; };
+		4006833A57364167AA728CDB /* expo.icon in Resources */ = {isa = PBXBuildFile; fileRef = 9F740AC85D904009BF5178BE /* expo.icon */; };
+		4C1C9A6C05C74AD9BCE8E506 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 148E1AF0827442E5A27A23DD /* MaterialIcons.ttf */; };
+		62E77A5BFC36437F85F1A2FB /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 51ECE0FD30D3458F81C5908D /* MaterialCommunityIcons.ttf */; };
+		B09F81D851BE2B25CD185E87 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E36567E732029392A461C3D9 /* PrivacyInfo.xcprivacy */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		FB4928F49DA989078ACBBAAC /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B6E4B84C5595A701A270167 /* ExpoModulesProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		0B6E4B84C5595A701A270167 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-tarot/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		0C7F402D6D72C90D07985E49 /* Pods-tarot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tarot.release.xcconfig"; path = "Target Support Files/Pods-tarot/Pods-tarot.release.xcconfig"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* tarot.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = tarot.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = tarot/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = tarot/Info.plist; sourceTree = "<group>"; };
-		2A829A4C5BD5D79B924E8C5F /* libPods-tarot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tarot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2DAA053AEEED49E2A0154B9F /* expo.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = expo.icon; path = tarot/expo.icon; sourceTree = "<group>"; };
+		148E1AF0827442E5A27A23DD /* MaterialIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialIcons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/MaterialIcons.ttf"; sourceTree = "<group>"; };
+		51ECE0FD30D3458F81C5908D /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../../../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		6220A79E5828B0DD99395157 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-tarot/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		958E20AE5C9CCABEF60F097C /* libPods-tarot.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-tarot.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		9F740AC85D904009BF5178BE /* expo.icon */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = expo.icon; path = tarot/expo.icon; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = tarot/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		C2B3955CB9AFFF90299A8637 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = tarot/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		D32C89E0847135327B8B09F3 /* Pods-tarot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tarot.debug.xcconfig"; path = "Target Support Files/Pods-tarot/Pods-tarot.debug.xcconfig"; sourceTree = "<group>"; };
+		D87AF9513DD35FC42DE13ECB /* Pods-tarot.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tarot.debug.xcconfig"; path = "Target Support Files/Pods-tarot/Pods-tarot.debug.xcconfig"; sourceTree = "<group>"; };
+		E36567E732029392A461C3D9 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = tarot/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = tarot/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* tarot-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "tarot-Bridging-Header.h"; path = "tarot/tarot-Bridging-Header.h"; sourceTree = "<group>"; };
+		F637C61DCC1984E9CB58D954 /* Pods-tarot.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tarot.release.xcconfig"; path = "Target Support Files/Pods-tarot/Pods-tarot.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,19 +43,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				00C22423E7BFAF874BEDE72E /* libPods-tarot.a in Frameworks */,
+				16ABA9A337B2D70EA2B73C1B /* libPods-tarot.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		109023A5B38D8CF723975439 /* tarot */ = {
+		0CD467CF057C6CB6C4AB2AE2 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				0B6E4B84C5595A701A270167 /* ExpoModulesProvider.swift */,
+				D87AF9513DD35FC42DE13ECB /* Pods-tarot.debug.xcconfig */,
+				F637C61DCC1984E9CB58D954 /* Pods-tarot.release.xcconfig */,
 			);
-			name = tarot;
+			name = Pods;
+			path = Pods;
 			sourceTree = "<group>";
 		};
 		13B07FAE1A68108700A75B9A /* tarot */ = {
@@ -63,37 +69,35 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				2DAA053AEEED49E2A0154B9F /* expo.icon */,
-				C2B3955CB9AFFF90299A8637 /* PrivacyInfo.xcprivacy */,
+				9F740AC85D904009BF5178BE /* expo.icon */,
+				E36567E732029392A461C3D9 /* PrivacyInfo.xcprivacy */,
 			);
 			name = tarot;
-			sourceTree = "<group>";
-		};
-		27ACA48141756AC63D4AB098 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				109023A5B38D8CF723975439 /* tarot */,
-			);
-			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				2A829A4C5BD5D79B924E8C5F /* libPods-tarot.a */,
+				958E20AE5C9CCABEF60F097C /* libPods-tarot.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		5E2436FDDBE3638D7240AA08 /* Pods */ = {
+		3E9EAFD66057FD68056F92CF /* tarot */ = {
 			isa = PBXGroup;
 			children = (
-				D32C89E0847135327B8B09F3 /* Pods-tarot.debug.xcconfig */,
-				0C7F402D6D72C90D07985E49 /* Pods-tarot.release.xcconfig */,
+				6220A79E5828B0DD99395157 /* ExpoModulesProvider.swift */,
 			);
-			name = Pods;
-			path = Pods;
+			name = tarot;
+			sourceTree = "<group>";
+		};
+		682E6FD74E3B6B6F026099B4 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				3E9EAFD66057FD68056F92CF /* tarot */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -110,8 +114,9 @@
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				5E2436FDDBE3638D7240AA08 /* Pods */,
-				27ACA48141756AC63D4AB098 /* ExpoModulesProviders */,
+				BDE22C22937C4FCEBF254EBF /* Resources */,
+				0CD467CF057C6CB6C4AB2AE2 /* Pods */,
+				682E6FD74E3B6B6F026099B4 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -135,6 +140,16 @@
 			path = tarot/Supporting;
 			sourceTree = "<group>";
 		};
+		BDE22C22937C4FCEBF254EBF /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				148E1AF0827442E5A27A23DD /* MaterialIcons.ttf */,
+				51ECE0FD30D3458F81C5908D /* MaterialCommunityIcons.ttf */,
+			);
+			name = Resources;
+			path = "";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -143,13 +158,14 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "tarot" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				FE1F0B4FEEB225EC9B60A01C /* [Expo] Configure project */,
+				07596A48D06EEA6CCF9B5617 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				6F2BC310094D24CC0F2C9FC0 /* [CP] Embed Pods Frameworks */,
+				186CB39394C64CC1B4593D65 /* [Expo Dev Launcher] Strip Local Network Keys for Release */,
+				44FF0D6497C71AF9E52BCE31 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -199,8 +215,10 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				91F45EFF9E404408902497CA /* expo.icon in Resources */,
-				1FA4718C2F183B799BA20FC6 /* PrivacyInfo.xcprivacy in Resources */,
+				4006833A57364167AA728CDB /* expo.icon in Resources */,
+				4C1C9A6C05C74AD9BCE8E506 /* MaterialIcons.ttf in Resources */,
+				62E77A5BFC36437F85F1A2FB /* MaterialCommunityIcons.ttf in Resources */,
+				B09F81D851BE2B25CD185E87 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -224,6 +242,30 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ -f \"$PODS_ROOT/../.xcode.env\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env\"\nfi\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n# The project root by default is one level up from the ios directory\nexport PROJECT_ROOT=\"$PROJECT_DIR\"/..\n\nif [[ \"$CONFIGURATION\" = *Debug* ]]; then\n  export SKIP_BUNDLING=1\nfi\nif [[ -z \"$ENTRY_FILE\" ]]; then\n  # Set the entry JS file using the bundler's entry resolution.\n  export ENTRY_FILE=\"$(\"$NODE_BINARY\" -e \"require('expo/scripts/resolveAppEntry')\" \"$PROJECT_ROOT\" ios absolute | tail -n 1)\"\nfi\n\nif [[ -z \"$CLI_PATH\" ]]; then\n  # Use Expo CLI\n  export CLI_PATH=\"$(\"$NODE_BINARY\" --print \"require.resolve('@expo/cli', { paths: [require.resolve('expo/package.json')] })\")\"\nfi\nif [[ -z \"$BUNDLE_COMMAND\" ]]; then\n  # Default Expo CLI command for bundling\n  export BUNDLE_COMMAND=\"export:embed\"\nfi\n\n# Source .xcode.env.updates if it exists to allow\n# SKIP_BUNDLING to be unset if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.updates\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.updates\"\nfi\n# Source local changes to allow overrides\n# if needed\nif [[ -f \"$PODS_ROOT/../.xcode.env.local\" ]]; then\n  source \"$PODS_ROOT/../.xcode.env.local\"\nfi\n\n`\"$NODE_BINARY\" --print \"require('path').dirname(require.resolve('react-native/package.json')) + '/scripts/react-native-xcode.sh'\"`\n\n";
 		};
+		07596A48D06EEA6CCF9B5617 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/tarot/tarot.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-tarot/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-tarot/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-tarot/expo-configure-project.sh\"\n";
+		};
 		08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -246,7 +288,21 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		6F2BC310094D24CC0F2C9FC0 /* [CP] Embed Pods Frameworks */ = {
+		186CB39394C64CC1B4593D65 /* [Expo Dev Launcher] Strip Local Network Keys for Release */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo Dev Launcher] Strip Local Network Keys for Release";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Strip dev-launcher-specific local network permission keys from non-Debug builds\n# This only removes _expo._tcp Bonjour services and the dev-launcher usage description.\n# Other Bonjour services and custom descriptions are preserved for production use.\n\nif [ \"$CONFIGURATION\" != \"Debug\" ]; then\n  PLIST_PATH=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  if [ -f \"$PLIST_PATH\" ]; then\n    # Check if NSBonjourServices exists\n    if /usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" >/dev/null 2>&1; then\n      # Get the count of services\n      COUNT=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n\n      # Remove _expo._tcp\n      for ((i=COUNT-1; i>=0; i--)); do\n        SERVICE=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n        if echo \"$SERVICE\" | grep -q \"_expo._tcp\"; then\n          /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || true\n        fi\n      done\n\n      # If the array is now empty, remove it entirely\n      REMAINING=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n      if [ \"$REMAINING\" -eq \"0\" ]; then\n        /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null || true\n      fi\n    fi\n\n    # Only delete the description if it matches the dev-launcher default text\n    DESC=$(/usr/libexec/PlistBuddy -c \"Print :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n    if echo \"$DESC\" | grep -q \"Expo Dev Launcher\"; then\n      /usr/libexec/PlistBuddy -c \"Delete :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || true\n    fi\n  fi\nfi\n";
+		};
+		44FF0D6497C71AF9E52BCE31 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -368,30 +424,6 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-tarot/Pods-tarot-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		FE1F0B4FEEB225EC9B60A01C /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/tarot/tarot.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-tarot/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-tarot/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-tarot/expo-configure-project.sh\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -400,7 +432,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				FB4928F49DA989078ACBBAAC /* ExpoModulesProvider.swift in Sources */,
+				35DC84A949C97E915FF92A36 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -409,7 +441,7 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = D32C89E0847135327B8B09F3 /* Pods-tarot.debug.xcconfig */;
+			baseConfigurationReference = D87AF9513DD35FC42DE13ECB /* Pods-tarot.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = expo;
 				CLANG_ENABLE_MODULES = YES;
@@ -446,7 +478,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 0C7F402D6D72C90D07985E49 /* Pods-tarot.release.xcconfig */;
+			baseConfigurationReference = F637C61DCC1984E9CB58D954 /* Pods-tarot.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = expo;
 				CLANG_ENABLE_MODULES = YES;
