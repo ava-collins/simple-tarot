@@ -8,7 +8,7 @@ import {
     useRouter,
     type Href
 } from 'expo-router';
-import { Dimensions, useColorScheme } from 'react-native';
+import { useColorScheme } from 'react-native';
 
 import { AuthProvider } from '@/auth/auth-context';
 
