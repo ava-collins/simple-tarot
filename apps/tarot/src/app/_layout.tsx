@@ -1,4 +1,4 @@
-import { QuickNav } from '@simpletarot/ui';
+import { QuickNav, MobileView } from '@simpletarot/ui';
 import {
     DarkTheme,
     DefaultTheme,
@@ -8,7 +8,7 @@ import {
     useRouter,
     type Href
 } from 'expo-router';
-import { View, useColorScheme } from 'react-native';
+import { Dimensions, useColorScheme } from 'react-native';
 
 import { AuthProvider } from '@/auth/auth-context';
 
@@ -17,11 +17,14 @@ export default function TabLayout() {
     const pathname = usePathname();
     const router = useRouter();
     const showQuickNav = !pathname.startsWith('/auth');
+    
+
 
     return (
+        <MobileView>
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <AuthProvider>
-                <View style={{ flex: 1 }}>
+                
                     <Stack initialRouteName="account" screenOptions={{ headerShown: false }}>
                         <Stack.Screen name="account" />
                         <Stack.Screen name="auth/sign-in" />
@@ -36,14 +39,18 @@ export default function TabLayout() {
                         <Stack.Screen name="index" />
                     </Stack>
                     {showQuickNav && (
+                        
+
                         <QuickNav
                             onNewReadingPress={() => router.push('/readings/single-card' as Href)}
                             onProfilePress={() => router.push('/account' as Href)}
                             onReadingHistoryPress={() => router.push('/readings' as Href)}
-                        />
+                            />
+                        
                     )}
-                </View>
+                
             </AuthProvider>
         </ThemeProvider>
+        </MobileView>
     );
 }
