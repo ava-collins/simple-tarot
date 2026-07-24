@@ -6,7 +6,7 @@ import { forceReloadDecorator } from './force-reload-decorator';
 import { expect, fireEvent, screen, within, waitFor } from 'storybook/test';
 
 const meta: Meta<typeof QuickNav> = {
-    title: 'Molecules/Dev/QuickNav',
+    title: 'Molecules/QuickNav',
     component: QuickNav,
     decorators: [forceReloadDecorator]
 } satisfies Meta<typeof QuickNav>;
@@ -15,9 +15,24 @@ export default meta;
 
 type Story = StoryObj<typeof QuickNav>;
 
+const openDial = async (canvas: ReturnType<typeof within>) => {
+    const toggleButton = canvas.getByTestId('quick-nav-toggle');
+    fireEvent.click(toggleButton);
+    fireEvent.animationEnd(toggleButton);
+    await waitFor(() => expect(canvas.getByTestId('quick-nav-profile-action')).toBeVisible());
+};
+
 export const QuickNavOpenTest: Story = {
     play: async ({ mount, step }) => {
-        await mount(<QuickNav />);
+        const pressed: string[] = [];
+
+        await mount(
+            <QuickNav
+                onNewReadingPress={() => pressed.push('new-reading')}
+                onProfilePress={() => pressed.push('profile')}
+                onReadingHistoryPress={() => pressed.push('history')}
+            />
+        );
         await new Promise(resolve => setTimeout(resolve, 1000));
 
         const canvas = within(screen.getByTestId('quick-nav-container'));
@@ -41,12 +56,34 @@ export const QuickNavOpenTest: Story = {
             );
         });
 
-        await step('Click close button', async () => {
-            const closeButton = canvas.getByTestId('quick-nav-toggle');
-            expect(closeButton).toBeVisible();
-            fireEvent.click(closeButton);
-            fireEvent.animationEnd(closeButton);
+        await step('Pressing Profile calls onProfilePress and closes the dial', async () => {
+            fireEvent.click(canvas.getByTestId('quick-nav-profile-action'));
+            await waitFor(() => expect(pressed).toEqual(['profile']));
+            await waitFor(() =>
+                expect(canvas.queryByTestId('quick-nav-profile-action')).not.toBeVisible()
+            );
         });
+
+        await step('Pressing History calls onReadingHistoryPress and closes the dial', async () => {
+            await openDial(canvas);
+            fireEvent.click(canvas.getByTestId('quick-nav-history-action'));
+            await waitFor(() => expect(pressed).toEqual(['profile', 'history']));
+            await waitFor(() =>
+                expect(canvas.queryByTestId('quick-nav-history-action')).not.toBeVisible()
+            );
+        });
+
+        await step(
+            'Pressing New Reading calls onNewReadingPress and closes the dial',
+            async () => {
+                await openDial(canvas);
+                fireEvent.click(canvas.getByTestId('quick-nav-new-reading-action'));
+                await waitFor(() => expect(pressed).toEqual(['profile', 'history', 'new-reading']));
+                await waitFor(() =>
+                    expect(canvas.queryByTestId('quick-nav-new-reading-action')).not.toBeVisible()
+                );
+            }
+        );
 
         await step('Check if quick nav is closed', async () => {
             await waitFor(() =>

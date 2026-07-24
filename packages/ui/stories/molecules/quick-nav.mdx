@@ -5,11 +5,18 @@ import * as QuickNav from './quick-nav.stories';
 
 # QuickNav Component
 ## Overview
-The QuickNav component provides a floating action button that opens a speed dial menu with options for navigating to profile, history and home screens.
+The QuickNav component provides a floating action button that opens a speed dial menu with
+options for navigating to the profile, reading history, and new reading screens. QuickNav does
+not perform navigation itself — it calls the callback prop for whichever action was pressed, and
+the consumer decides what that means.
 
 ## Props
 
-None.
+| Prop | Type | Description |
+|---|---|---|
+| `onProfilePress` | `() => void` | Called when the Profile action is pressed. |
+| `onReadingHistoryPress` | `() => void` | Called when the History action is pressed. |
+| `onNewReadingPress` | `() => void` | Called when the New Reading action is pressed. |
 
 ## State
 - `open`: Boolean state to track if the speed dial is open or closed.
@@ -17,7 +24,6 @@ None.
 ## Interaction Tests
 ### QuickNavOpenTest
 - Verify that the speed dial opens when button is pressed.
-- Verify that the speed dial actions are visible
-- Verify that the speed dial closes when button is pressed again.
+- Verify that the speed dial actions are visible.
+- Verify that pressing each action calls its corresponding callback prop and closes the dial.
 - Verify that the speed dial actions are not visible when closed.
-    
