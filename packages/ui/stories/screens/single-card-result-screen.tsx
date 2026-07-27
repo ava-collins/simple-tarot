@@ -4,6 +4,7 @@ import Card from '../atoms/card';
 import MobileView from '../templates/mobile-view';
 import React from 'react';
 import { vmin } from 'react-native-expo-viewport-units';
+import theme from '../utils/theme';
 
 export type SingleCardResultScreenProps = {
     cardIndex: number;
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
     screen: {
         flexGrow: 1,
         alignItems: 'center',
-        backgroundColor: '#F7F3EA',
+        backgroundColor: theme.colors.grey0,
         gap: 16,
         paddingHorizontal: 24,
         paddingBottom: 48,
@@ -141,7 +142,7 @@ const styles = StyleSheet.create({
     },
     secondaryButton: {
         alignItems: 'center',
-        borderColor: '#B9A77F',
+        borderColor: theme.colors.greyOutline,
         borderRadius: 6,
         borderWidth: 1,
         minHeight: 52,
