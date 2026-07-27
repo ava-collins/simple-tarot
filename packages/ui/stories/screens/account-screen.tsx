@@ -1,9 +1,12 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import theme from '../utils/theme';
 
 import AvatarRollback from '../atoms/avatar-rollback';
+import Button from '../atoms/button';
+import FeedbackText from '../atoms/feedback-text';
 import MobileView from '../templates/mobile-view';
+import ScreenState from '../molecules/screen-state';
 
 export interface AccountScreenProps {
     apiBaseUrl?: string;
@@ -35,7 +38,7 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     if (isLoading) {
         return (
             <MobileView>
-                <Text style={styles.mutedText}>Checking session...</Text>
+                <ScreenState kind="status" message="Checking session..." />
             </MobileView>
         );
     }
@@ -43,20 +46,13 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
     if (!isSignedIn) {
         return (
             <MobileView>
-                <View style={styles.wrapper}>
-                    <Text style={styles.title}>Account</Text>
-                    <Text style={styles.body}>Sign in to see your profile.</Text>
-                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onSignInPress}
-                        style={({ pressed }) => [
-                            styles.button,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.buttonText}>Sign in</Text>
-                    </Pressable>
-                </View>
+                <ScreenState
+                    action={{ label: 'Sign in', onPress: onSignInPress }}
+                    feedback={error}
+                    kind="prompt"
+                    message="Sign in to see your profile."
+                    title="Account"
+                />
             </MobileView>
         );
     }
@@ -81,39 +77,25 @@ const AccountScreen: React.FC<AccountScreenProps> = ({
                             ) : null}
                         </View>
                     ) : null}
-                    {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                    <FeedbackText>{error}</FeedbackText>
                     <View style={styles.buttonGroup}>
                         {onNewReadingPress ? (
-                            <Pressable
-                                accessibilityRole="button"
+                            <Button
+                                label="Start a reading"
                                 onPress={onNewReadingPress}
-                                style={({ pressed }) => [
-                                    styles.button,
-                                    pressed && styles.pressed
-                                ]}>
-                                <Text style={styles.buttonText}>Start a reading</Text>
-                            </Pressable>
+                            />
                         ) : null}
                         {onReadingHistoryPress ? (
-                            <Pressable
-                                accessibilityRole="button"
+                            <Button
+                                label="Reading history"
                                 onPress={onReadingHistoryPress}
-                                style={({ pressed }) => [
-                                    styles.button,
-                                    pressed && styles.pressed
-                                ]}>
-                                <Text style={styles.buttonText}>Reading history</Text>
-                            </Pressable>
+                            />
                         ) : null}
-                        <Pressable
-                            accessibilityRole="button"
+                        <Button
+                            label="Sign out"
                             onPress={onSignOutPress}
-                            style={({ pressed }) => [
-                                styles.signOutButton,
-                                pressed && styles.pressed
-                            ]}>
-                            <Text style={styles.signOutButtonText}>Sign out</Text>
-                        </Pressable>
+                            variant="muted"
+                        />
                     </View>
                 </View>
             </ScrollView>
@@ -149,11 +131,6 @@ const styles = StyleSheet.create({
     claimRow: {
         gap: 4
     },
-    title: {
-        fontSize: 28,
-        fontWeight: '600',
-        color: theme.colors.primary
-    },
     label: {
         fontSize: 12,
         fontWeight: '700',
@@ -166,43 +143,7 @@ const styles = StyleSheet.create({
         lineHeight: 20,
         color: theme.colors.primary
     },
-    mutedText: {
-        fontSize: 14,
-        color: theme.colors.grey5
-    },
-    errorText: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: theme.colors.error
-    },
     buttonGroup: {
         gap: 16
-    },
-    button: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.grey5,
-        borderRadius: 4,
-        height: 60,
-        justifyContent: 'center'
-    },
-    buttonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: 'bold'
-    },
-    signOutButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.grey3,
-        borderRadius: 4,
-        height: 60,
-        justifyContent: 'center'
-    },
-    signOutButtonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: 'bold'
-    },
-    pressed: {
-        opacity: 0.7
     }
 });

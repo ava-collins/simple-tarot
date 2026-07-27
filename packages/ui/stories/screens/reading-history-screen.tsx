@@ -1,11 +1,11 @@
 import { StyleSheet, Text, View } from 'react-native';
-import Button from '../atoms/button';
 import FeedbackText from '../atoms/feedback-text';
 import theme from '../utils/theme';
 import ReadingHistoryList, {
     type ReadingHistoryListProps
 } from '../organisms/reading-history-list';
 import MobileView from '../templates/mobile-view';
+import ScreenState from '../molecules/screen-state';
 
 export type ReadingHistoryScreenProps = {
     error?: string | null;
@@ -31,13 +31,7 @@ export default function ReadingHistoryScreen({
     if (isAuthLoading) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <View style={styles.status}>
-                        <FeedbackText tone="muted">
-                            Checking session...
-                        </FeedbackText>
-                    </View>
-                </View>
+                <ScreenState kind="status" message="Checking session..." />
             </MobileView>
         );
     }
@@ -45,13 +39,12 @@ export default function ReadingHistoryScreen({
     if (!isSignedIn) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.title}>Reading history</Text>
-                    <Text style={styles.body}>Sign in to see saved readings.</Text>
-                    <View style={styles.action}>
-                        <Button label="Sign in" onPress={onSignInPress} />
-                    </View>
-                </View>
+                <ScreenState
+                    action={{ label: 'Sign in', onPress: onSignInPress }}
+                    kind="prompt"
+                    message="Sign in to see saved readings."
+                    title="Reading history"
+                />
             </MobileView>
         );
     }
@@ -86,21 +79,10 @@ export default function ReadingHistoryScreen({
 }
 
 const styles = StyleSheet.create({
-    action: {
-        alignSelf: 'stretch'
-    },
     screen: {
         flex: 1,
         paddingHorizontal: 24,
         paddingTop: 72
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        gap: 16,
-        backgroundColor: theme.colors.white,
-        paddingHorizontal: 32
     },
     header: {
         flexDirection: 'row',
@@ -122,15 +104,7 @@ const styles = StyleSheet.create({
         fontWeight: '700',
         letterSpacing: 0
     },
-    body: {
-        color: theme.colors.primary,
-        fontSize: 16,
-        lineHeight: 22
-    },
     errorFeedback: {
         marginBottom: 16
-    },
-    status: {
-        alignItems: 'center'
     }
 });

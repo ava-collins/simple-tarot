@@ -1,17 +1,10 @@
-import {
-    KeyboardAvoidingView,
-    StyleSheet,
-    Text,
-    View
-} from 'react-native';
+import { KeyboardAvoidingView } from 'react-native';
 
-import Button from '../atoms/button';
-import FeedbackText from '../atoms/feedback-text';
 import NewReadingForm, {
     type NewReadingFormProps
 } from '../organisms/new-reading-form';
 import MobileView from '../templates/mobile-view';
-import theme from '../utils/theme';
+import ScreenState from '../molecules/screen-state';
 
 export type NewReadingScreenProps = {
     error?: string | null;
@@ -39,13 +32,7 @@ export default function NewReadingScreen({
     if (isAuthLoading) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <View style={styles.status}>
-                        <FeedbackText tone="muted">
-                            Checking session...
-                        </FeedbackText>
-                    </View>
-                </View>
+                <ScreenState kind="status" message="Checking session..." />
             </MobileView>
         );
     }
@@ -53,15 +40,12 @@ export default function NewReadingScreen({
     if (!isSignedIn) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.title}>New reading</Text>
-                    <Text style={styles.body}>
-                        Sign in to generate and save readings.
-                    </Text>
-                    <View style={styles.action}>
-                        <Button label="Sign in" onPress={onSignInPress} />
-                    </View>
-                </View>
+                <ScreenState
+                    action={{ label: 'Sign in', onPress: onSignInPress }}
+                    kind="prompt"
+                    message="Sign in to generate and save readings."
+                    title="New reading"
+                />
             </MobileView>
         );
     }
@@ -81,31 +65,3 @@ export default function NewReadingScreen({
         </MobileView>
     );
 }
-
-const styles = StyleSheet.create({
-    action: {
-        alignSelf: 'stretch'
-    },
-    centered: {
-        flex: 1,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        gap: 16,
-        backgroundColor: theme.colors.grey0,
-        paddingHorizontal: 32
-    },
-    title: {
-        color: theme.colors.primary,
-        fontSize: 30,
-        fontWeight: '700',
-        letterSpacing: 0
-    },
-    body: {
-        color: theme.colors.grey5,
-        fontSize: 16,
-        lineHeight: 22
-    },
-    status: {
-        alignItems: 'center'
-    }
-});

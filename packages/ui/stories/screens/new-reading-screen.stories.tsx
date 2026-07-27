@@ -36,7 +36,7 @@ const meta = {
             page: mdx,
             description: {
                 component:
-                    'Neutral presentation uses the shared black, white, and grey theme tokens; status feedback uses its semantic theme color.'
+                    'Full-screen auth states compose the shared ScreenState molecule; signed-in form content remains local.'
             }
         }
     },

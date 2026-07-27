@@ -21,7 +21,7 @@ const meta = {
             page: mdx,
             description: {
                 component:
-                    'Neutral presentation uses the shared black, white, and grey theme tokens; status feedback uses its semantic theme color.'
+                    'Loading, signed-out, generating, and retry branches compose ScreenState; the card-deck branch remains local.'
             }
         }
     },

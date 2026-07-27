@@ -13,7 +13,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof AccountScreen>;
 
 export default meta;

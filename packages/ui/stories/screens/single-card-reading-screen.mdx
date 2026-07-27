@@ -7,9 +7,8 @@ import * as SingleCardReadingScreenStories from './single-card-reading-screen.st
 
 Mobile "tap to draw" screen wrapped in `MobileView`. Wraps the `NewReading` organism unmodified and layers in auth, generating, and error presentation around it.
 
-Loading states use muted `FeedbackText`, errors use semantic `FeedbackText`,
-and sign-in/retry actions use standard primary `Button` atoms. Screen-state
-structures remain local until checkpoint 4.
+Loading, signed-out, generating, and retry presentation use the shared
+`ScreenState` molecule. The successful card-deck content remains local.
 
 <Canvas of={SingleCardReadingScreenStories.Default} />
 
@@ -37,5 +36,5 @@ color.
 
 - Shows auth loading and signed-out states.
 - Blocks double taps while a reading is generating.
-- Surfaces an atom-backed error with a retry action.
+- Surfaces an error/retry `ScreenState`.
 - Delegates the tap-to-draw interaction to the `NewReading` organism.

@@ -20,7 +20,7 @@ auth and tarot reading flows.
 `Button`, `Input`, and `FeedbackText`.
 
 `stories/molecules` combines atoms into focused rows and cards such as
-`InputField`, `QuickNav`, `ReadingListCard`, and `ShuffleCard`.
+`InputField`, `ScreenState`, `QuickNav`, `ReadingListCard`, and `ShuffleCard`.
 
 `stories/organisms` owns compound sections, forms, and lists such as
 `LoginForm`, `SignupForm`, `ForgotPasswordForm`, `UserAccount`, `Shuffle`,
@@ -59,6 +59,10 @@ Reading, history, and result trees compose their generic actions, question
 entry, errors, and loading feedback from these atoms. Tarot cards, decks,
 reading content, result containers, and pull-to-refresh remain
 domain-specific composition.
+
+Full-screen loading, signed-out, retry, callback, and informational states use
+the internal `ScreenState` molecule. Inline form/content feedback and
+domain-specific empty states remain local to their owning composition.
 
 Screens are mobile screens and should use the shared `MobileView` template.
 They compose typed props, hooks from `@simpletarot/hooks/client`, server-safe

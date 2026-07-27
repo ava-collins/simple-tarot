@@ -27,8 +27,23 @@ const atomFiles = [
     'stories/atoms/button.tsx',
     'stories/atoms/input.tsx',
     'stories/atoms/feedback-text.tsx',
-    'stories/molecules/input-field.tsx'
+    'stories/molecules/input-field.tsx',
+    'stories/molecules/screen-state.tsx'
 ];
+
+const screenStateFiles = [
+    'stories/screens/account-screen.tsx',
+    'stories/screens/cognito-sign-in-screen.tsx',
+    'stories/screens/auth-callback-screen.tsx',
+    'stories/screens/sign-out-screen.tsx',
+    'stories/screens/logout-callback-screen.tsx',
+    'stories/screens/new-reading-screen.tsx',
+    'stories/screens/reading-history-screen.tsx',
+    'stories/screens/single-card-reading-screen.tsx'
+];
+
+const duplicatedScreenStylePattern =
+    /\b(button|buttonText|primaryButton|signOutButton|signOutButtonText|disabledButton|pressed|mutedText|errorText)\s*:/;
 
 const readingFiles = [
     'stories/organisms/new-reading-form.tsx',
@@ -121,6 +136,34 @@ for (const path of readingFiles) {
         if (pattern.test(source)) {
             violations.add(`${path}: ${reason}`);
         }
+    }
+}
+
+for (const absolutePath of collectSourceFiles(resolve(storiesRoot, 'screens'))) {
+    const source = readFileSync(absolutePath, 'utf8');
+
+    if (/<Pressable\b/.test(source)) {
+        violations.add(
+            `${relative(packageRoot, absolutePath)}: custom screen button bypasses the Button atom`
+        );
+    }
+}
+
+for (const path of screenStateFiles) {
+    const absolutePath = resolve(packageRoot, path);
+
+    if (!existsSync(absolutePath)) {
+        continue;
+    }
+
+    const source = readFileSync(absolutePath, 'utf8');
+
+    if (duplicatedScreenStylePattern.test(source)) {
+        violations.add(`${path}: duplicated full-screen state style remains`);
+    }
+
+    if (!/<ScreenState\b/.test(source)) {
+        violations.add(`${path}: screen does not compose ScreenState`);
     }
 }
 
