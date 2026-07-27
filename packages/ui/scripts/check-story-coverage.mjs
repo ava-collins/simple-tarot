@@ -6,6 +6,16 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const storyContract = [
     {
+        component: 'stories/atoms/avatar-display.tsx',
+        story: 'stories/atoms/avatar-display.stories.tsx',
+        docs: 'stories/atoms/avatar-display.mdx',
+        variants: [
+            'DefaultAvatarImage',
+            'CustomNumericSize',
+            'PressCallbacks'
+        ]
+    },
+    {
         component: 'stories/atoms/button.tsx',
         story: 'stories/atoms/button.stories.tsx',
         docs: 'stories/atoms/button.mdx',

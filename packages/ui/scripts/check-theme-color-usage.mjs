@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
 const targetFiles = [
+    '../stories/atoms/avatar-display.tsx',
     '../stories/atoms/background.stories.tsx',
     '../stories/molecules/quick-nav.tsx',
     '../stories/screens/account-screen.stories.tsx',
