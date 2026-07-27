@@ -7,6 +7,10 @@ import * as ReadingHistoryScreenStories from './reading-history-screen.stories';
 
 Mobile reading history screen wrapped in `MobileView`. It receives signed-in state, display-ready readings, and navigation callbacks from the route layer.
 
+Auth loading uses muted `FeedbackText`, errors use semantic `FeedbackText`,
+and signed-out navigation uses a standard primary `Button`. Screen-state
+structures remain local until checkpoint 4.
+
 <Canvas of={ReadingHistoryScreenStories.PopulatedHistory} />
 
 ## Empty History
@@ -26,5 +30,6 @@ Mobile reading history screen wrapped in `MobileView`. It receives signed-in sta
 ## Responsibilities
 
 - Shows auth loading and signed-out states.
-- Renders the saved-reading header and create action.
+- Renders the saved-reading header with monotone text.
+- Composes design-system feedback and action atoms.
 - Delegates list, empty, and refresh presentation to `ReadingHistoryList`.

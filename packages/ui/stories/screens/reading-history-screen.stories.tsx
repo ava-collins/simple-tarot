@@ -38,7 +38,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof ReadingHistoryScreen>;
 
 export default meta;

@@ -1,5 +1,4 @@
 import {
-    Pressable,
     RefreshControl,
     ScrollView,
     StyleSheet,
@@ -7,6 +6,7 @@ import {
     View
 } from 'react-native';
 
+import Button from '../atoms/button';
 import ReadingListCard from '../molecules/reading-list-card';
 import theme from '../utils/theme';
 
@@ -40,15 +40,10 @@ export default function ReadingHistoryList({
             {readings.length === 0 && !isLoading ? (
                 <View style={styles.emptyState}>
                     <Text style={styles.body}>{emptyMessage}</Text>
-                    <Pressable
-                        accessibilityRole="button"
+                    <Button
+                        label="Generate reading"
                         onPress={onCreateReadingPress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Generate reading</Text>
-                    </Pressable>
+                    />
                 </View>
             ) : null}
 
@@ -78,21 +73,5 @@ const styles = StyleSheet.create({
         color: theme.colors.primary,
         fontSize: 16,
         lineHeight: 22
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.primary,
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    pressed: {
-        opacity: 0.7
     }
 });

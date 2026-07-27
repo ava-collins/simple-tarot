@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
         padding: 16
     },
     questionText: {
-        color: theme.colors.secondary,
+        color: theme.colors.primary,
         fontSize: 17,
         fontWeight: '700',
         lineHeight: 22

@@ -1,4 +1,6 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import Button from '../atoms/button';
+import FeedbackText from '../atoms/feedback-text';
 import theme from '../utils/theme';
 import ReadingHistoryList, {
     type ReadingHistoryListProps
@@ -30,7 +32,11 @@ export default function ReadingHistoryScreen({
         return (
             <MobileView>
                 <View style={styles.centered}>
-                    <Text style={styles.mutedText}>Checking session...</Text>
+                    <View style={styles.status}>
+                        <FeedbackText tone="muted">
+                            Checking session...
+                        </FeedbackText>
+                    </View>
                 </View>
             </MobileView>
         );
@@ -42,15 +48,9 @@ export default function ReadingHistoryScreen({
                 <View style={styles.centered}>
                     <Text style={styles.title}>Reading history</Text>
                     <Text style={styles.body}>Sign in to see saved readings.</Text>
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onSignInPress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Sign in</Text>
-                    </Pressable>
+                    <View style={styles.action}>
+                        <Button label="Sign in" onPress={onSignInPress} />
+                    </View>
                 </View>
             </MobileView>
         );
@@ -67,7 +67,11 @@ export default function ReadingHistoryScreen({
 
                 </View>
 
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                {error ? (
+                    <View style={styles.errorFeedback}>
+                        <FeedbackText>{error}</FeedbackText>
+                    </View>
+                ) : null}
 
                 <ReadingHistoryList
                     emptyMessage="No saved readings yet."
@@ -82,6 +86,9 @@ export default function ReadingHistoryScreen({
 }
 
 const styles = StyleSheet.create({
+    action: {
+        alignSelf: 'stretch'
+    },
     screen: {
         flex: 1,
         paddingHorizontal: 24,
@@ -110,7 +117,7 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase'
     },
     title: {
-        color: theme.colors.secondary,
+        color: theme.colors.primary,
         fontSize: 30,
         fontWeight: '700',
         letterSpacing: 0
@@ -120,44 +127,10 @@ const styles = StyleSheet.create({
         fontSize: 16,
         lineHeight: 22
     },
-    mutedText: {
-        color: theme.colors.grey2,
-        fontSize: 15
-    },
-    errorText: {
-        color: theme.colors.error,
-        fontSize: 14,
-        lineHeight: 20,
+    errorFeedback: {
         marginBottom: 16
     },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.black,
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    iconButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.black,
-        borderRadius: 26,
-        height: 52,
-        justifyContent: 'center',
-        width: 52
-    },
-    iconButtonText: {
-        color: theme.colors.white,
-        fontSize: 32,
-        fontWeight: '500',
-        lineHeight: 36
-    },
-    pressed: {
-        opacity: 0.7
+    status: {
+        alignItems: 'center'
     }
 });

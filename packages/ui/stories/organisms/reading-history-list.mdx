@@ -7,6 +7,9 @@ import * as ReadingHistoryListStories from './reading-history-list.stories';
 
 Owns the refreshable scroll presentation for saved readings. It receives display-ready rows and does not format dates or fetch data.
 
+The empty state composes the standard primary `Button` atom. Native
+pull-to-refresh and reading-card rendering remain owned by this organism.
+
 <Canvas of={ReadingHistoryListStories.Populated} />
 
 ## Empty State

@@ -121,6 +121,7 @@ messages.
 ### Planning
 
 -   [Reading Tree Atom Migration Design](./docs/superpowers/specs/2026-07-27-reading-tree-atoms-design.md) — approved checkpoint-3 design for replacing reading/history/result custom controls and feedback with generic atoms while preserving tarot-specific composition
+-   [Reading Tree Atom Migration Implementation Plan](./docs/superpowers/plans/2026-07-27-reading-tree-atoms.md) — checkpoint plan for the reading-tree source guard, atom migration, Storybook updates, and verification
 -   [Generic UI Atoms Design](./docs/superpowers/specs/2026-07-27-generic-ui-atoms-design.md) — approved checkpoint-2 design for replacing form-specific UI primitives with controlled, theme-owned `Button`, `Input`, `FeedbackText`, and `InputField` components
 -   [Generic UI Atoms Implementation Plan](./docs/superpowers/plans/2026-07-27-generic-ui-atoms.md) — checkpoint plan for the source guard, generic atom implementation, auth/account migration, Storybook contract, and verification
 -   [UI Monochrome Palette Design](./docs/superpowers/specs/2026-07-27-ui-monochrome-palette-design.md) — approved first checkpoint for replacing beige and brown reading UI literals with existing black, white, and grey theme tokens while retaining semantic status colors

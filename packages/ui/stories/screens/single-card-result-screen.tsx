@@ -1,5 +1,6 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../atoms/button';
 import Card from '../atoms/card';
 import MobileView from '../templates/mobile-view';
 import React from 'react';
@@ -49,25 +50,18 @@ export default function SingleCardResultScreen({
                 <Text style={styles.body}>{text}</Text>
                 {summary ? <Text style={styles.summaryText}>{summary}</Text> : null}
                 <View style={styles.buttonGroup}>
-                    <Pressable
-                        accessibilityRole="button"
+                    <Button
+                        label="Done"
                         onPress={onDonePress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Done</Text>
-                    </Pressable>
+                        size="compact"
+                    />
                     {onHistoryPress ? (
-                        <Pressable
-                            accessibilityRole="button"
+                        <Button
+                            label="History"
                             onPress={onHistoryPress}
-                            style={({ pressed }) => [
-                                styles.secondaryButton,
-                                pressed && styles.pressed
-                            ]}>
-                            <Text style={styles.secondaryButtonText}>History</Text>
-                        </Pressable>
+                            size="compact"
+                            variant="secondary"
+                        />
                     ) : null}
                 </View>
             </ScrollView>
@@ -126,35 +120,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 12,
         marginTop: 12
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.black,
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    secondaryButton: {
-        alignItems: 'center',
-        borderColor: theme.colors.greyOutline,
-        borderRadius: 6,
-        borderWidth: 1,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    secondaryButtonText: {
-        color: theme.colors.primary,
-        fontSize: 14,
-        fontWeight: '700'
-    },
-    pressed: {
-        opacity: 0.7
     }
 });

@@ -30,6 +30,29 @@ const atomFiles = [
     'stories/molecules/input-field.tsx'
 ];
 
+const readingFiles = [
+    'stories/organisms/new-reading-form.tsx',
+    'stories/organisms/reading-history-list.tsx',
+    'stories/screens/new-reading-screen.tsx',
+    'stories/screens/reading-history-screen.tsx',
+    'stories/screens/single-card-reading-screen.tsx',
+    'stories/screens/single-card-result-screen.tsx',
+    'stories/molecules/reading-list-card.tsx'
+];
+
+const readingPatterns = [
+    [/<Pressable\b/, 'custom button bypasses the Button atom'],
+    [/<TextInput\b/, 'custom input bypasses the Input atom'],
+    [
+        /\b(primaryButton|secondaryButton|disabledButton|primaryButtonText|secondaryButtonText|errorText)\s*:/,
+        'custom control or feedback style remains'
+    ],
+    [
+        /theme\.colors\.secondary\b/,
+        'brown secondary token remains in reading text'
+    ]
+];
+
 const collectSourceFiles = directory =>
     readdirSync(directory)
         .flatMap(entry => {
@@ -82,6 +105,22 @@ for (const path of atomFiles) {
 
     if (styleEscapePattern.test(source)) {
         violations.add(`${path}: arbitrary style escape hatch is exposed`);
+    }
+}
+
+for (const path of readingFiles) {
+    const absolutePath = resolve(packageRoot, path);
+
+    if (!existsSync(absolutePath)) {
+        continue;
+    }
+
+    const source = readFileSync(absolutePath, 'utf8');
+
+    for (const [pattern, reason] of readingPatterns) {
+        if (pattern.test(source)) {
+            violations.add(`${path}: ${reason}`);
+        }
     }
 }
 

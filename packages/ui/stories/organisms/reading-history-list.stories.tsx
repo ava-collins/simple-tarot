@@ -27,7 +27,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof ReadingHistoryList>;
 
 export default meta;

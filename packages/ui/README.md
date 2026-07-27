@@ -55,6 +55,11 @@ visual style overrides. Consumers own surrounding layout with wrapper views;
 the atoms own their colors, typography, borders, sizing, pressed state, and
 disabled state.
 
+Reading, history, and result trees compose their generic actions, question
+entry, errors, and loading feedback from these atoms. Tarot cards, decks,
+reading content, result containers, and pull-to-refresh remain
+domain-specific composition.
+
 Screens are mobile screens and should use the shared `MobileView` template.
 They compose typed props, hooks from `@simpletarot/hooks/client`, server-safe
 types/constants from `@simpletarot/hooks/server`, and card components from

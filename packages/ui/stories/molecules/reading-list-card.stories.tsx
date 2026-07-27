@@ -14,7 +14,8 @@ const meta = {
                     'Neutral presentation uses the shared black, white, and grey theme tokens; status feedback uses its semantic theme color.'
             }
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof ReadingListCard>;
 
 export default meta;
