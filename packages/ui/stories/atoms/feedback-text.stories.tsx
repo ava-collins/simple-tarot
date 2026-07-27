@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect } from 'storybook/test';
 
 import FeedbackText from './feedback-text';
 import mdx from './feedback-text.mdx';
@@ -20,7 +21,13 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Error: Story = {};
+export const Error: Story = {
+    play: async ({ canvas }) => {
+        await expect(
+            canvas.getByText('Please review this message.')
+        ).toBeVisible();
+    }
+};
 
 export const Success: Story = {
     args: {

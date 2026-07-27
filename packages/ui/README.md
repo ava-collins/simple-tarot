@@ -97,10 +97,19 @@ This package has no test suite and is excluded from `yarn test`. After changing 
 ```sh
 yarn workspace @simpletarot/ui check-theme-colors
 yarn workspace @simpletarot/ui check-ui-atoms
+yarn workspace @simpletarot/ui check-story-coverage
 yarn workspace @simpletarot/ui build-types
 yarn workspace @simpletarot/ui build-storybook
 yarn lint
 ```
+
+Focused interaction coverage lives in co-located Storybook `play` functions.
+For representative UI changes, also smoke-test the running Storybook and
+review the browser console.
+
+Fallback background gradients and tarot/card visuals are intentional domain
+exceptions. Ordinary controls, text, borders, and fixtures must use theme
+tokens.
 
 ## Changelog
 

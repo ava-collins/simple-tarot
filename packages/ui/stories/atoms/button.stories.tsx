@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect, fireEvent, fn } from 'storybook/test';
 
 import Button from './button';
 import mdx from './button.mdx';
@@ -21,7 +22,17 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-export const Primary: Story = {};
+export const Primary: Story = {
+    args: {
+        onPress: fn()
+    },
+    play: async ({ args, canvas, userEvent }) => {
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Continue' })
+        );
+        await expect(args.onPress).toHaveBeenCalledTimes(1);
+    }
+};
 
 export const Secondary: Story = {
     args: {
@@ -43,6 +54,13 @@ export const Compact: Story = {
 
 export const Disabled: Story = {
     args: {
-        disabled: true
+        disabled: true,
+        onPress: fn()
+    },
+    play: async ({ args, canvas }) => {
+        const button = canvas.getByRole('button', { name: 'Continue' });
+        await expect(button).toBeDisabled();
+        fireEvent.click(button);
+        await expect(args.onPress).not.toHaveBeenCalled();
     }
 };

@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect, fn } from 'storybook/test';
 
 import ScreenState from './screen-state';
 import mdx from './screen-state.mdx';
@@ -28,11 +29,22 @@ export const ErrorStatusWithAction: Story = {
     args: {
         action: {
             label: 'Try again',
-            onPress: () => console.log('Try again pressed')
+            onPress: fn()
         },
         kind: 'status',
         message: 'Unable to continue.',
         tone: 'error'
+    },
+    play: async ({ args, canvas, userEvent }) => {
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Try again' })
+        );
+
+        if (!args.action) {
+            throw new Error('ErrorStatusWithAction requires an action');
+        }
+
+        await expect(args.action.onPress).toHaveBeenCalledTimes(1);
     }
 };
 

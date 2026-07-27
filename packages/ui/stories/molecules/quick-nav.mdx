@@ -21,9 +21,12 @@ the consumer decides what that means.
 ## State
 - `open`: Boolean state to track if the speed dial is open or closed.
 
+## Palette
+
+The dial, actions, and icons use the shared black and white tokens from
+`theme.colors`.
+
 ## Interaction Tests
-### QuickNavOpenTest
-- Verify that the speed dial opens when button is pressed.
-- Verify that the speed dial actions are visible.
-- Verify that pressing each action calls its corresponding callback prop and closes the dial.
-- Verify that the speed dial actions are not visible when closed.
+### Default
+- Verifies that the speed dial opens when its toggle is pressed.
+- Verifies that pressing Profile calls `onProfilePress` and closes the dial.

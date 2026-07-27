@@ -14,6 +14,7 @@
     "scripts": {
         "build-storybook": "storybook build",
         "build-types": "tsc -b",
+        "check-story-coverage": "node ./scripts/check-story-coverage.mjs",
         "check-theme-colors": "node ./scripts/check-theme-color-usage.mjs",
         "check-ui-atoms": "node ./scripts/check-ui-atom-usage.mjs",
         "dev": "storybook dev -p 6006",

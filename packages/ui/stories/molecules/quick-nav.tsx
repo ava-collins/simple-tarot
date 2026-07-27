@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 
 import SpeedDial from '@rneui/themed/dist/SpeedDial';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import theme from '../utils/theme';
 
 export interface QuickNavProps {
     onNewReadingPress?: () => void;
@@ -35,25 +36,34 @@ const QuickNav: React.FC<QuickNavProps> = ({
         <View
             testID="quick-nav-container"
             pointerEvents="box-none"
-            style={{
-                position: 'absolute',
-                bottom: 0,
-                right: 0
-            }}>
+            style={styles.container}>
             <SpeedDial
-                color={open ? 'white' : 'black'}
+                accessibilityLabel={
+                    open ? 'Close quick navigation' : 'Open quick navigation'
+                }
+                color={open ? theme.colors.white : theme.colors.black}
                 isOpen={open}
-                icon={{ name: 'navigation', color: 'white' }}
-                openIcon={{ name: 'close', color: 'black' }}
+                icon={{
+                    name: 'navigation',
+                    color: theme.colors.white,
+                    pressableProps: { accessibilityRole: 'image' }
+                }}
+                openIcon={{
+                    name: 'close',
+                    color: theme.colors.black,
+                    pressableProps: { accessibilityRole: 'image' }
+                }}
                 onOpen={() => setOpen(true)}
                 onClose={() => setOpen(false)}
                 testID="quick-nav-toggle">
                 <SpeedDial.Action
-                    color="white"
+                    accessibilityLabel="Open profile"
+                    color={theme.colors.white}
                     icon={{
                         type: 'material-community',
                         name: 'account-outline',
-                        color: '#000'
+                        color: theme.colors.black,
+                        pressableProps: { accessibilityRole: 'image' }
                     }}
                     title="Profile"
                     onPress={openProfile}
@@ -61,18 +71,25 @@ const QuickNav: React.FC<QuickNavProps> = ({
                 />
 
                 <SpeedDial.Action
-                    color="white"
-                    icon={{ name: 'history', color: '#000' }}
+                    accessibilityLabel="Open reading history"
+                    color={theme.colors.white}
+                    icon={{
+                        name: 'history',
+                        color: theme.colors.black,
+                        pressableProps: { accessibilityRole: 'image' }
+                    }}
                     title="History"
                     onPress={goToHistory}
                     testID="quick-nav-history-action"
                 />
                 <SpeedDial.Action
-                    color="white"
+                    accessibilityLabel="Start a new reading"
+                    color={theme.colors.white}
                     icon={{
                         type: 'material-community',
                         name: 'cards-outline',
-                        color: '#000'
+                        color: theme.colors.black,
+                        pressableProps: { accessibilityRole: 'image' }
                     }}
                     title="New Reading"
                     onPress={startNewReading}
@@ -84,3 +101,11 @@ const QuickNav: React.FC<QuickNavProps> = ({
 };
 
 export default QuickNav;
+
+const styles = StyleSheet.create({
+    container: {
+        bottom: 0,
+        position: 'absolute',
+        right: 0,
+    }
+});

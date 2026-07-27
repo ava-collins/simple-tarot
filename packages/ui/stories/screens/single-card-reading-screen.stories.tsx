@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect, fn } from 'storybook/test';
 
 import mdx from './single-card-reading-screen.mdx';
 import SingleCardReadingScreen from './single-card-reading-screen';
@@ -45,7 +46,14 @@ export const Generating: Story = {
 export const WithError: Story = {
     args: {
         ...baseArgs,
-        error: 'Unable to draw a card.'
+        error: 'Unable to draw a card.',
+        onStart: fn()
+    },
+    play: async ({ args, canvas, userEvent }) => {
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Try again' })
+        );
+        await expect(args.onStart).toHaveBeenCalledTimes(1);
     }
 };
 
