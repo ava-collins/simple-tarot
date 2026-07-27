@@ -121,6 +121,7 @@ messages.
 ### Planning
 
 -   [Generic UI Atoms Design](./docs/superpowers/specs/2026-07-27-generic-ui-atoms-design.md) — approved checkpoint-2 design for replacing form-specific UI primitives with controlled, theme-owned `Button`, `Input`, `FeedbackText`, and `InputField` components
+-   [Generic UI Atoms Implementation Plan](./docs/superpowers/plans/2026-07-27-generic-ui-atoms.md) — checkpoint plan for the source guard, generic atom implementation, auth/account migration, Storybook contract, and verification
 -   [UI Monochrome Palette Design](./docs/superpowers/specs/2026-07-27-ui-monochrome-palette-design.md) — approved first checkpoint for replacing beige and brown reading UI literals with existing black, white, and grey theme tokens while retaining semantic status colors
 -   [UI Monochrome Palette Implementation Plan](./docs/superpowers/plans/2026-07-27-ui-monochrome-palette.md) — checkpoint plan for the targeted palette guard, theme-token migration, Storybook documentation, and verification
 -   [Private Retrieval-Evaluation Harness Design](./docs/superpowers/specs/2026-07-20-private-retrieval-evaluation-harness-design.md) — historical approved design for the implemented development-only evaluation endpoint and private harness; use the durable [Bedrock RAG architecture](./docs/bedrock_rag_api_integration.md) for current public behavior

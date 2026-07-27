@@ -1,0 +1,17 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as InputFieldStories from './input-field.stories';
+
+<Meta of={InputFieldStories.default} title="InputField" />
+
+# InputField
+
+Presentation-only composition of `Input` and optional `FeedbackText`.
+Validation remains with the caller, which reduces domain errors to a message,
+tone, and `hasError` state.
+
+<Canvas of={InputFieldStories.Default} />
+<Canvas of={InputFieldStories.Error} />
+
+## Props
+
+<Controls />

@@ -15,6 +15,7 @@
         "build-storybook": "storybook build",
         "build-types": "tsc -b",
         "check-theme-colors": "node ./scripts/check-theme-color-usage.mjs",
+        "check-ui-atoms": "node ./scripts/check-ui-atom-usage.mjs",
         "dev": "storybook dev -p 6006",
         "semantic-release": "node ../../node_modules/semantic-release/bin/semantic-release.js",
         "storybook": "storybook dev -p 6006"

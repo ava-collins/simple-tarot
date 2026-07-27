@@ -11,7 +11,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof ForgotPasswordForm>;
 export default meta;
 type Story = StoryObj<typeof meta>;

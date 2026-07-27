@@ -1,0 +1,23 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ButtonStories from './button.stories';
+
+<Meta of={ButtonStories.default} title="Button" />
+
+# Button
+
+Theme-owned action atom with controlled primary, secondary, and muted variants.
+Consumers choose an intent and wrap the button for surrounding layout instead
+of overriding its colors, type, or dimensions.
+
+<Canvas of={ButtonStories.Primary} />
+
+## Variants
+
+<Canvas of={ButtonStories.Secondary} />
+<Canvas of={ButtonStories.Muted} />
+<Canvas of={ButtonStories.Compact} />
+<Canvas of={ButtonStories.Disabled} />
+
+## Props
+
+<Controls />

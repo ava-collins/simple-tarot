@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 
-import FormButton from '../atoms/form-button';
-import FormInputRow from '../molecules/form-input-row';
-import { KeyboardType, StyleSheet, Text } from 'react-native';
+import Button from '../atoms/button';
+import FeedbackText from '../atoms/feedback-text';
+import InputField from '../molecules/input-field';
+import { KeyboardType, StyleSheet, View } from 'react-native';
 import type { FormError } from '@simpletarot/hooks/server';
-import theme from '../utils/theme';
 
 export interface SignupFormProps {
     email: string;
@@ -110,39 +110,51 @@ const SignupForm: React.FC<SignupFormProps> = ({
     return (
         <>
             {isAwaitingVerification ? (
-                <FormInputRow
-                    inputProps={verificationCodeProps}
-                    textProps={{ error: false }}
-                />
+                <InputField inputProps={verificationCodeProps} />
             ) : (
                 <>
-                    <FormInputRow inputProps={emailProps} textProps={{ error: emailError }} />
-                    <FormInputRow
-                        inputProps={passwordProps}
-                        textProps={{ error: passwordError }}
+                    <InputField
+                        feedback={emailError ? emailError.message : undefined}
+                        inputProps={emailProps}
                     />
-                    <FormInputRow
+                    <InputField
+                        feedback={passwordError ? passwordError.message : undefined}
+                        inputProps={passwordProps}
+                    />
+                    <InputField
+                        feedback={
+                            confirmPasswordError
+                                ? confirmPasswordError.message
+                                : undefined
+                        }
                         inputProps={confirmPasswordProps}
-                        textProps={{ error: confirmPasswordError }}
                     />
                 </>
             )}
-            {message ? <Text style={styles.messageText}>{message}</Text> : null}
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <FormButton
-                buttonLabel={
-                    isAwaitingVerification
-                        ? (isLoading ? 'Verifying...' : 'Verify Account')
-                        : (isLoading ? 'Creating account...' : 'Sign Up')
-                }
-                btnEnabled={
-                    !isLoading &&
-                    (isAwaitingVerification
-                        ? verificationCode.trim().length > 0
-                        : !emailError && !passwordError && !confirmPasswordError)
-                }
-                onPress={isAwaitingVerification ? (onConfirmSubmit ?? onSubmit) : onSubmit}
-            />
+            <FeedbackText tone="muted">{message}</FeedbackText>
+            <FeedbackText>{error}</FeedbackText>
+            <View style={styles.action}>
+                <Button
+                    label={
+                        isAwaitingVerification
+                            ? (isLoading ? 'Verifying...' : 'Verify Account')
+                            : (isLoading ? 'Creating account...' : 'Sign Up')
+                    }
+                    disabled={
+                        isLoading ||
+                        (isAwaitingVerification
+                            ? verificationCode.trim().length === 0
+                            : !!emailError ||
+                              !!passwordError ||
+                              !!confirmPasswordError)
+                    }
+                    onPress={
+                        isAwaitingVerification
+                            ? (onConfirmSubmit ?? onSubmit)
+                            : onSubmit
+                    }
+                />
+            </View>
         </>
     );
 };
@@ -150,16 +162,7 @@ const SignupForm: React.FC<SignupFormProps> = ({
 export default SignupForm;
 
 const styles = StyleSheet.create({
-    errorText: {
-        color: theme.colors.error,
-        fontSize: 14,
-        lineHeight: 20,
-        marginBottom: 12
-    },
-    messageText: {
-        color: theme.colors.primary,
-        fontSize: 14,
-        lineHeight: 20,
-        marginBottom: 12
+    action: {
+        marginBottom: 20
     }
 });

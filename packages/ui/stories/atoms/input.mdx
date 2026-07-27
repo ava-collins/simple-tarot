@@ -1,0 +1,23 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as InputStories from './input.stories';
+
+<Meta of={InputStories.default} title="Input" />
+
+# Input
+
+Theme-owned text-entry atom for credentials and general content. It controls
+surface, border, label, placeholder, error, multiline, and disabled
+presentation; consumers wrap it for surrounding layout.
+
+<Canvas of={InputStories.Default} />
+
+## States
+
+<Canvas of={InputStories.Error} />
+<Canvas of={InputStories.Password} />
+<Canvas of={InputStories.Multiline} />
+<Canvas of={InputStories.Disabled} />
+
+## Props
+
+<Controls />

@@ -1,0 +1,23 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as FeedbackTextStories from './feedback-text.stories';
+
+<Meta of={FeedbackTextStories.default} title="FeedbackText" />
+
+# FeedbackText
+
+Theme-owned inline feedback for error, success, warning, and muted messages.
+Empty content renders nothing. Consumers select a semantic tone rather than
+overriding color or typography.
+
+<Canvas of={FeedbackTextStories.Error} />
+
+## Tones
+
+<Canvas of={FeedbackTextStories.Success} />
+<Canvas of={FeedbackTextStories.Warning} />
+<Canvas of={FeedbackTextStories.Muted} />
+<Canvas of={FeedbackTextStories.Empty} />
+
+## Props
+
+<Controls />

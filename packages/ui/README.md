@@ -17,10 +17,10 @@ auth and tarot reading flows.
 
 `stories/atoms` provides visual primitives such as `Card`, `CardDeck`,
 `CardDeal`, `Background`, `StartArrow`, `AvatarDisplay`, `AvatarRollback`,
-`FormButton`, `FormInput`, and `FormErrorText`.
+`Button`, `Input`, and `FeedbackText`.
 
 `stories/molecules` combines atoms into focused rows and cards such as
-`FormInputRow`, `QuickNav`, `ReadingListCard`, and `ShuffleCard`.
+`InputField`, `QuickNav`, `ReadingListCard`, and `ShuffleCard`.
 
 `stories/organisms` owns compound sections, forms, and lists such as
 `LoginForm`, `SignupForm`, `ForgotPasswordForm`, `UserAccount`, `Shuffle`,
@@ -49,6 +49,11 @@ suffix and `Element/Rollback/ComponentRollback` path. Storybook-only components
 that are not yet implemented in the app use `Element/Dev/Component`.
 
 `index.tsx` re-exports the screens and shared atoms consumed by `apps/tarot`. Molecules, organisms, and most atoms are internal building blocks composed by screens rather than exported directly — import components from `@simpletarot/ui` rather than reaching into `stories/`.
+
+Atoms expose controlled semantic variants and states instead of arbitrary
+visual style overrides. Consumers own surrounding layout with wrapper views;
+the atoms own their colors, typography, borders, sizing, pressed state, and
+disabled state.
 
 Screens are mobile screens and should use the shared `MobileView` template.
 They compose typed props, hooks from `@simpletarot/hooks/client`, server-safe
@@ -81,8 +86,10 @@ workflow.
 This package has no test suite and is excluded from `yarn test`. After changing a component, validate through Storybook and type checking:
 
 ```sh
-yarn workspace @simpletarot/ui storybook
+yarn workspace @simpletarot/ui check-theme-colors
+yarn workspace @simpletarot/ui check-ui-atoms
 yarn workspace @simpletarot/ui build-types
+yarn workspace @simpletarot/ui build-storybook
 yarn lint
 ```
 
