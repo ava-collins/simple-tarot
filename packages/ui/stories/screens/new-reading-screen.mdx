@@ -7,6 +7,10 @@ import * as NewReadingScreenStories from './new-reading-screen.stories';
 
 Mobile new-reading screen wrapped in `MobileView`. It owns auth-state presentation and passes form behavior through callbacks.
 
+Auth loading and signed-out presentation use the shared `ScreenState`
+molecule. Populated form content remains local to the screen and
+`NewReadingForm`.
+
 <Canvas of={NewReadingScreenStories.EmptyForm} />
 
 ## Generating
@@ -27,8 +31,15 @@ Mobile new-reading screen wrapped in `MobileView`. It owns auth-state presentati
 
 <Canvas of={NewReadingScreenStories.SignedOut} />
 
+## Palette
+
+Neutral surfaces, text, borders, and actions use the shared black, white, and
+grey values from `theme.colors`. Status feedback retains its semantic theme
+color.
+
 ## Responsibilities
 
 - Shows auth loading and signed-out states.
+- Composes `ScreenState` for full-screen auth states.
 - Wraps the form in the existing `MobileView` and keyboard-avoidance pattern.
 - Delegates question input and latest-result presentation to `NewReadingForm`.

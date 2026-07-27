@@ -10,7 +10,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof SignupForm>;
 
 export default meta;

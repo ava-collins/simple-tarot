@@ -24,7 +24,8 @@ const meta = {
                 )
             ]
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof UserAccount>;
 export default meta;
 type Story = StoryObj<typeof meta>;

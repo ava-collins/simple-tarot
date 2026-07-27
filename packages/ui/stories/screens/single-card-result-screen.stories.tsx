@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect, fn } from 'storybook/test';
 
 import mdx from './single-card-result-screen.mdx';
 import SingleCardResultScreen from './single-card-result-screen';
@@ -21,16 +22,30 @@ const meta = {
         layout: 'padded',
         viewport: { value: 'iphone14pro', isRotated: false },
         docs: {
-            page: mdx
+            page: mdx,
+            description: {
+                component:
+                    'Neutral presentation uses the shared black, white, and grey theme tokens; status feedback uses its semantic theme color.'
+            }
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof SingleCardResultScreen>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-    args: baseArgs
+    args: {
+        ...baseArgs,
+        onDonePress: fn()
+    },
+    play: async ({ args, canvas, userEvent }) => {
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Done' })
+        );
+        await expect(args.onDonePress).toHaveBeenCalledTimes(1);
+    }
 };
 
 export const Reversed: Story = {

@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
 
-import FormButton from '../atoms/form-button';
-import FormInputRow from '../molecules/form-input-row';
-import { KeyboardType } from 'react-native';
+import Button from '../atoms/button';
+import InputField from '../molecules/input-field';
+import { KeyboardType, StyleSheet, View } from 'react-native';
 import type { FormError } from '@simpletarot/hooks/server';
 
-interface ForgotPasswordFormProps {
+export interface ForgotPasswordFormProps {
     email: string;
     errors: FormError[];
     onEmailChange: (text: string) => void;
     onSubmit: () => void;
 }
 
-const ForgotPasswordForm = ({ email, errors, onEmailChange, onSubmit }) => {
+const ForgotPasswordForm: React.FC<ForgotPasswordFormProps> = ({
+    email,
+    errors,
+    onEmailChange,
+    onSubmit
+}) => {
     const [emailError, setEmailError] = useState<FormError | false>(false);
 
     useEffect(() => {
@@ -39,14 +44,25 @@ const ForgotPasswordForm = ({ email, errors, onEmailChange, onSubmit }) => {
 
     return (
         <>
-            <FormInputRow inputProps={emailProps} textProps={{ error: emailError }} />
-            <FormButton
-                buttonLabel="Reset Password"
-                onPress={onSubmit}
-                btnEnabled={errors && errors.length === 0}
+            <InputField
+                feedback={emailError ? emailError.message : undefined}
+                inputProps={emailProps}
             />
+            <View style={styles.action}>
+                <Button
+                    label="Reset Password"
+                    onPress={onSubmit}
+                    disabled={errors.length > 0}
+                />
+            </View>
         </>
     );
 };
 
 export default ForgotPasswordForm;
+
+const styles = StyleSheet.create({
+    action: {
+        marginBottom: 20
+    }
+});

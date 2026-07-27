@@ -36,9 +36,14 @@ const meta = {
         layout: 'padded',
         viewport: { value: 'iphone14pro', isRotated: false },
         docs: {
-            page: mdx
+            page: mdx,
+            description: {
+                component:
+                    'Full-screen auth states compose ScreenState; populated history and inline feedback remain local.'
+            }
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof ReadingHistoryScreen>;
 
 export default meta;

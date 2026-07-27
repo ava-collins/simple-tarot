@@ -3,15 +3,16 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import Background from './background';
 import React from 'react';
+import theme from '../utils/theme';
 
 const styles = StyleSheet.create({
     text: {
-        color: '#fff',
+        backgroundColor: theme.colors.grey5,
+        borderRadius: 8,
+        color: theme.colors.white,
         fontSize: 24,
         fontWeight: 'bold',
-        backgroundColor: 'rgba(0,0,0,0.4)',
-        padding: 12,
-        borderRadius: 8
+        padding: 12
     }
 });
 

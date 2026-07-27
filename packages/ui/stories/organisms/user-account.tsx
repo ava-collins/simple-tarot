@@ -2,7 +2,7 @@ import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 
 import AvatarRollback from '../atoms/avatar-rollback';
-import FormButton from '../atoms/form-button';
+import Button from '../atoms/button';
 import { Value } from '../utils/fonts';
 import theme from '../utils/theme';
 
@@ -47,18 +47,11 @@ const UserAccount: React.FC<UserAccountProps> = ({
                         </Text>
                     )}
                     {!isAnon && (
-                        <FormButton
-                            buttonLabel="Reset Password"
-                            onPress={resetPassword}
-                        />
+                        <Button label="Reset Password" onPress={resetPassword} />
                     )}
                 </View>
                 <View style={styles.logoutContainer}>
-                    <FormButton
-                        buttonLabel="Logout"
-                        onPress={logout}
-                        buttonStyle={styles.logbtn}
-                    />
+                    <Button label="Logout" onPress={logout} variant="muted" />
                 </View>
             </View>
         </ScrollView>
@@ -85,6 +78,7 @@ const styles = StyleSheet.create({
         alignSelf: 'center'
     },
     anonInfo: {
+        alignSelf: 'stretch',
         paddingHorizontal: 100,
         paddingVertical: 50
     },
@@ -102,9 +96,7 @@ const styles = StyleSheet.create({
         color: theme.colors.grey2
     },
     logoutContainer: {
+        alignSelf: 'stretch',
         paddingVertical: 50
-    },
-    logbtn: {
-        backgroundColor: theme.colors.grey3
     }
 });

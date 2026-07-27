@@ -1,9 +1,11 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+import FeedbackText from '../atoms/feedback-text';
 import theme from '../utils/theme';
 import ReadingHistoryList, {
     type ReadingHistoryListProps
 } from '../organisms/reading-history-list';
 import MobileView from '../templates/mobile-view';
+import ScreenState from '../molecules/screen-state';
 
 export type ReadingHistoryScreenProps = {
     error?: string | null;
@@ -29,9 +31,7 @@ export default function ReadingHistoryScreen({
     if (isAuthLoading) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.mutedText}>Checking session...</Text>
-                </View>
+                <ScreenState kind="status" message="Checking session..." />
             </MobileView>
         );
     }
@@ -39,19 +39,12 @@ export default function ReadingHistoryScreen({
     if (!isSignedIn) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.title}>Reading history</Text>
-                    <Text style={styles.body}>Sign in to see saved readings.</Text>
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onSignInPress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Sign in</Text>
-                    </Pressable>
-                </View>
+                <ScreenState
+                    action={{ label: 'Sign in', onPress: onSignInPress }}
+                    kind="prompt"
+                    message="Sign in to see saved readings."
+                    title="Reading history"
+                />
             </MobileView>
         );
     }
@@ -67,7 +60,11 @@ export default function ReadingHistoryScreen({
 
                 </View>
 
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
+                {error ? (
+                    <View style={styles.errorFeedback}>
+                        <FeedbackText>{error}</FeedbackText>
+                    </View>
+                ) : null}
 
                 <ReadingHistoryList
                     emptyMessage="No saved readings yet."
@@ -87,14 +84,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
         paddingTop: 72
     },
-    centered: {
-        flex: 1,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        gap: 16,
-        backgroundColor: theme.colors.white,
-        paddingHorizontal: 32
-    },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -110,54 +99,12 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase'
     },
     title: {
-        color: theme.colors.secondary,
+        color: theme.colors.primary,
         fontSize: 30,
         fontWeight: '700',
         letterSpacing: 0
     },
-    body: {
-        color: theme.colors.primary,
-        fontSize: 16,
-        lineHeight: 22
-    },
-    mutedText: {
-        color: theme.colors.grey2,
-        fontSize: 15
-    },
-    errorText: {
-        color: theme.colors.error,
-        fontSize: 14,
-        lineHeight: 20,
+    errorFeedback: {
         marginBottom: 16
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.black,
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    iconButton: {
-        alignItems: 'center',
-        backgroundColor: theme.colors.black,
-        borderRadius: 26,
-        height: 52,
-        justifyContent: 'center',
-        width: 52
-    },
-    iconButtonText: {
-        color: theme.colors.white,
-        fontSize: 32,
-        fontWeight: '500',
-        lineHeight: 36
-    },
-    pressed: {
-        opacity: 0.7
     }
 });

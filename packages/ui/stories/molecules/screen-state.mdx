@@ -1,0 +1,24 @@
+import { Canvas, Controls, Meta } from '@storybook/addon-docs/blocks';
+import * as ScreenStateStories from './screen-state.stories';
+
+<Meta of={ScreenStateStories.default} title="ScreenState" />
+
+# ScreenState
+
+Internal presentation-only molecule for full-screen statuses and prompts.
+The discriminated `kind` prop keeps status feedback separate from prompt
+title/body/feedback composition.
+
+`ScreenState` composes `FeedbackText` and `Button`, owns the shared centered
+monotone layout, and exposes no style or color escape hatch. Screens continue
+to provide `MobileView`, state precedence, copy, and callbacks.
+
+<Canvas of={ScreenStateStories.LoadingStatus} />
+<Canvas of={ScreenStateStories.ErrorStatusWithAction} />
+<Canvas of={ScreenStateStories.Prompt} />
+<Canvas of={ScreenStateStories.PromptWithFeedback} />
+<Canvas of={ScreenStateStories.PromptWithDisabledAction} />
+
+## Props
+
+<Controls />

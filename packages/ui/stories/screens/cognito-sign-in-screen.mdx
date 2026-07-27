@@ -6,6 +6,7 @@ import * as CognitoSignInScreenStories from './cognito-sign-in-screen.stories';
 # Cognito Sign In Screen
 
 ## Overview
+- Composes the shared prompt `ScreenState`.
 - Presents a Continue button that launches the Cognito Hosted UI in an in-app browser.
 - Button is disabled until the auth request is prepared by `expo-auth-session`.
 - Shows "Opening..." label while the browser session is in progress.
@@ -24,11 +25,14 @@ import * as CognitoSignInScreenStories from './cognito-sign-in-screen.stories';
 
 ## Interaction Tests
 
-### Button Disabled When Not Ready Test
-- Verifies that the Continue button is disabled when `authRequestReady` is false.
+### Default
 
-### Button Enabled When Ready Test
-- Verifies that the Continue button is enabled when `authRequestReady` is true.
+- Verifies that the enabled Continue button invokes `onContinuePress`.
+
+### NotReady
+
+- Verifies that Continue is disabled and does not invoke `onContinuePress`
+  before the auth request is ready.
 
 ## Future Enhancements
 

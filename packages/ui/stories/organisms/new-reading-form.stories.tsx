@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect, fn } from 'storybook/test';
 
 import mdx from './new-reading-form.mdx';
 import NewReadingForm from './new-reading-form';
@@ -26,9 +27,14 @@ const meta = {
     component: NewReadingForm,
     parameters: {
         docs: {
-            page: mdx
+            page: mdx,
+            description: {
+                component:
+                    'Neutral presentation uses the shared black, white, and grey theme tokens; status feedback uses its semantic theme color.'
+            }
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof NewReadingForm>;
 
 export default meta;
@@ -38,7 +44,20 @@ export const EmptyForm: Story = {
     args: {
         ...baseArgs,
         isGenerating: false,
-        latestReading: null
+        latestReading: null,
+        onGeneratePress: fn()
+    },
+    play: async ({ args, canvas, userEvent }) => {
+        await userEvent.type(
+            canvas.getByLabelText('Question'),
+            'What should I notice today?'
+        );
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Generate reading' })
+        );
+        await expect(args.onGeneratePress).toHaveBeenCalledWith(
+            'What should I notice today?'
+        );
     }
 };
 

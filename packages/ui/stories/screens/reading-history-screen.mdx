@@ -7,6 +7,10 @@ import * as ReadingHistoryScreenStories from './reading-history-screen.stories';
 
 Mobile reading history screen wrapped in `MobileView`. It receives signed-in state, display-ready readings, and navigation callbacks from the route layer.
 
+Auth loading and signed-out presentation use the shared `ScreenState`
+molecule. Errors shown alongside populated history remain inline
+`FeedbackText`.
+
 <Canvas of={ReadingHistoryScreenStories.PopulatedHistory} />
 
 ## Empty History
@@ -26,5 +30,6 @@ Mobile reading history screen wrapped in `MobileView`. It receives signed-in sta
 ## Responsibilities
 
 - Shows auth loading and signed-out states.
-- Renders the saved-reading header and create action.
+- Renders the saved-reading header with monotone text.
+- Composes `ScreenState` for full-screen auth states.
 - Delegates list, empty, and refresh presentation to `ReadingHistoryList`.

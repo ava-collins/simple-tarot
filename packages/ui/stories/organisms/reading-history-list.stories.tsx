@@ -1,4 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react-native-web-vite';
+import { expect, fn } from 'storybook/test';
 
 import mdx from './reading-history-list.mdx';
 import ReadingHistoryList from './reading-history-list';
@@ -27,7 +28,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof ReadingHistoryList>;
 
 export default meta;
@@ -47,9 +49,15 @@ export const Empty: Story = {
     args: {
         emptyMessage: 'No saved readings yet.',
         isLoading: false,
-        onCreateReadingPress: () => console.log('Generate reading pressed'),
+        onCreateReadingPress: fn(),
         onRefresh: () => console.log('Refresh readings'),
         readings: []
+    },
+    play: async ({ args, canvas, userEvent }) => {
+        await userEvent.click(
+            canvas.getByRole('button', { name: 'Generate reading' })
+        );
+        await expect(args.onCreateReadingPress).toHaveBeenCalledTimes(1);
     }
 };
 

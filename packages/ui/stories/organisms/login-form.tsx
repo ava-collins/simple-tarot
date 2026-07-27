@@ -1,8 +1,15 @@
 import React, { useEffect, useState } from 'react';
 
-import FormButton from '../atoms/form-button';
-import FormInputRow from '../molecules/form-input-row';
-import { KeyboardType, Pressable, StyleSheet, Text } from 'react-native';
+import Button from '../atoms/button';
+import FeedbackText from '../atoms/feedback-text';
+import InputField from '../molecules/input-field';
+import {
+    KeyboardType,
+    Pressable,
+    StyleSheet,
+    Text,
+    View
+} from 'react-native';
 import type { FormError } from '@simpletarot/hooks/server';
 import theme from '../utils/theme';
 
@@ -71,17 +78,22 @@ const LoginForm: React.FC<LoginFormProps> = ({
 
     return (
         <>
-            <FormInputRow inputProps={emailProps} textProps={{ error: emailError }} />
-            <FormInputRow
+            <InputField
+                feedback={emailError ? emailError.message : undefined}
+                inputProps={emailProps}
+            />
+            <InputField
+                feedback={passwordError ? passwordError.message : undefined}
                 inputProps={passwordProps}
-                textProps={{ error: passwordError }}
             />
-            {error ? <Text style={styles.errorText}>{error}</Text> : null}
-            <FormButton
-                buttonLabel={isLoading ? 'Logging in...' : 'Login'}
-                onPress={onSubmit}
-                btnEnabled={!isLoading && errors && errors.length === 0}
-            />
+            <FeedbackText>{error}</FeedbackText>
+            <View style={styles.action}>
+                <Button
+                    label={isLoading ? 'Logging in...' : 'Login'}
+                    onPress={onSubmit}
+                    disabled={isLoading || errors.length > 0}
+                />
+            </View>
             {onSignUpPress ? (
                 <Pressable
                     accessibilityRole="link"
@@ -100,11 +112,8 @@ const LoginForm: React.FC<LoginFormProps> = ({
 export default LoginForm;
 
 const styles = StyleSheet.create({
-    errorText: {
-        color: theme.colors.error,
-        fontSize: 14,
-        lineHeight: 20,
-        marginBottom: 12
+    action: {
+        marginBottom: 20
     },
     link: {
         alignSelf: 'center',

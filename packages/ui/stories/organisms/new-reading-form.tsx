@@ -1,12 +1,9 @@
 import { useState } from 'react';
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import Button from '../atoms/button';
+import FeedbackText from '../atoms/feedback-text';
+import Input from '../atoms/input';
+import theme from '../utils/theme';
 
 export type NewReadingFormProps = {
     error?: string | null;
@@ -43,24 +40,18 @@ export default function NewReadingForm({
     return (
         <ScrollView contentContainerStyle={styles.screen}>
             <View style={styles.header}>
-                <Pressable
-                    accessibilityRole="button"
+                <Button
+                    label="Back"
                     onPress={onBackPress}
-                    style={({ pressed }) => [
-                        styles.secondaryButton,
-                        pressed && styles.pressed
-                    ]}>
-                    <Text style={styles.secondaryButtonText}>Back</Text>
-                </Pressable>
-                <Pressable
-                    accessibilityRole="button"
+                    size="compact"
+                    variant="secondary"
+                />
+                <Button
+                    label="History"
                     onPress={onHistoryPress}
-                    style={({ pressed }) => [
-                        styles.secondaryButton,
-                        pressed && styles.pressed
-                    ]}>
-                    <Text style={styles.secondaryButtonText}>History</Text>
-                </Pressable>
+                    size="compact"
+                    variant="secondary"
+                />
             </View>
 
             <Text style={styles.eyebrow}>One-card reading</Text>
@@ -70,29 +61,19 @@ export default function NewReadingForm({
             </Text>
 
             <View style={styles.formSection}>
-                <Text style={styles.label}>Question</Text>
-                <TextInput
+                <Input
+                    label="Question"
                     multiline
                     onChangeText={setQuestion}
                     placeholder="What should I notice today?"
-                    placeholderTextColor="#8A8172"
-                    style={styles.input}
                     value={question}
                 />
-                {error ? <Text style={styles.errorText}>{error}</Text> : null}
-                <Pressable
-                    accessibilityRole="button"
+                <FeedbackText>{error}</FeedbackText>
+                <Button
                     disabled={isGenerating}
+                    label={isGenerating ? 'Generating...' : 'Generate reading'}
                     onPress={generateReading}
-                    style={({ pressed }) => [
-                        styles.primaryButton,
-                        isGenerating && styles.disabledButton,
-                        pressed && styles.pressed
-                    ]}>
-                    <Text style={styles.primaryButtonText}>
-                        {isGenerating ? 'Generating...' : 'Generate reading'}
-                    </Text>
-                </Pressable>
+                />
             </View>
 
             {latestReading ? (
@@ -118,7 +99,7 @@ export default function NewReadingForm({
 const styles = StyleSheet.create({
     screen: {
         flexGrow: 1,
-        backgroundColor: '#F7F3EA',
+        backgroundColor: theme.colors.grey0,
         gap: 16,
         paddingHorizontal: 24,
         paddingBottom: 48,
@@ -130,81 +111,30 @@ const styles = StyleSheet.create({
         gap: 12
     },
     eyebrow: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 0,
         textTransform: 'uppercase'
     },
     title: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 30,
         fontWeight: '700',
         letterSpacing: 0
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 16,
         lineHeight: 22
-    },
-    label: {
-        color: '#1B1A18',
-        fontSize: 14,
-        fontWeight: '700'
     },
     formSection: {
         gap: 12,
         marginTop: 12
     },
-    input: {
-        backgroundColor: '#FFFDF8',
-        borderColor: '#D9CBAE',
-        borderRadius: 8,
-        borderWidth: 1,
-        color: '#1B1A18',
-        fontSize: 16,
-        minHeight: 112,
-        padding: 14,
-        textAlignVertical: 'top'
-    },
-    errorText: {
-        color: '#8F2D2D',
-        fontSize: 14,
-        lineHeight: 20
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: '#1B1A18',
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: '#FFFDF8',
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    secondaryButton: {
-        alignItems: 'center',
-        borderColor: '#B9A77F',
-        borderRadius: 6,
-        borderWidth: 1,
-        minHeight: 44,
-        justifyContent: 'center',
-        paddingHorizontal: 16
-    },
-    secondaryButtonText: {
-        color: '#1B1A18',
-        fontSize: 14,
-        fontWeight: '700'
-    },
-    disabledButton: {
-        opacity: 0.55
-    },
     resultCard: {
-        backgroundColor: '#FFFDF8',
-        borderColor: '#D9CBAE',
+        backgroundColor: theme.colors.white,
+        borderColor: theme.colors.greyOutline,
         borderRadius: 8,
         borderWidth: 1,
         gap: 12,
@@ -212,12 +142,12 @@ const styles = StyleSheet.create({
         padding: 16
     },
     resultTitle: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 18,
         fontWeight: '700'
     },
     summaryText: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 14,
         lineHeight: 20
     },
@@ -225,11 +155,8 @@ const styles = StyleSheet.create({
         gap: 4
     },
     positionTitle: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 14,
         fontWeight: '700'
-    },
-    pressed: {
-        opacity: 0.7
     }
 });

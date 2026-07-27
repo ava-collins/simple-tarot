@@ -1,36 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 
 import MobileView from '../templates/mobile-view';
-import theme from '../utils/theme';
+import ScreenState from '../molecules/screen-state';
 
 
 const SignOutScreen: React.FC = () => (
     <MobileView>
-        <View style={styles.wrapper}>
-            <Text style={styles.title}>Signing out</Text>
-            <Text style={styles.body}>Clearing this device session...</Text>
-        </View>
+        <ScreenState
+            kind="prompt"
+            message="Clearing this device session..."
+            title="Signing out"
+        />
     </MobileView>
 );
 
 export default SignOutScreen;
-
-const styles = StyleSheet.create({
-    wrapper: {
-        width: '100%',
-        paddingHorizontal: 40,
-        gap: 16,
-        alignItems: 'stretch'
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '600',
-        color: theme.colors.primary
-    },
-    body: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: theme.colors.grey5
-    }
-});

@@ -12,7 +12,8 @@ const meta = {
         docs: {
             page: mdx
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof AuthCallbackScreen>;
 
 export default meta;

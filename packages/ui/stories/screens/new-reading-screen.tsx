@@ -1,15 +1,10 @@
-import {
-    KeyboardAvoidingView,
-    Pressable,
-    StyleSheet,
-    Text,
-    View
-} from 'react-native';
+import { KeyboardAvoidingView } from 'react-native';
 
 import NewReadingForm, {
     type NewReadingFormProps
 } from '../organisms/new-reading-form';
 import MobileView from '../templates/mobile-view';
+import ScreenState from '../molecules/screen-state';
 
 export type NewReadingScreenProps = {
     error?: string | null;
@@ -37,9 +32,7 @@ export default function NewReadingScreen({
     if (isAuthLoading) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.mutedText}>Checking session...</Text>
-                </View>
+                <ScreenState kind="status" message="Checking session..." />
             </MobileView>
         );
     }
@@ -47,21 +40,12 @@ export default function NewReadingScreen({
     if (!isSignedIn) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.title}>New reading</Text>
-                    <Text style={styles.body}>
-                        Sign in to generate and save readings.
-                    </Text>
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onSignInPress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Sign in</Text>
-                    </Pressable>
-                </View>
+                <ScreenState
+                    action={{ label: 'Sign in', onPress: onSignInPress }}
+                    kind="prompt"
+                    message="Sign in to generate and save readings."
+                    title="New reading"
+                />
             </MobileView>
         );
     }
@@ -81,45 +65,3 @@ export default function NewReadingScreen({
         </MobileView>
     );
 }
-
-const styles = StyleSheet.create({
-    centered: {
-        flex: 1,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        gap: 16,
-        backgroundColor: '#F7F3EA',
-        paddingHorizontal: 32
-    },
-    title: {
-        color: '#1B1A18',
-        fontSize: 30,
-        fontWeight: '700',
-        letterSpacing: 0
-    },
-    body: {
-        color: '#39342C',
-        fontSize: 16,
-        lineHeight: 22
-    },
-    mutedText: {
-        color: '#6C665B',
-        fontSize: 15
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: '#1B1A18',
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: '#FFFDF8',
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    pressed: {
-        opacity: 0.7
-    }
-});

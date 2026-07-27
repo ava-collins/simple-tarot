@@ -6,6 +6,7 @@ import * as AuthCallbackScreenStories from './auth-callback-screen.stories';
 # Auth Callback Screen
 
 ## Overview
+- Composes the shared prompt `ScreenState`.
 - Shown while the app processes the OAuth callback from the Cognito Hosted UI.
 - Displays a loading message while the token exchange is in progress.
 - Shows a success message once the session is established, before navigation completes.
@@ -19,6 +20,8 @@ import * as AuthCallbackScreenStories from './auth-callback-screen.stories';
 - `isLoading: true`: Shows "Finishing sign in" with a guidance message.
 - `isLoading: false, error: undefined`: Shows "Welcome back".
 - `error` set: Shows "Sign in needs attention" with the error text.
+
+Title precedence and feedback copy remain owned by this screen.
 
 ## Interaction Tests
 

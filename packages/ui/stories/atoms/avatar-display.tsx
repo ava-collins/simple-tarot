@@ -1,4 +1,7 @@
 import Avatar from '@rneui/themed/dist/Avatar';
+import { StyleSheet } from 'react-native';
+
+import theme from '../utils/theme';
 
 export type AvatarDisplayProps = {
     imageUri: string | undefined;
@@ -18,9 +21,17 @@ export default function AvatarDisplay({
             size={size}
             rounded
             source={imageUri ? { uri: imageUri } : undefined}
-            containerStyle={{ margin: 10, borderColor: 'black', borderWidth: 1 }}
+            containerStyle={styles.container}
             onPress={onPress}
             onLongPress={onLongPress}
         />
     );
 }
+
+const styles = StyleSheet.create({
+    container: {
+        borderColor: theme.colors.black,
+        borderWidth: 1,
+        margin: 10
+    }
+});

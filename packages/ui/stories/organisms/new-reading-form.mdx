@@ -5,7 +5,12 @@ import * as NewReadingFormStories from './new-reading-form.stories';
 
 # NewReadingForm
 
-Presents the one-card reading form and latest result. It owns only local question input state.
+Presents the one-card reading form and latest result. It owns only local
+question input state.
+
+Compact secondary `Button` atoms provide Back and History navigation. The
+question uses the multiline `Input` atom, errors use `FeedbackText`, and
+generation uses a standard primary `Button`.
 
 <Canvas of={NewReadingFormStories.EmptyForm} />
 
@@ -20,6 +25,17 @@ Presents the one-card reading form and latest result. It owns only local questio
 ## Error
 
 <Canvas of={NewReadingFormStories.WithError} />
+
+## Interaction Test
+
+The `EmptyForm` story verifies that entering a question and pressing Generate
+reading passes the question to `onGeneratePress`.
+
+## Palette
+
+Neutral surfaces, text, borders, and actions use the shared black, white, and
+grey values from `theme.colors`. Status feedback retains its semantic theme
+color.
 
 ## Props
 

@@ -33,9 +33,14 @@ const meta = {
         layout: 'padded',
         viewport: { value: 'iphone14pro', isRotated: false },
         docs: {
-            page: mdx
+            page: mdx,
+            description: {
+                component:
+                    'Full-screen auth states compose the shared ScreenState molecule; signed-in form content remains local.'
+            }
         }
-    }
+    },
+    tags: ['autodocs']
 } satisfies Meta<typeof NewReadingScreen>;
 
 export default meta;

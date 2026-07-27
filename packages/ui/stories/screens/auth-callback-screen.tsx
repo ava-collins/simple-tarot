@@ -1,8 +1,7 @@
-import { StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 
 import MobileView from '../templates/mobile-view';
-import theme from '../utils/theme';
+import ScreenState from '../molecules/screen-state';
 
 export interface AuthCallbackScreenProps {
     isLoading?: boolean;
@@ -12,45 +11,27 @@ export interface AuthCallbackScreenProps {
 const AuthCallbackScreen: React.FC<AuthCallbackScreenProps> = ({
     isLoading = true,
     error
-}) => (
-    <MobileView>
-        <View style={styles.wrapper}>
-            <Text style={styles.title}>
-                {isLoading
-                    ? 'Finishing sign in'
-                    : error
-                      ? 'Sign in needs attention'
-                      : 'Welcome back'}
-            </Text>
-            <Text style={error ? styles.errorText : styles.body}>
-                {error ?? 'You can return to the app once the session is ready.'}
-            </Text>
-        </View>
-    </MobileView>
-);
+}) => {
+    const title = isLoading
+        ? 'Finishing sign in'
+        : error
+          ? 'Sign in needs attention'
+          : 'Welcome back';
+
+    return (
+        <MobileView>
+            <ScreenState
+                feedback={error}
+                kind="prompt"
+                message={
+                    error
+                        ? undefined
+                        : 'You can return to the app once the session is ready.'
+                }
+                title={title}
+            />
+        </MobileView>
+    );
+};
 
 export default AuthCallbackScreen;
-
-const styles = StyleSheet.create({
-    wrapper: {
-        width: '100%',
-        paddingHorizontal: 40,
-        gap: 16,
-        alignItems: 'stretch'
-    },
-    title: {
-        fontSize: 28,
-        fontWeight: '600',
-        color: theme.colors.primary
-    },
-    body: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: theme.colors.grey5
-    },
-    errorText: {
-        fontSize: 14,
-        lineHeight: 20,
-        color: theme.colors.error
-    }
-});

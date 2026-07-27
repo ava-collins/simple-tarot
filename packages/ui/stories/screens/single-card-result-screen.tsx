@@ -1,9 +1,11 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import Button from '../atoms/button';
 import Card from '../atoms/card';
 import MobileView from '../templates/mobile-view';
 import React from 'react';
 import { vmin } from 'react-native-expo-viewport-units';
+import theme from '../utils/theme';
 
 export type SingleCardResultScreenProps = {
     cardIndex: number;
@@ -48,25 +50,18 @@ export default function SingleCardResultScreen({
                 <Text style={styles.body}>{text}</Text>
                 {summary ? <Text style={styles.summaryText}>{summary}</Text> : null}
                 <View style={styles.buttonGroup}>
-                    <Pressable
-                        accessibilityRole="button"
+                    <Button
+                        label="Done"
                         onPress={onDonePress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Done</Text>
-                    </Pressable>
+                        size="compact"
+                    />
                     {onHistoryPress ? (
-                        <Pressable
-                            accessibilityRole="button"
+                        <Button
+                            label="History"
                             onPress={onHistoryPress}
-                            style={({ pressed }) => [
-                                styles.secondaryButton,
-                                pressed && styles.pressed
-                            ]}>
-                            <Text style={styles.secondaryButtonText}>History</Text>
-                        </Pressable>
+                            size="compact"
+                            variant="secondary"
+                        />
                     ) : null}
                 </View>
             </ScrollView>
@@ -78,7 +73,7 @@ const styles = StyleSheet.create({
     screen: {
         flexGrow: 1,
         alignItems: 'center',
-        backgroundColor: '#F7F3EA',
+        backgroundColor: theme.colors.grey0,
         gap: 16,
         paddingHorizontal: 24,
         paddingBottom: 48,
@@ -95,7 +90,7 @@ const styles = StyleSheet.create({
         transform: [{ rotate: '180deg' }]
     },
     eyebrow: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 0,
@@ -103,20 +98,20 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase'
     },
     title: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 26,
         fontWeight: '700',
         letterSpacing: 0,
         textAlign: 'center'
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 16,
         lineHeight: 22,
         textAlign: 'center'
     },
     summaryText: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 14,
         lineHeight: 20,
         textAlign: 'center'
@@ -125,35 +120,5 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         gap: 12,
         marginTop: 12
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: '#1B1A18',
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: '#FFFDF8',
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    secondaryButton: {
-        alignItems: 'center',
-        borderColor: '#B9A77F',
-        borderRadius: 6,
-        borderWidth: 1,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    secondaryButtonText: {
-        color: '#1B1A18',
-        fontSize: 14,
-        fontWeight: '700'
-    },
-    pressed: {
-        opacity: 0.7
     }
 });

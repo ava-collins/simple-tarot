@@ -9,6 +9,7 @@ const defaultImage =
 const meta = {
     title: 'Atoms/AvatarDisplay',
     component: AvatarDisplay,
+    tags: ['autodocs'],
     parameters: {
         docs: {
             page: mdx

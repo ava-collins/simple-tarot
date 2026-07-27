@@ -5,13 +5,20 @@ import * as ReadingListCardStories from './reading-list-card.stories';
 
 # ReadingListCard
 
-Displays one saved reading summary. Date formatting happens before data reaches this molecule.
+Displays one saved reading summary with monotone question text. Date
+formatting happens before data reaches this molecule.
 
 <Canvas of={ReadingListCardStories.Default} />
 
 ## Alternate State
 
 <Canvas of={ReadingListCardStories.WithoutQuestion} />
+
+## Palette
+
+Neutral surfaces, text, borders, and actions use the shared black, white, and
+grey values from `theme.colors`. Status feedback retains its semantic theme
+color.
 
 ## Props
 

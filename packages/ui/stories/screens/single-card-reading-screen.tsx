@@ -1,8 +1,7 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
-
 import MobileView from '../templates/mobile-view';
 import NewReading from '../organisms/new-reading';
 import React from 'react';
+import ScreenState from '../molecules/screen-state';
 
 export type SingleCardReadingScreenProps = {
     error?: string | null;
@@ -24,9 +23,7 @@ export default function SingleCardReadingScreen({
     if (isAuthLoading) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.mutedText}>Checking session...</Text>
-                </View>
+                <ScreenState kind="status" message="Checking session..." />
             </MobileView>
         );
     }
@@ -34,19 +31,12 @@ export default function SingleCardReadingScreen({
     if (!isSignedIn) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.title}>New reading</Text>
-                    <Text style={styles.body}>Sign in to draw a card.</Text>
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onSignInPress}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Sign in</Text>
-                    </Pressable>
-                </View>
+                <ScreenState
+                    action={{ label: 'Sign in', onPress: onSignInPress }}
+                    kind="prompt"
+                    message="Sign in to draw a card."
+                    title="New reading"
+                />
             </MobileView>
         );
     }
@@ -54,9 +44,7 @@ export default function SingleCardReadingScreen({
     if (isGenerating) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.mutedText}>Drawing your card...</Text>
-                </View>
+                <ScreenState kind="status" message="Drawing your card..." />
             </MobileView>
         );
     }
@@ -64,18 +52,12 @@ export default function SingleCardReadingScreen({
     if (error) {
         return (
             <MobileView>
-                <View style={styles.centered}>
-                    <Text style={styles.errorText}>{error}</Text>
-                    <Pressable
-                        accessibilityRole="button"
-                        onPress={onStart}
-                        style={({ pressed }) => [
-                            styles.primaryButton,
-                            pressed && styles.pressed
-                        ]}>
-                        <Text style={styles.primaryButtonText}>Try again</Text>
-                    </Pressable>
-                </View>
+                <ScreenState
+                    action={{ label: 'Try again', onPress: onStart }}
+                    kind="status"
+                    message={error}
+                    tone="error"
+                />
             </MobileView>
         );
     }
@@ -86,52 +68,3 @@ export default function SingleCardReadingScreen({
         </MobileView>
     );
 }
-
-const styles = StyleSheet.create({
-    centered: {
-        flex: 1,
-        alignItems: 'stretch',
-        justifyContent: 'center',
-        gap: 16,
-        backgroundColor: '#F7F3EA',
-        paddingHorizontal: 32
-    },
-    title: {
-        color: '#1B1A18',
-        fontSize: 30,
-        fontWeight: '700',
-        letterSpacing: 0
-    },
-    body: {
-        color: '#39342C',
-        fontSize: 16,
-        lineHeight: 22
-    },
-    mutedText: {
-        color: '#6C665B',
-        fontSize: 15,
-        textAlign: 'center'
-    },
-    errorText: {
-        color: '#8F2D2D',
-        fontSize: 16,
-        lineHeight: 22,
-        textAlign: 'center'
-    },
-    primaryButton: {
-        alignItems: 'center',
-        backgroundColor: '#1B1A18',
-        borderRadius: 6,
-        minHeight: 52,
-        justifyContent: 'center',
-        paddingHorizontal: 20
-    },
-    primaryButtonText: {
-        color: '#FFFDF8',
-        fontSize: 16,
-        fontWeight: '700'
-    },
-    pressed: {
-        opacity: 0.7
-    }
-});
