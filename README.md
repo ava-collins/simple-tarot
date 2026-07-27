@@ -120,6 +120,7 @@ messages.
 
 ### Planning
 
+-   [Screen State Composition Design](./docs/superpowers/specs/2026-07-27-screen-state-composition-design.md) — approved checkpoint-4 design for a discriminated `ScreenState` molecule, remaining screen-level atom migrations, and consistent full-screen states
 -   [Reading Tree Atom Migration Design](./docs/superpowers/specs/2026-07-27-reading-tree-atoms-design.md) — approved checkpoint-3 design for replacing reading/history/result custom controls and feedback with generic atoms while preserving tarot-specific composition
 -   [Reading Tree Atom Migration Implementation Plan](./docs/superpowers/plans/2026-07-27-reading-tree-atoms.md) — checkpoint plan for the reading-tree source guard, atom migration, Storybook updates, and verification
 -   [Generic UI Atoms Design](./docs/superpowers/specs/2026-07-27-generic-ui-atoms-design.md) — approved checkpoint-2 design for replacing form-specific UI primitives with controlled, theme-owned `Button`, `Input`, `FeedbackText`, and `InputField` components
