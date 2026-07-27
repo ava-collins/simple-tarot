@@ -118,7 +118,7 @@ The minimum behavior matrix is:
 | `QuickNav` | The speed dial opens, an action invokes its callback, and the dial can close. |
 | Account and Cognito | Representative primary actions invoke the callbacks supplied by their stories. |
 | New reading | The representative form or screen action invokes its submit/navigation callback. |
-| Reading history | Selecting a representative reading invokes its callback. |
+| Reading history | The empty-state Generate reading action invokes its callback; saved-reading cards remain display-only. |
 | Single-card result | Representative navigation or repeat-reading action invokes its callback. |
 
 Tests assert public behavior and accessible labels or roles. They do not assert

@@ -121,6 +121,7 @@ messages.
 ### Planning
 
 -   [UI Storybook Final Verification Design](./docs/superpowers/specs/2026-07-27-ui-storybook-final-verification-design.md) — approved checkpoint-5 design for complete remediated-component stories, focused interaction tests, source guards, and representative browser smoke verification
+-   [UI Storybook Final Verification Implementation Plan](./docs/superpowers/plans/2026-07-27-ui-storybook-final-verification.md) — checkpoint plan for remaining theme cleanup, explicit story coverage, focused interaction tests, browser smoke verification, and repository validation
 -   [Screen State Composition Design](./docs/superpowers/specs/2026-07-27-screen-state-composition-design.md) — approved checkpoint-4 design for a discriminated `ScreenState` molecule, remaining screen-level atom migrations, and consistent full-screen states
 -   [Screen State Composition Implementation Plan](./docs/superpowers/plans/2026-07-27-screen-state-composition.md) — checkpoint plan for the ScreenState guard, molecule, eight-screen migration, Storybook coverage, and verification
 -   [Reading Tree Atom Migration Design](./docs/superpowers/specs/2026-07-27-reading-tree-atoms-design.md) — approved checkpoint-3 design for replacing reading/history/result custom controls and feedback with generic atoms while preserving tarot-specific composition
