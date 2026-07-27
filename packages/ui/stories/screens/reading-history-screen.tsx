@@ -64,7 +64,7 @@ export default function ReadingHistoryScreen({
                         <Text style={styles.eyebrow}>Saved readings</Text>
                         <Text style={styles.title}>Reading history</Text>
                     </View>
-                 
+
                 </View>
 
                 {error ? <Text style={styles.errorText}>{error}</Text> : null}
