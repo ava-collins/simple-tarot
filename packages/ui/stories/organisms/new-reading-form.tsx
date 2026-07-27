@@ -7,6 +7,7 @@ import {
     TextInput,
     View
 } from 'react-native';
+import theme from '../utils/theme';
 
 export type NewReadingFormProps = {
     error?: string | null;
@@ -75,7 +76,7 @@ export default function NewReadingForm({
                     multiline
                     onChangeText={setQuestion}
                     placeholder="What should I notice today?"
-                    placeholderTextColor="#8A8172"
+                    placeholderTextColor={theme.colors.grey4}
                     style={styles.input}
                     value={question}
                 />
@@ -118,7 +119,7 @@ export default function NewReadingForm({
 const styles = StyleSheet.create({
     screen: {
         flexGrow: 1,
-        backgroundColor: '#F7F3EA',
+        backgroundColor: theme.colors.grey0,
         gap: 16,
         paddingHorizontal: 24,
         paddingBottom: 48,
@@ -130,25 +131,25 @@ const styles = StyleSheet.create({
         gap: 12
     },
     eyebrow: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 0,
         textTransform: 'uppercase'
     },
     title: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 30,
         fontWeight: '700',
         letterSpacing: 0
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 16,
         lineHeight: 22
     },
     label: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 14,
         fontWeight: '700'
     },
@@ -157,37 +158,37 @@ const styles = StyleSheet.create({
         marginTop: 12
     },
     input: {
-        backgroundColor: '#FFFDF8',
-        borderColor: '#D9CBAE',
+        backgroundColor: theme.colors.white,
+        borderColor: theme.colors.greyOutline,
         borderRadius: 8,
         borderWidth: 1,
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 16,
         minHeight: 112,
         padding: 14,
         textAlignVertical: 'top'
     },
     errorText: {
-        color: '#8F2D2D',
+        color: theme.colors.error,
         fontSize: 14,
         lineHeight: 20
     },
     primaryButton: {
         alignItems: 'center',
-        backgroundColor: '#1B1A18',
+        backgroundColor: theme.colors.black,
         borderRadius: 6,
         minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: 20
     },
     primaryButtonText: {
-        color: '#FFFDF8',
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: '700'
     },
     secondaryButton: {
         alignItems: 'center',
-        borderColor: '#B9A77F',
+        borderColor: theme.colors.greyOutline,
         borderRadius: 6,
         borderWidth: 1,
         minHeight: 44,
@@ -195,7 +196,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16
     },
     secondaryButtonText: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 14,
         fontWeight: '700'
     },
@@ -203,8 +204,8 @@ const styles = StyleSheet.create({
         opacity: 0.55
     },
     resultCard: {
-        backgroundColor: '#FFFDF8',
-        borderColor: '#D9CBAE',
+        backgroundColor: theme.colors.white,
+        borderColor: theme.colors.greyOutline,
         borderRadius: 8,
         borderWidth: 1,
         gap: 12,
@@ -212,12 +213,12 @@ const styles = StyleSheet.create({
         padding: 16
     },
     resultTitle: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 18,
         fontWeight: '700'
     },
     summaryText: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 14,
         lineHeight: 20
     },
@@ -225,7 +226,7 @@ const styles = StyleSheet.create({
         gap: 4
     },
     positionTitle: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 14,
         fontWeight: '700'
     },

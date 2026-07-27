@@ -26,7 +26,11 @@ const meta = {
     component: NewReadingForm,
     parameters: {
         docs: {
-            page: mdx
+            page: mdx,
+            description: {
+                component:
+                    'Neutral presentation uses the shared black, white, and grey theme tokens; status feedback uses its semantic theme color.'
+            }
         }
     }
 } satisfies Meta<typeof NewReadingForm>;

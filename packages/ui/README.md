@@ -55,6 +55,13 @@ They compose typed props, hooks from `@simpletarot/hooks/client`, server-safe
 types/constants from `@simpletarot/hooks/server`, and card components from
 `@simpletarot/cards` with the atoms/molecules/organisms in this package.
 
+### Design-system colors
+
+Components consume colors through `stories/utils/theme.tsx`. Neutral
+presentation uses the theme's black, white, and grey tokens; errors, success,
+and warnings use their semantic theme tokens. Component-level color literals
+are not part of the UI contract.
+
 ## Storybook
 
 ```sh

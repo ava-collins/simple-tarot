@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import MobileView from '../templates/mobile-view';
 import NewReading from '../organisms/new-reading';
 import React from 'react';
+import theme from '../utils/theme';
 
 export type SingleCardReadingScreenProps = {
     error?: string | null;
@@ -93,41 +94,41 @@ const styles = StyleSheet.create({
         alignItems: 'stretch',
         justifyContent: 'center',
         gap: 16,
-        backgroundColor: '#F7F3EA',
+        backgroundColor: theme.colors.grey0,
         paddingHorizontal: 32
     },
     title: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 30,
         fontWeight: '700',
         letterSpacing: 0
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 16,
         lineHeight: 22
     },
     mutedText: {
-        color: '#6C665B',
+        color: theme.colors.grey4,
         fontSize: 15,
         textAlign: 'center'
     },
     errorText: {
-        color: '#8F2D2D',
+        color: theme.colors.error,
         fontSize: 16,
         lineHeight: 22,
         textAlign: 'center'
     },
     primaryButton: {
         alignItems: 'center',
-        backgroundColor: '#1B1A18',
+        backgroundColor: theme.colors.black,
         borderRadius: 6,
         minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: 20
     },
     primaryButtonText: {
-        color: '#FFFDF8',
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: '700'
     },

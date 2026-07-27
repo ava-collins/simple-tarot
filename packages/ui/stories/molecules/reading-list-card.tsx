@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
         lineHeight: 16
     },
     summaryText: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 14,
         lineHeight: 20
     }

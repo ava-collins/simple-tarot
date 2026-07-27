@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
         transform: [{ rotate: '180deg' }]
     },
     eyebrow: {
-        color: '#765B2B',
+        color: theme.colors.grey5,
         fontSize: 12,
         fontWeight: '700',
         letterSpacing: 0,
@@ -104,20 +104,20 @@ const styles = StyleSheet.create({
         textTransform: 'uppercase'
     },
     title: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 26,
         fontWeight: '700',
         letterSpacing: 0,
         textAlign: 'center'
     },
     body: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 16,
         lineHeight: 22,
         textAlign: 'center'
     },
     summaryText: {
-        color: '#39342C',
+        color: theme.colors.grey5,
         fontSize: 14,
         lineHeight: 20,
         textAlign: 'center'
@@ -129,14 +129,14 @@ const styles = StyleSheet.create({
     },
     primaryButton: {
         alignItems: 'center',
-        backgroundColor: '#1B1A18',
+        backgroundColor: theme.colors.black,
         borderRadius: 6,
         minHeight: 52,
         justifyContent: 'center',
         paddingHorizontal: 20
     },
     primaryButtonText: {
-        color: '#FFFDF8',
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: '700'
     },
@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20
     },
     secondaryButtonText: {
-        color: '#1B1A18',
+        color: theme.colors.primary,
         fontSize: 14,
         fontWeight: '700'
     },
