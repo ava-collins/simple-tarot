@@ -1,3 +1,16 @@
+# [@simpletarot/ui-v2.5.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.4.0...@simpletarot/ui-v2.5.0) (2026-07-27)
+
+
+### Bug Fixes
+
+* lint ([4ac371f](https://github.com/ava-collins/simple-tarot/commit/4ac371f2bcb952f95aef2bbbfb8258373c9669b8))
+* styling on fab ([2b7b5d1](https://github.com/ava-collins/simple-tarot/commit/2b7b5d1db7bfe2bf0ac4c79998677558224b08ed))
+
+
+### Features
+
+* use theme colors on new components ([d47bd7a](https://github.com/ava-collins/simple-tarot/commit/d47bd7a617c2dad91aaef60d30b63dafc68fdb4e))
+
 # [@simpletarot/ui-v2.4.0](https://github.com/ava-collins/simple-tarot/compare/@simpletarot/ui-v2.3.1...@simpletarot/ui-v2.4.0) (2026-07-24)
 
 
